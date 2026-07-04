@@ -1,0 +1,9306 @@
+{
+ "verbs": {
+  "parler": {
+   "present": [
+    "parle",
+    "parles",
+    "parle",
+    "parle",
+    "parlons",
+    "parlez",
+    "parlent",
+    "parlent"
+   ],
+   "imparfait": [
+    "parlais",
+    "parlais",
+    "parlait",
+    "parlait",
+    "parlions",
+    "parliez",
+    "parlaient",
+    "parlaient"
+   ],
+   "futur": [
+    "parlerai",
+    "parleras",
+    "parlera",
+    "parlera",
+    "parlerons",
+    "parlerez",
+    "parleront",
+    "parleront"
+   ],
+   "passeCompose": [
+    "ai parlé",
+    "as parlé",
+    "a parlé",
+    "a parlé",
+    "avons parlé",
+    "avez parlé",
+    "ont parlé",
+    "ont parlé"
+   ],
+   "plusQueParfait": [
+    "avais parlé",
+    "avais parlé",
+    "avait parlé",
+    "avait parlé",
+    "avions parlé",
+    "aviez parlé",
+    "avaient parlé",
+    "avaient parlé"
+   ],
+   "futurAnterieur": [
+    "aurai parlé",
+    "auras parlé",
+    "aura parlé",
+    "aura parlé",
+    "aurons parlé",
+    "aurez parlé",
+    "auront parlé",
+    "auront parlé"
+   ],
+   "conditionnel": [
+    "parlerais",
+    "parlerais",
+    "parlerait",
+    "parlerait",
+    "parlerions",
+    "parleriez",
+    "parleraient",
+    "parleraient"
+   ],
+   "conditionnelPasse": [
+    "aurais parlé",
+    "aurais parlé",
+    "aurait parlé",
+    "aurait parlé",
+    "aurions parlé",
+    "auriez parlé",
+    "auraient parlé",
+    "auraient parlé"
+   ],
+   "subjonctif": [
+    "parle",
+    "parles",
+    "parle",
+    "parle",
+    "parlions",
+    "parliez",
+    "parlent",
+    "parlent"
+   ]
+  },
+  "aimer": {
+   "present": [
+    "aime",
+    "aimes",
+    "aime",
+    "aime",
+    "aimons",
+    "aimez",
+    "aiment",
+    "aiment"
+   ],
+   "imparfait": [
+    "aimais",
+    "aimais",
+    "aimait",
+    "aimait",
+    "aimions",
+    "aimiez",
+    "aimaient",
+    "aimaient"
+   ],
+   "futur": [
+    "aimerai",
+    "aimeras",
+    "aimera",
+    "aimera",
+    "aimerons",
+    "aimerez",
+    "aimeront",
+    "aimeront"
+   ],
+   "passeCompose": [
+    "ai aimé",
+    "as aimé",
+    "a aimé",
+    "a aimé",
+    "avons aimé",
+    "avez aimé",
+    "ont aimé",
+    "ont aimé"
+   ],
+   "plusQueParfait": [
+    "avais aimé",
+    "avais aimé",
+    "avait aimé",
+    "avait aimé",
+    "avions aimé",
+    "aviez aimé",
+    "avaient aimé",
+    "avaient aimé"
+   ],
+   "futurAnterieur": [
+    "aurai aimé",
+    "auras aimé",
+    "aura aimé",
+    "aura aimé",
+    "aurons aimé",
+    "aurez aimé",
+    "auront aimé",
+    "auront aimé"
+   ],
+   "conditionnel": [
+    "aimerais",
+    "aimerais",
+    "aimerait",
+    "aimerait",
+    "aimerions",
+    "aimeriez",
+    "aimeraient",
+    "aimeraient"
+   ],
+   "conditionnelPasse": [
+    "aurais aimé",
+    "aurais aimé",
+    "aurait aimé",
+    "aurait aimé",
+    "aurions aimé",
+    "auriez aimé",
+    "auraient aimé",
+    "auraient aimé"
+   ],
+   "subjonctif": [
+    "aime",
+    "aimes",
+    "aime",
+    "aime",
+    "aimions",
+    "aimiez",
+    "aiment",
+    "aiment"
+   ]
+  },
+  "donner": {
+   "present": [
+    "donne",
+    "donnes",
+    "donne",
+    "donne",
+    "donnons",
+    "donnez",
+    "donnent",
+    "donnent"
+   ],
+   "imparfait": [
+    "donnais",
+    "donnais",
+    "donnait",
+    "donnait",
+    "donnions",
+    "donniez",
+    "donnaient",
+    "donnaient"
+   ],
+   "futur": [
+    "donnerai",
+    "donneras",
+    "donnera",
+    "donnera",
+    "donnerons",
+    "donnerez",
+    "donneront",
+    "donneront"
+   ],
+   "passeCompose": [
+    "ai donné",
+    "as donné",
+    "a donné",
+    "a donné",
+    "avons donné",
+    "avez donné",
+    "ont donné",
+    "ont donné"
+   ],
+   "plusQueParfait": [
+    "avais donné",
+    "avais donné",
+    "avait donné",
+    "avait donné",
+    "avions donné",
+    "aviez donné",
+    "avaient donné",
+    "avaient donné"
+   ],
+   "futurAnterieur": [
+    "aurai donné",
+    "auras donné",
+    "aura donné",
+    "aura donné",
+    "aurons donné",
+    "aurez donné",
+    "auront donné",
+    "auront donné"
+   ],
+   "conditionnel": [
+    "donnerais",
+    "donnerais",
+    "donnerait",
+    "donnerait",
+    "donnerions",
+    "donneriez",
+    "donneraient",
+    "donneraient"
+   ],
+   "conditionnelPasse": [
+    "aurais donné",
+    "aurais donné",
+    "aurait donné",
+    "aurait donné",
+    "aurions donné",
+    "auriez donné",
+    "auraient donné",
+    "auraient donné"
+   ],
+   "subjonctif": [
+    "donne",
+    "donnes",
+    "donne",
+    "donne",
+    "donnions",
+    "donniez",
+    "donnent",
+    "donnent"
+   ]
+  },
+  "trouver": {
+   "present": [
+    "trouve",
+    "trouves",
+    "trouve",
+    "trouve",
+    "trouvons",
+    "trouvez",
+    "trouvent",
+    "trouvent"
+   ],
+   "imparfait": [
+    "trouvais",
+    "trouvais",
+    "trouvait",
+    "trouvait",
+    "trouvions",
+    "trouviez",
+    "trouvaient",
+    "trouvaient"
+   ],
+   "futur": [
+    "trouverai",
+    "trouveras",
+    "trouvera",
+    "trouvera",
+    "trouverons",
+    "trouverez",
+    "trouveront",
+    "trouveront"
+   ],
+   "passeCompose": [
+    "ai trouvé",
+    "as trouvé",
+    "a trouvé",
+    "a trouvé",
+    "avons trouvé",
+    "avez trouvé",
+    "ont trouvé",
+    "ont trouvé"
+   ],
+   "plusQueParfait": [
+    "avais trouvé",
+    "avais trouvé",
+    "avait trouvé",
+    "avait trouvé",
+    "avions trouvé",
+    "aviez trouvé",
+    "avaient trouvé",
+    "avaient trouvé"
+   ],
+   "futurAnterieur": [
+    "aurai trouvé",
+    "auras trouvé",
+    "aura trouvé",
+    "aura trouvé",
+    "aurons trouvé",
+    "aurez trouvé",
+    "auront trouvé",
+    "auront trouvé"
+   ],
+   "conditionnel": [
+    "trouverais",
+    "trouverais",
+    "trouverait",
+    "trouverait",
+    "trouverions",
+    "trouveriez",
+    "trouveraient",
+    "trouveraient"
+   ],
+   "conditionnelPasse": [
+    "aurais trouvé",
+    "aurais trouvé",
+    "aurait trouvé",
+    "aurait trouvé",
+    "aurions trouvé",
+    "auriez trouvé",
+    "auraient trouvé",
+    "auraient trouvé"
+   ],
+   "subjonctif": [
+    "trouve",
+    "trouves",
+    "trouve",
+    "trouve",
+    "trouvions",
+    "trouviez",
+    "trouvent",
+    "trouvent"
+   ]
+  },
+  "passer": {
+   "present": [
+    "passe",
+    "passes",
+    "passe",
+    "passe",
+    "passons",
+    "passez",
+    "passent",
+    "passent"
+   ],
+   "imparfait": [
+    "passais",
+    "passais",
+    "passait",
+    "passait",
+    "passions",
+    "passiez",
+    "passaient",
+    "passaient"
+   ],
+   "futur": [
+    "passerai",
+    "passeras",
+    "passera",
+    "passera",
+    "passerons",
+    "passerez",
+    "passeront",
+    "passeront"
+   ],
+   "passeCompose": [
+    "suis passé|suis passée",
+    "es passé|es passée",
+    "est passé",
+    "est passée",
+    "sommes passés|sommes passées",
+    "êtes passés|êtes passées|êtes passé|êtes passée",
+    "sont passés",
+    "sont passées"
+   ],
+   "plusQueParfait": [
+    "étais passé|étais passée",
+    "étais passé|étais passée",
+    "était passé",
+    "était passée",
+    "étions passés|étions passées",
+    "étiez passés|étiez passées|étiez passé|étiez passée",
+    "étaient passés",
+    "étaient passées"
+   ],
+   "futurAnterieur": [
+    "serai passé|serai passée",
+    "seras passé|seras passée",
+    "sera passé",
+    "sera passée",
+    "serons passés|serons passées",
+    "serez passés|serez passées|serez passé|serez passée",
+    "seront passés",
+    "seront passées"
+   ],
+   "conditionnel": [
+    "passerais",
+    "passerais",
+    "passerait",
+    "passerait",
+    "passerions",
+    "passeriez",
+    "passeraient",
+    "passeraient"
+   ],
+   "conditionnelPasse": [
+    "serais passé|serais passée",
+    "serais passé|serais passée",
+    "serait passé",
+    "serait passée",
+    "serions passés|serions passées",
+    "seriez passés|seriez passées|seriez passé|seriez passée",
+    "seraient passés",
+    "seraient passées"
+   ],
+   "subjonctif": [
+    "passe",
+    "passes",
+    "passe",
+    "passe",
+    "passions",
+    "passiez",
+    "passent",
+    "passent"
+   ]
+  },
+  "regarder": {
+   "present": [
+    "regarde",
+    "regardes",
+    "regarde",
+    "regarde",
+    "regardons",
+    "regardez",
+    "regardent",
+    "regardent"
+   ],
+   "imparfait": [
+    "regardais",
+    "regardais",
+    "regardait",
+    "regardait",
+    "regardions",
+    "regardiez",
+    "regardaient",
+    "regardaient"
+   ],
+   "futur": [
+    "regarderai",
+    "regarderas",
+    "regardera",
+    "regardera",
+    "regarderons",
+    "regarderez",
+    "regarderont",
+    "regarderont"
+   ],
+   "passeCompose": [
+    "ai regardé",
+    "as regardé",
+    "a regardé",
+    "a regardé",
+    "avons regardé",
+    "avez regardé",
+    "ont regardé",
+    "ont regardé"
+   ],
+   "plusQueParfait": [
+    "avais regardé",
+    "avais regardé",
+    "avait regardé",
+    "avait regardé",
+    "avions regardé",
+    "aviez regardé",
+    "avaient regardé",
+    "avaient regardé"
+   ],
+   "futurAnterieur": [
+    "aurai regardé",
+    "auras regardé",
+    "aura regardé",
+    "aura regardé",
+    "aurons regardé",
+    "aurez regardé",
+    "auront regardé",
+    "auront regardé"
+   ],
+   "conditionnel": [
+    "regarderais",
+    "regarderais",
+    "regarderait",
+    "regarderait",
+    "regarderions",
+    "regarderiez",
+    "regarderaient",
+    "regarderaient"
+   ],
+   "conditionnelPasse": [
+    "aurais regardé",
+    "aurais regardé",
+    "aurait regardé",
+    "aurait regardé",
+    "aurions regardé",
+    "auriez regardé",
+    "auraient regardé",
+    "auraient regardé"
+   ],
+   "subjonctif": [
+    "regarde",
+    "regardes",
+    "regarde",
+    "regarde",
+    "regardions",
+    "regardiez",
+    "regardent",
+    "regardent"
+   ]
+  },
+  "demander": {
+   "present": [
+    "demande",
+    "demandes",
+    "demande",
+    "demande",
+    "demandons",
+    "demandez",
+    "demandent",
+    "demandent"
+   ],
+   "imparfait": [
+    "demandais",
+    "demandais",
+    "demandait",
+    "demandait",
+    "demandions",
+    "demandiez",
+    "demandaient",
+    "demandaient"
+   ],
+   "futur": [
+    "demanderai",
+    "demanderas",
+    "demandera",
+    "demandera",
+    "demanderons",
+    "demanderez",
+    "demanderont",
+    "demanderont"
+   ],
+   "passeCompose": [
+    "ai demandé",
+    "as demandé",
+    "a demandé",
+    "a demandé",
+    "avons demandé",
+    "avez demandé",
+    "ont demandé",
+    "ont demandé"
+   ],
+   "plusQueParfait": [
+    "avais demandé",
+    "avais demandé",
+    "avait demandé",
+    "avait demandé",
+    "avions demandé",
+    "aviez demandé",
+    "avaient demandé",
+    "avaient demandé"
+   ],
+   "futurAnterieur": [
+    "aurai demandé",
+    "auras demandé",
+    "aura demandé",
+    "aura demandé",
+    "aurons demandé",
+    "aurez demandé",
+    "auront demandé",
+    "auront demandé"
+   ],
+   "conditionnel": [
+    "demanderais",
+    "demanderais",
+    "demanderait",
+    "demanderait",
+    "demanderions",
+    "demanderiez",
+    "demanderaient",
+    "demanderaient"
+   ],
+   "conditionnelPasse": [
+    "aurais demandé",
+    "aurais demandé",
+    "aurait demandé",
+    "aurait demandé",
+    "aurions demandé",
+    "auriez demandé",
+    "auraient demandé",
+    "auraient demandé"
+   ],
+   "subjonctif": [
+    "demande",
+    "demandes",
+    "demande",
+    "demande",
+    "demandions",
+    "demandiez",
+    "demandent",
+    "demandent"
+   ]
+  },
+  "penser": {
+   "present": [
+    "pense",
+    "penses",
+    "pense",
+    "pense",
+    "pensons",
+    "pensez",
+    "pensent",
+    "pensent"
+   ],
+   "imparfait": [
+    "pensais",
+    "pensais",
+    "pensait",
+    "pensait",
+    "pensions",
+    "pensiez",
+    "pensaient",
+    "pensaient"
+   ],
+   "futur": [
+    "penserai",
+    "penseras",
+    "pensera",
+    "pensera",
+    "penserons",
+    "penserez",
+    "penseront",
+    "penseront"
+   ],
+   "passeCompose": [
+    "ai pensé",
+    "as pensé",
+    "a pensé",
+    "a pensé",
+    "avons pensé",
+    "avez pensé",
+    "ont pensé",
+    "ont pensé"
+   ],
+   "plusQueParfait": [
+    "avais pensé",
+    "avais pensé",
+    "avait pensé",
+    "avait pensé",
+    "avions pensé",
+    "aviez pensé",
+    "avaient pensé",
+    "avaient pensé"
+   ],
+   "futurAnterieur": [
+    "aurai pensé",
+    "auras pensé",
+    "aura pensé",
+    "aura pensé",
+    "aurons pensé",
+    "aurez pensé",
+    "auront pensé",
+    "auront pensé"
+   ],
+   "conditionnel": [
+    "penserais",
+    "penserais",
+    "penserait",
+    "penserait",
+    "penserions",
+    "penseriez",
+    "penseraient",
+    "penseraient"
+   ],
+   "conditionnelPasse": [
+    "aurais pensé",
+    "aurais pensé",
+    "aurait pensé",
+    "aurait pensé",
+    "aurions pensé",
+    "auriez pensé",
+    "auraient pensé",
+    "auraient pensé"
+   ],
+   "subjonctif": [
+    "pense",
+    "penses",
+    "pense",
+    "pense",
+    "pensions",
+    "pensiez",
+    "pensent",
+    "pensent"
+   ]
+  },
+  "chercher": {
+   "present": [
+    "cherche",
+    "cherches",
+    "cherche",
+    "cherche",
+    "cherchons",
+    "cherchez",
+    "cherchent",
+    "cherchent"
+   ],
+   "imparfait": [
+    "cherchais",
+    "cherchais",
+    "cherchait",
+    "cherchait",
+    "cherchions",
+    "cherchiez",
+    "cherchaient",
+    "cherchaient"
+   ],
+   "futur": [
+    "chercherai",
+    "chercheras",
+    "cherchera",
+    "cherchera",
+    "chercherons",
+    "chercherez",
+    "chercheront",
+    "chercheront"
+   ],
+   "passeCompose": [
+    "ai cherché",
+    "as cherché",
+    "a cherché",
+    "a cherché",
+    "avons cherché",
+    "avez cherché",
+    "ont cherché",
+    "ont cherché"
+   ],
+   "plusQueParfait": [
+    "avais cherché",
+    "avais cherché",
+    "avait cherché",
+    "avait cherché",
+    "avions cherché",
+    "aviez cherché",
+    "avaient cherché",
+    "avaient cherché"
+   ],
+   "futurAnterieur": [
+    "aurai cherché",
+    "auras cherché",
+    "aura cherché",
+    "aura cherché",
+    "aurons cherché",
+    "aurez cherché",
+    "auront cherché",
+    "auront cherché"
+   ],
+   "conditionnel": [
+    "chercherais",
+    "chercherais",
+    "chercherait",
+    "chercherait",
+    "chercherions",
+    "chercheriez",
+    "chercheraient",
+    "chercheraient"
+   ],
+   "conditionnelPasse": [
+    "aurais cherché",
+    "aurais cherché",
+    "aurait cherché",
+    "aurait cherché",
+    "aurions cherché",
+    "auriez cherché",
+    "auraient cherché",
+    "auraient cherché"
+   ],
+   "subjonctif": [
+    "cherche",
+    "cherches",
+    "cherche",
+    "cherche",
+    "cherchions",
+    "cherchiez",
+    "cherchent",
+    "cherchent"
+   ]
+  },
+  "jouer": {
+   "present": [
+    "joue",
+    "joues",
+    "joue",
+    "joue",
+    "jouons",
+    "jouez",
+    "jouent",
+    "jouent"
+   ],
+   "imparfait": [
+    "jouais",
+    "jouais",
+    "jouait",
+    "jouait",
+    "jouions",
+    "jouiez",
+    "jouaient",
+    "jouaient"
+   ],
+   "futur": [
+    "jouerai",
+    "joueras",
+    "jouera",
+    "jouera",
+    "jouerons",
+    "jouerez",
+    "joueront",
+    "joueront"
+   ],
+   "passeCompose": [
+    "ai joué",
+    "as joué",
+    "a joué",
+    "a joué",
+    "avons joué",
+    "avez joué",
+    "ont joué",
+    "ont joué"
+   ],
+   "plusQueParfait": [
+    "avais joué",
+    "avais joué",
+    "avait joué",
+    "avait joué",
+    "avions joué",
+    "aviez joué",
+    "avaient joué",
+    "avaient joué"
+   ],
+   "futurAnterieur": [
+    "aurai joué",
+    "auras joué",
+    "aura joué",
+    "aura joué",
+    "aurons joué",
+    "aurez joué",
+    "auront joué",
+    "auront joué"
+   ],
+   "conditionnel": [
+    "jouerais",
+    "jouerais",
+    "jouerait",
+    "jouerait",
+    "jouerions",
+    "joueriez",
+    "joueraient",
+    "joueraient"
+   ],
+   "conditionnelPasse": [
+    "aurais joué",
+    "aurais joué",
+    "aurait joué",
+    "aurait joué",
+    "aurions joué",
+    "auriez joué",
+    "auraient joué",
+    "auraient joué"
+   ],
+   "subjonctif": [
+    "joue",
+    "joues",
+    "joue",
+    "joue",
+    "jouions",
+    "jouiez",
+    "jouent",
+    "jouent"
+   ]
+  },
+  "travailler": {
+   "present": [
+    "travaille",
+    "travailles",
+    "travaille",
+    "travaille",
+    "travaillons",
+    "travaillez",
+    "travaillent",
+    "travaillent"
+   ],
+   "imparfait": [
+    "travaillais",
+    "travaillais",
+    "travaillait",
+    "travaillait",
+    "travaillions",
+    "travailliez",
+    "travaillaient",
+    "travaillaient"
+   ],
+   "futur": [
+    "travaillerai",
+    "travailleras",
+    "travaillera",
+    "travaillera",
+    "travaillerons",
+    "travaillerez",
+    "travailleront",
+    "travailleront"
+   ],
+   "passeCompose": [
+    "ai travaillé",
+    "as travaillé",
+    "a travaillé",
+    "a travaillé",
+    "avons travaillé",
+    "avez travaillé",
+    "ont travaillé",
+    "ont travaillé"
+   ],
+   "plusQueParfait": [
+    "avais travaillé",
+    "avais travaillé",
+    "avait travaillé",
+    "avait travaillé",
+    "avions travaillé",
+    "aviez travaillé",
+    "avaient travaillé",
+    "avaient travaillé"
+   ],
+   "futurAnterieur": [
+    "aurai travaillé",
+    "auras travaillé",
+    "aura travaillé",
+    "aura travaillé",
+    "aurons travaillé",
+    "aurez travaillé",
+    "auront travaillé",
+    "auront travaillé"
+   ],
+   "conditionnel": [
+    "travaillerais",
+    "travaillerais",
+    "travaillerait",
+    "travaillerait",
+    "travaillerions",
+    "travailleriez",
+    "travailleraient",
+    "travailleraient"
+   ],
+   "conditionnelPasse": [
+    "aurais travaillé",
+    "aurais travaillé",
+    "aurait travaillé",
+    "aurait travaillé",
+    "aurions travaillé",
+    "auriez travaillé",
+    "auraient travaillé",
+    "auraient travaillé"
+   ],
+   "subjonctif": [
+    "travaille",
+    "travailles",
+    "travaille",
+    "travaille",
+    "travaillions",
+    "travailliez",
+    "travaillent",
+    "travaillent"
+   ]
+  },
+  "arriver": {
+   "present": [
+    "arrive",
+    "arrives",
+    "arrive",
+    "arrive",
+    "arrivons",
+    "arrivez",
+    "arrivent",
+    "arrivent"
+   ],
+   "imparfait": [
+    "arrivais",
+    "arrivais",
+    "arrivait",
+    "arrivait",
+    "arrivions",
+    "arriviez",
+    "arrivaient",
+    "arrivaient"
+   ],
+   "futur": [
+    "arriverai",
+    "arriveras",
+    "arrivera",
+    "arrivera",
+    "arriverons",
+    "arriverez",
+    "arriveront",
+    "arriveront"
+   ],
+   "passeCompose": [
+    "suis arrivé|suis arrivée",
+    "es arrivé|es arrivée",
+    "est arrivé",
+    "est arrivée",
+    "sommes arrivés|sommes arrivées",
+    "êtes arrivés|êtes arrivées|êtes arrivé|êtes arrivée",
+    "sont arrivés",
+    "sont arrivées"
+   ],
+   "plusQueParfait": [
+    "étais arrivé|étais arrivée",
+    "étais arrivé|étais arrivée",
+    "était arrivé",
+    "était arrivée",
+    "étions arrivés|étions arrivées",
+    "étiez arrivés|étiez arrivées|étiez arrivé|étiez arrivée",
+    "étaient arrivés",
+    "étaient arrivées"
+   ],
+   "futurAnterieur": [
+    "serai arrivé|serai arrivée",
+    "seras arrivé|seras arrivée",
+    "sera arrivé",
+    "sera arrivée",
+    "serons arrivés|serons arrivées",
+    "serez arrivés|serez arrivées|serez arrivé|serez arrivée",
+    "seront arrivés",
+    "seront arrivées"
+   ],
+   "conditionnel": [
+    "arriverais",
+    "arriverais",
+    "arriverait",
+    "arriverait",
+    "arriverions",
+    "arriveriez",
+    "arriveraient",
+    "arriveraient"
+   ],
+   "conditionnelPasse": [
+    "serais arrivé|serais arrivée",
+    "serais arrivé|serais arrivée",
+    "serait arrivé",
+    "serait arrivée",
+    "serions arrivés|serions arrivées",
+    "seriez arrivés|seriez arrivées|seriez arrivé|seriez arrivée",
+    "seraient arrivés",
+    "seraient arrivées"
+   ],
+   "subjonctif": [
+    "arrive",
+    "arrives",
+    "arrive",
+    "arrive",
+    "arrivions",
+    "arriviez",
+    "arrivent",
+    "arrivent"
+   ]
+  },
+  "rester": {
+   "present": [
+    "reste",
+    "restes",
+    "reste",
+    "reste",
+    "restons",
+    "restez",
+    "restent",
+    "restent"
+   ],
+   "imparfait": [
+    "restais",
+    "restais",
+    "restait",
+    "restait",
+    "restions",
+    "restiez",
+    "restaient",
+    "restaient"
+   ],
+   "futur": [
+    "resterai",
+    "resteras",
+    "restera",
+    "restera",
+    "resterons",
+    "resterez",
+    "resteront",
+    "resteront"
+   ],
+   "passeCompose": [
+    "suis resté|suis restée",
+    "es resté|es restée",
+    "est resté",
+    "est restée",
+    "sommes restés|sommes restées",
+    "êtes restés|êtes restées|êtes resté|êtes restée",
+    "sont restés",
+    "sont restées"
+   ],
+   "plusQueParfait": [
+    "étais resté|étais restée",
+    "étais resté|étais restée",
+    "était resté",
+    "était restée",
+    "étions restés|étions restées",
+    "étiez restés|étiez restées|étiez resté|étiez restée",
+    "étaient restés",
+    "étaient restées"
+   ],
+   "futurAnterieur": [
+    "serai resté|serai restée",
+    "seras resté|seras restée",
+    "sera resté",
+    "sera restée",
+    "serons restés|serons restées",
+    "serez restés|serez restées|serez resté|serez restée",
+    "seront restés",
+    "seront restées"
+   ],
+   "conditionnel": [
+    "resterais",
+    "resterais",
+    "resterait",
+    "resterait",
+    "resterions",
+    "resteriez",
+    "resteraient",
+    "resteraient"
+   ],
+   "conditionnelPasse": [
+    "serais resté|serais restée",
+    "serais resté|serais restée",
+    "serait resté",
+    "serait restée",
+    "serions restés|serions restées",
+    "seriez restés|seriez restées|seriez resté|seriez restée",
+    "seraient restés",
+    "seraient restées"
+   ],
+   "subjonctif": [
+    "reste",
+    "restes",
+    "reste",
+    "reste",
+    "restions",
+    "restiez",
+    "restent",
+    "restent"
+   ]
+  },
+  "écouter": {
+   "present": [
+    "écoute",
+    "écoutes",
+    "écoute",
+    "écoute",
+    "écoutons",
+    "écoutez",
+    "écoutent",
+    "écoutent"
+   ],
+   "imparfait": [
+    "écoutais",
+    "écoutais",
+    "écoutait",
+    "écoutait",
+    "écoutions",
+    "écoutiez",
+    "écoutaient",
+    "écoutaient"
+   ],
+   "futur": [
+    "écouterai",
+    "écouteras",
+    "écoutera",
+    "écoutera",
+    "écouterons",
+    "écouterez",
+    "écouteront",
+    "écouteront"
+   ],
+   "passeCompose": [
+    "ai écouté",
+    "as écouté",
+    "a écouté",
+    "a écouté",
+    "avons écouté",
+    "avez écouté",
+    "ont écouté",
+    "ont écouté"
+   ],
+   "plusQueParfait": [
+    "avais écouté",
+    "avais écouté",
+    "avait écouté",
+    "avait écouté",
+    "avions écouté",
+    "aviez écouté",
+    "avaient écouté",
+    "avaient écouté"
+   ],
+   "futurAnterieur": [
+    "aurai écouté",
+    "auras écouté",
+    "aura écouté",
+    "aura écouté",
+    "aurons écouté",
+    "aurez écouté",
+    "auront écouté",
+    "auront écouté"
+   ],
+   "conditionnel": [
+    "écouterais",
+    "écouterais",
+    "écouterait",
+    "écouterait",
+    "écouterions",
+    "écouteriez",
+    "écouteraient",
+    "écouteraient"
+   ],
+   "conditionnelPasse": [
+    "aurais écouté",
+    "aurais écouté",
+    "aurait écouté",
+    "aurait écouté",
+    "aurions écouté",
+    "auriez écouté",
+    "auraient écouté",
+    "auraient écouté"
+   ],
+   "subjonctif": [
+    "écoute",
+    "écoutes",
+    "écoute",
+    "écoute",
+    "écoutions",
+    "écoutiez",
+    "écoutent",
+    "écoutent"
+   ]
+  },
+  "gagner": {
+   "present": [
+    "gagne",
+    "gagnes",
+    "gagne",
+    "gagne",
+    "gagnons",
+    "gagnez",
+    "gagnent",
+    "gagnent"
+   ],
+   "imparfait": [
+    "gagnais",
+    "gagnais",
+    "gagnait",
+    "gagnait",
+    "gagnions",
+    "gagniez",
+    "gagnaient",
+    "gagnaient"
+   ],
+   "futur": [
+    "gagnerai",
+    "gagneras",
+    "gagnera",
+    "gagnera",
+    "gagnerons",
+    "gagnerez",
+    "gagneront",
+    "gagneront"
+   ],
+   "passeCompose": [
+    "ai gagné",
+    "as gagné",
+    "a gagné",
+    "a gagné",
+    "avons gagné",
+    "avez gagné",
+    "ont gagné",
+    "ont gagné"
+   ],
+   "plusQueParfait": [
+    "avais gagné",
+    "avais gagné",
+    "avait gagné",
+    "avait gagné",
+    "avions gagné",
+    "aviez gagné",
+    "avaient gagné",
+    "avaient gagné"
+   ],
+   "futurAnterieur": [
+    "aurai gagné",
+    "auras gagné",
+    "aura gagné",
+    "aura gagné",
+    "aurons gagné",
+    "aurez gagné",
+    "auront gagné",
+    "auront gagné"
+   ],
+   "conditionnel": [
+    "gagnerais",
+    "gagnerais",
+    "gagnerait",
+    "gagnerait",
+    "gagnerions",
+    "gagneriez",
+    "gagneraient",
+    "gagneraient"
+   ],
+   "conditionnelPasse": [
+    "aurais gagné",
+    "aurais gagné",
+    "aurait gagné",
+    "aurait gagné",
+    "aurions gagné",
+    "auriez gagné",
+    "auraient gagné",
+    "auraient gagné"
+   ],
+   "subjonctif": [
+    "gagne",
+    "gagnes",
+    "gagne",
+    "gagne",
+    "gagnions",
+    "gagniez",
+    "gagnent",
+    "gagnent"
+   ]
+  },
+  "expliquer": {
+   "present": [
+    "explique",
+    "expliques",
+    "explique",
+    "explique",
+    "expliquons",
+    "expliquez",
+    "expliquent",
+    "expliquent"
+   ],
+   "imparfait": [
+    "expliquais",
+    "expliquais",
+    "expliquait",
+    "expliquait",
+    "expliquions",
+    "expliquiez",
+    "expliquaient",
+    "expliquaient"
+   ],
+   "futur": [
+    "expliquerai",
+    "expliqueras",
+    "expliquera",
+    "expliquera",
+    "expliquerons",
+    "expliquerez",
+    "expliqueront",
+    "expliqueront"
+   ],
+   "passeCompose": [
+    "ai expliqué",
+    "as expliqué",
+    "a expliqué",
+    "a expliqué",
+    "avons expliqué",
+    "avez expliqué",
+    "ont expliqué",
+    "ont expliqué"
+   ],
+   "plusQueParfait": [
+    "avais expliqué",
+    "avais expliqué",
+    "avait expliqué",
+    "avait expliqué",
+    "avions expliqué",
+    "aviez expliqué",
+    "avaient expliqué",
+    "avaient expliqué"
+   ],
+   "futurAnterieur": [
+    "aurai expliqué",
+    "auras expliqué",
+    "aura expliqué",
+    "aura expliqué",
+    "aurons expliqué",
+    "aurez expliqué",
+    "auront expliqué",
+    "auront expliqué"
+   ],
+   "conditionnel": [
+    "expliquerais",
+    "expliquerais",
+    "expliquerait",
+    "expliquerait",
+    "expliquerions",
+    "expliqueriez",
+    "expliqueraient",
+    "expliqueraient"
+   ],
+   "conditionnelPasse": [
+    "aurais expliqué",
+    "aurais expliqué",
+    "aurait expliqué",
+    "aurait expliqué",
+    "aurions expliqué",
+    "auriez expliqué",
+    "auraient expliqué",
+    "auraient expliqué"
+   ],
+   "subjonctif": [
+    "explique",
+    "expliques",
+    "explique",
+    "explique",
+    "expliquions",
+    "expliquiez",
+    "expliquent",
+    "expliquent"
+   ]
+  },
+  "décider": {
+   "present": [
+    "décide",
+    "décides",
+    "décide",
+    "décide",
+    "décidons",
+    "décidez",
+    "décident",
+    "décident"
+   ],
+   "imparfait": [
+    "décidais",
+    "décidais",
+    "décidait",
+    "décidait",
+    "décidions",
+    "décidiez",
+    "décidaient",
+    "décidaient"
+   ],
+   "futur": [
+    "déciderai",
+    "décideras",
+    "décidera",
+    "décidera",
+    "déciderons",
+    "déciderez",
+    "décideront",
+    "décideront"
+   ],
+   "passeCompose": [
+    "ai décidé",
+    "as décidé",
+    "a décidé",
+    "a décidé",
+    "avons décidé",
+    "avez décidé",
+    "ont décidé",
+    "ont décidé"
+   ],
+   "plusQueParfait": [
+    "avais décidé",
+    "avais décidé",
+    "avait décidé",
+    "avait décidé",
+    "avions décidé",
+    "aviez décidé",
+    "avaient décidé",
+    "avaient décidé"
+   ],
+   "futurAnterieur": [
+    "aurai décidé",
+    "auras décidé",
+    "aura décidé",
+    "aura décidé",
+    "aurons décidé",
+    "aurez décidé",
+    "auront décidé",
+    "auront décidé"
+   ],
+   "conditionnel": [
+    "déciderais",
+    "déciderais",
+    "déciderait",
+    "déciderait",
+    "déciderions",
+    "décideriez",
+    "décideraient",
+    "décideraient"
+   ],
+   "conditionnelPasse": [
+    "aurais décidé",
+    "aurais décidé",
+    "aurait décidé",
+    "aurait décidé",
+    "aurions décidé",
+    "auriez décidé",
+    "auraient décidé",
+    "auraient décidé"
+   ],
+   "subjonctif": [
+    "décide",
+    "décides",
+    "décide",
+    "décide",
+    "décidions",
+    "décidiez",
+    "décident",
+    "décident"
+   ]
+  },
+  "présenter": {
+   "present": [
+    "présente",
+    "présentes",
+    "présente",
+    "présente",
+    "présentons",
+    "présentez",
+    "présentent",
+    "présentent"
+   ],
+   "imparfait": [
+    "présentais",
+    "présentais",
+    "présentait",
+    "présentait",
+    "présentions",
+    "présentiez",
+    "présentaient",
+    "présentaient"
+   ],
+   "futur": [
+    "présenterai",
+    "présenteras",
+    "présentera",
+    "présentera",
+    "présenterons",
+    "présenterez",
+    "présenteront",
+    "présenteront"
+   ],
+   "passeCompose": [
+    "ai présenté",
+    "as présenté",
+    "a présenté",
+    "a présenté",
+    "avons présenté",
+    "avez présenté",
+    "ont présenté",
+    "ont présenté"
+   ],
+   "plusQueParfait": [
+    "avais présenté",
+    "avais présenté",
+    "avait présenté",
+    "avait présenté",
+    "avions présenté",
+    "aviez présenté",
+    "avaient présenté",
+    "avaient présenté"
+   ],
+   "futurAnterieur": [
+    "aurai présenté",
+    "auras présenté",
+    "aura présenté",
+    "aura présenté",
+    "aurons présenté",
+    "aurez présenté",
+    "auront présenté",
+    "auront présenté"
+   ],
+   "conditionnel": [
+    "présenterais",
+    "présenterais",
+    "présenterait",
+    "présenterait",
+    "présenterions",
+    "présenteriez",
+    "présenteraient",
+    "présenteraient"
+   ],
+   "conditionnelPasse": [
+    "aurais présenté",
+    "aurais présenté",
+    "aurait présenté",
+    "aurait présenté",
+    "aurions présenté",
+    "auriez présenté",
+    "auraient présenté",
+    "auraient présenté"
+   ],
+   "subjonctif": [
+    "présente",
+    "présentes",
+    "présente",
+    "présente",
+    "présentions",
+    "présentiez",
+    "présentent",
+    "présentent"
+   ]
+  },
+  "continuer": {
+   "present": [
+    "continue",
+    "continues",
+    "continue",
+    "continue",
+    "continuons",
+    "continuez",
+    "continuent",
+    "continuent"
+   ],
+   "imparfait": [
+    "continuais",
+    "continuais",
+    "continuait",
+    "continuait",
+    "continuions",
+    "continuiez",
+    "continuaient",
+    "continuaient"
+   ],
+   "futur": [
+    "continuerai",
+    "continueras",
+    "continuera",
+    "continuera",
+    "continuerons",
+    "continuerez",
+    "continueront",
+    "continueront"
+   ],
+   "passeCompose": [
+    "ai continué",
+    "as continué",
+    "a continué",
+    "a continué",
+    "avons continué",
+    "avez continué",
+    "ont continué",
+    "ont continué"
+   ],
+   "plusQueParfait": [
+    "avais continué",
+    "avais continué",
+    "avait continué",
+    "avait continué",
+    "avions continué",
+    "aviez continué",
+    "avaient continué",
+    "avaient continué"
+   ],
+   "futurAnterieur": [
+    "aurai continué",
+    "auras continué",
+    "aura continué",
+    "aura continué",
+    "aurons continué",
+    "aurez continué",
+    "auront continué",
+    "auront continué"
+   ],
+   "conditionnel": [
+    "continuerais",
+    "continuerais",
+    "continuerait",
+    "continuerait",
+    "continuerions",
+    "continueriez",
+    "continueraient",
+    "continueraient"
+   ],
+   "conditionnelPasse": [
+    "aurais continué",
+    "aurais continué",
+    "aurait continué",
+    "aurait continué",
+    "aurions continué",
+    "auriez continué",
+    "auraient continué",
+    "auraient continué"
+   ],
+   "subjonctif": [
+    "continue",
+    "continues",
+    "continue",
+    "continue",
+    "continuions",
+    "continuiez",
+    "continuent",
+    "continuent"
+   ]
+  },
+  "accepter": {
+   "present": [
+    "accepte",
+    "acceptes",
+    "accepte",
+    "accepte",
+    "acceptons",
+    "acceptez",
+    "acceptent",
+    "acceptent"
+   ],
+   "imparfait": [
+    "acceptais",
+    "acceptais",
+    "acceptait",
+    "acceptait",
+    "acceptions",
+    "acceptiez",
+    "acceptaient",
+    "acceptaient"
+   ],
+   "futur": [
+    "accepterai",
+    "accepteras",
+    "acceptera",
+    "acceptera",
+    "accepterons",
+    "accepterez",
+    "accepteront",
+    "accepteront"
+   ],
+   "passeCompose": [
+    "ai accepté",
+    "as accepté",
+    "a accepté",
+    "a accepté",
+    "avons accepté",
+    "avez accepté",
+    "ont accepté",
+    "ont accepté"
+   ],
+   "plusQueParfait": [
+    "avais accepté",
+    "avais accepté",
+    "avait accepté",
+    "avait accepté",
+    "avions accepté",
+    "aviez accepté",
+    "avaient accepté",
+    "avaient accepté"
+   ],
+   "futurAnterieur": [
+    "aurai accepté",
+    "auras accepté",
+    "aura accepté",
+    "aura accepté",
+    "aurons accepté",
+    "aurez accepté",
+    "auront accepté",
+    "auront accepté"
+   ],
+   "conditionnel": [
+    "accepterais",
+    "accepterais",
+    "accepterait",
+    "accepterait",
+    "accepterions",
+    "accepteriez",
+    "accepteraient",
+    "accepteraient"
+   ],
+   "conditionnelPasse": [
+    "aurais accepté",
+    "aurais accepté",
+    "aurait accepté",
+    "aurait accepté",
+    "aurions accepté",
+    "auriez accepté",
+    "auraient accepté",
+    "auraient accepté"
+   ],
+   "subjonctif": [
+    "accepte",
+    "acceptes",
+    "accepte",
+    "accepte",
+    "acceptions",
+    "acceptiez",
+    "acceptent",
+    "acceptent"
+   ]
+  },
+  "monter": {
+   "present": [
+    "monte",
+    "montes",
+    "monte",
+    "monte",
+    "montons",
+    "montez",
+    "montent",
+    "montent"
+   ],
+   "imparfait": [
+    "montais",
+    "montais",
+    "montait",
+    "montait",
+    "montions",
+    "montiez",
+    "montaient",
+    "montaient"
+   ],
+   "futur": [
+    "monterai",
+    "monteras",
+    "montera",
+    "montera",
+    "monterons",
+    "monterez",
+    "monteront",
+    "monteront"
+   ],
+   "passeCompose": [
+    "suis monté|suis montée",
+    "es monté|es montée",
+    "est monté",
+    "est montée",
+    "sommes montés|sommes montées",
+    "êtes montés|êtes montées|êtes monté|êtes montée",
+    "sont montés",
+    "sont montées"
+   ],
+   "plusQueParfait": [
+    "étais monté|étais montée",
+    "étais monté|étais montée",
+    "était monté",
+    "était montée",
+    "étions montés|étions montées",
+    "étiez montés|étiez montées|étiez monté|étiez montée",
+    "étaient montés",
+    "étaient montées"
+   ],
+   "futurAnterieur": [
+    "serai monté|serai montée",
+    "seras monté|seras montée",
+    "sera monté",
+    "sera montée",
+    "serons montés|serons montées",
+    "serez montés|serez montées|serez monté|serez montée",
+    "seront montés",
+    "seront montées"
+   ],
+   "conditionnel": [
+    "monterais",
+    "monterais",
+    "monterait",
+    "monterait",
+    "monterions",
+    "monteriez",
+    "monteraient",
+    "monteraient"
+   ],
+   "conditionnelPasse": [
+    "serais monté|serais montée",
+    "serais monté|serais montée",
+    "serait monté",
+    "serait montée",
+    "serions montés|serions montées",
+    "seriez montés|seriez montées|seriez monté|seriez montée",
+    "seraient montés",
+    "seraient montées"
+   ],
+   "subjonctif": [
+    "monte",
+    "montes",
+    "monte",
+    "monte",
+    "montions",
+    "montiez",
+    "montent",
+    "montent"
+   ]
+  },
+  "quitter": {
+   "present": [
+    "quitte",
+    "quittes",
+    "quitte",
+    "quitte",
+    "quittons",
+    "quittez",
+    "quittent",
+    "quittent"
+   ],
+   "imparfait": [
+    "quittais",
+    "quittais",
+    "quittait",
+    "quittait",
+    "quittions",
+    "quittiez",
+    "quittaient",
+    "quittaient"
+   ],
+   "futur": [
+    "quitterai",
+    "quitteras",
+    "quittera",
+    "quittera",
+    "quitterons",
+    "quitterez",
+    "quitteront",
+    "quitteront"
+   ],
+   "passeCompose": [
+    "ai quitté",
+    "as quitté",
+    "a quitté",
+    "a quitté",
+    "avons quitté",
+    "avez quitté",
+    "ont quitté",
+    "ont quitté"
+   ],
+   "plusQueParfait": [
+    "avais quitté",
+    "avais quitté",
+    "avait quitté",
+    "avait quitté",
+    "avions quitté",
+    "aviez quitté",
+    "avaient quitté",
+    "avaient quitté"
+   ],
+   "futurAnterieur": [
+    "aurai quitté",
+    "auras quitté",
+    "aura quitté",
+    "aura quitté",
+    "aurons quitté",
+    "aurez quitté",
+    "auront quitté",
+    "auront quitté"
+   ],
+   "conditionnel": [
+    "quitterais",
+    "quitterais",
+    "quitterait",
+    "quitterait",
+    "quitterions",
+    "quitteriez",
+    "quitteraient",
+    "quitteraient"
+   ],
+   "conditionnelPasse": [
+    "aurais quitté",
+    "aurais quitté",
+    "aurait quitté",
+    "aurait quitté",
+    "aurions quitté",
+    "auriez quitté",
+    "auraient quitté",
+    "auraient quitté"
+   ],
+   "subjonctif": [
+    "quitte",
+    "quittes",
+    "quitte",
+    "quitte",
+    "quittions",
+    "quittiez",
+    "quittent",
+    "quittent"
+   ]
+  },
+  "tomber": {
+   "present": [
+    "tombe",
+    "tombes",
+    "tombe",
+    "tombe",
+    "tombons",
+    "tombez",
+    "tombent",
+    "tombent"
+   ],
+   "imparfait": [
+    "tombais",
+    "tombais",
+    "tombait",
+    "tombait",
+    "tombions",
+    "tombiez",
+    "tombaient",
+    "tombaient"
+   ],
+   "futur": [
+    "tomberai",
+    "tomberas",
+    "tombera",
+    "tombera",
+    "tomberons",
+    "tomberez",
+    "tomberont",
+    "tomberont"
+   ],
+   "passeCompose": [
+    "suis tombé|suis tombée",
+    "es tombé|es tombée",
+    "est tombé",
+    "est tombée",
+    "sommes tombés|sommes tombées",
+    "êtes tombés|êtes tombées|êtes tombé|êtes tombée",
+    "sont tombés",
+    "sont tombées"
+   ],
+   "plusQueParfait": [
+    "étais tombé|étais tombée",
+    "étais tombé|étais tombée",
+    "était tombé",
+    "était tombée",
+    "étions tombés|étions tombées",
+    "étiez tombés|étiez tombées|étiez tombé|étiez tombée",
+    "étaient tombés",
+    "étaient tombées"
+   ],
+   "futurAnterieur": [
+    "serai tombé|serai tombée",
+    "seras tombé|seras tombée",
+    "sera tombé",
+    "sera tombée",
+    "serons tombés|serons tombées",
+    "serez tombés|serez tombées|serez tombé|serez tombée",
+    "seront tombés",
+    "seront tombées"
+   ],
+   "conditionnel": [
+    "tomberais",
+    "tomberais",
+    "tomberait",
+    "tomberait",
+    "tomberions",
+    "tomberiez",
+    "tomberaient",
+    "tomberaient"
+   ],
+   "conditionnelPasse": [
+    "serais tombé|serais tombée",
+    "serais tombé|serais tombée",
+    "serait tombé",
+    "serait tombée",
+    "serions tombés|serions tombées",
+    "seriez tombés|seriez tombées|seriez tombé|seriez tombée",
+    "seraient tombés",
+    "seraient tombées"
+   ],
+   "subjonctif": [
+    "tombe",
+    "tombes",
+    "tombe",
+    "tombe",
+    "tombions",
+    "tombiez",
+    "tombent",
+    "tombent"
+   ]
+  },
+  "utiliser": {
+   "present": [
+    "utilise",
+    "utilises",
+    "utilise",
+    "utilise",
+    "utilisons",
+    "utilisez",
+    "utilisent",
+    "utilisent"
+   ],
+   "imparfait": [
+    "utilisais",
+    "utilisais",
+    "utilisait",
+    "utilisait",
+    "utilisions",
+    "utilisiez",
+    "utilisaient",
+    "utilisaient"
+   ],
+   "futur": [
+    "utiliserai",
+    "utiliseras",
+    "utilisera",
+    "utilisera",
+    "utiliserons",
+    "utiliserez",
+    "utiliseront",
+    "utiliseront"
+   ],
+   "passeCompose": [
+    "ai utilisé",
+    "as utilisé",
+    "a utilisé",
+    "a utilisé",
+    "avons utilisé",
+    "avez utilisé",
+    "ont utilisé",
+    "ont utilisé"
+   ],
+   "plusQueParfait": [
+    "avais utilisé",
+    "avais utilisé",
+    "avait utilisé",
+    "avait utilisé",
+    "avions utilisé",
+    "aviez utilisé",
+    "avaient utilisé",
+    "avaient utilisé"
+   ],
+   "futurAnterieur": [
+    "aurai utilisé",
+    "auras utilisé",
+    "aura utilisé",
+    "aura utilisé",
+    "aurons utilisé",
+    "aurez utilisé",
+    "auront utilisé",
+    "auront utilisé"
+   ],
+   "conditionnel": [
+    "utiliserais",
+    "utiliserais",
+    "utiliserait",
+    "utiliserait",
+    "utiliserions",
+    "utiliseriez",
+    "utiliseraient",
+    "utiliseraient"
+   ],
+   "conditionnelPasse": [
+    "aurais utilisé",
+    "aurais utilisé",
+    "aurait utilisé",
+    "aurait utilisé",
+    "aurions utilisé",
+    "auriez utilisé",
+    "auraient utilisé",
+    "auraient utilisé"
+   ],
+   "subjonctif": [
+    "utilise",
+    "utilises",
+    "utilise",
+    "utilise",
+    "utilisions",
+    "utilisiez",
+    "utilisent",
+    "utilisent"
+   ]
+  },
+  "ajouter": {
+   "present": [
+    "ajoute",
+    "ajoutes",
+    "ajoute",
+    "ajoute",
+    "ajoutons",
+    "ajoutez",
+    "ajoutent",
+    "ajoutent"
+   ],
+   "imparfait": [
+    "ajoutais",
+    "ajoutais",
+    "ajoutait",
+    "ajoutait",
+    "ajoutions",
+    "ajoutiez",
+    "ajoutaient",
+    "ajoutaient"
+   ],
+   "futur": [
+    "ajouterai",
+    "ajouteras",
+    "ajoutera",
+    "ajoutera",
+    "ajouterons",
+    "ajouterez",
+    "ajouteront",
+    "ajouteront"
+   ],
+   "passeCompose": [
+    "ai ajouté",
+    "as ajouté",
+    "a ajouté",
+    "a ajouté",
+    "avons ajouté",
+    "avez ajouté",
+    "ont ajouté",
+    "ont ajouté"
+   ],
+   "plusQueParfait": [
+    "avais ajouté",
+    "avais ajouté",
+    "avait ajouté",
+    "avait ajouté",
+    "avions ajouté",
+    "aviez ajouté",
+    "avaient ajouté",
+    "avaient ajouté"
+   ],
+   "futurAnterieur": [
+    "aurai ajouté",
+    "auras ajouté",
+    "aura ajouté",
+    "aura ajouté",
+    "aurons ajouté",
+    "aurez ajouté",
+    "auront ajouté",
+    "auront ajouté"
+   ],
+   "conditionnel": [
+    "ajouterais",
+    "ajouterais",
+    "ajouterait",
+    "ajouterait",
+    "ajouterions",
+    "ajouteriez",
+    "ajouteraient",
+    "ajouteraient"
+   ],
+   "conditionnelPasse": [
+    "aurais ajouté",
+    "aurais ajouté",
+    "aurait ajouté",
+    "aurait ajouté",
+    "aurions ajouté",
+    "auriez ajouté",
+    "auraient ajouté",
+    "auraient ajouté"
+   ],
+   "subjonctif": [
+    "ajoute",
+    "ajoutes",
+    "ajoute",
+    "ajoute",
+    "ajoutions",
+    "ajoutiez",
+    "ajoutent",
+    "ajoutent"
+   ]
+  },
+  "proposer": {
+   "present": [
+    "propose",
+    "proposes",
+    "propose",
+    "propose",
+    "proposons",
+    "proposez",
+    "proposent",
+    "proposent"
+   ],
+   "imparfait": [
+    "proposais",
+    "proposais",
+    "proposait",
+    "proposait",
+    "proposions",
+    "proposiez",
+    "proposaient",
+    "proposaient"
+   ],
+   "futur": [
+    "proposerai",
+    "proposeras",
+    "proposera",
+    "proposera",
+    "proposerons",
+    "proposerez",
+    "proposeront",
+    "proposeront"
+   ],
+   "passeCompose": [
+    "ai proposé",
+    "as proposé",
+    "a proposé",
+    "a proposé",
+    "avons proposé",
+    "avez proposé",
+    "ont proposé",
+    "ont proposé"
+   ],
+   "plusQueParfait": [
+    "avais proposé",
+    "avais proposé",
+    "avait proposé",
+    "avait proposé",
+    "avions proposé",
+    "aviez proposé",
+    "avaient proposé",
+    "avaient proposé"
+   ],
+   "futurAnterieur": [
+    "aurai proposé",
+    "auras proposé",
+    "aura proposé",
+    "aura proposé",
+    "aurons proposé",
+    "aurez proposé",
+    "auront proposé",
+    "auront proposé"
+   ],
+   "conditionnel": [
+    "proposerais",
+    "proposerais",
+    "proposerait",
+    "proposerait",
+    "proposerions",
+    "proposeriez",
+    "proposeraient",
+    "proposeraient"
+   ],
+   "conditionnelPasse": [
+    "aurais proposé",
+    "aurais proposé",
+    "aurait proposé",
+    "aurait proposé",
+    "aurions proposé",
+    "auriez proposé",
+    "auraient proposé",
+    "auraient proposé"
+   ],
+   "subjonctif": [
+    "propose",
+    "proposes",
+    "propose",
+    "propose",
+    "proposions",
+    "proposiez",
+    "proposent",
+    "proposent"
+   ]
+  },
+  "porter": {
+   "present": [
+    "porte",
+    "portes",
+    "porte",
+    "porte",
+    "portons",
+    "portez",
+    "portent",
+    "portent"
+   ],
+   "imparfait": [
+    "portais",
+    "portais",
+    "portait",
+    "portait",
+    "portions",
+    "portiez",
+    "portaient",
+    "portaient"
+   ],
+   "futur": [
+    "porterai",
+    "porteras",
+    "portera",
+    "portera",
+    "porterons",
+    "porterez",
+    "porteront",
+    "porteront"
+   ],
+   "passeCompose": [
+    "ai porté",
+    "as porté",
+    "a porté",
+    "a porté",
+    "avons porté",
+    "avez porté",
+    "ont porté",
+    "ont porté"
+   ],
+   "plusQueParfait": [
+    "avais porté",
+    "avais porté",
+    "avait porté",
+    "avait porté",
+    "avions porté",
+    "aviez porté",
+    "avaient porté",
+    "avaient porté"
+   ],
+   "futurAnterieur": [
+    "aurai porté",
+    "auras porté",
+    "aura porté",
+    "aura porté",
+    "aurons porté",
+    "aurez porté",
+    "auront porté",
+    "auront porté"
+   ],
+   "conditionnel": [
+    "porterais",
+    "porterais",
+    "porterait",
+    "porterait",
+    "porterions",
+    "porteriez",
+    "porteraient",
+    "porteraient"
+   ],
+   "conditionnelPasse": [
+    "aurais porté",
+    "aurais porté",
+    "aurait porté",
+    "aurait porté",
+    "aurions porté",
+    "auriez porté",
+    "auraient porté",
+    "auraient porté"
+   ],
+   "subjonctif": [
+    "porte",
+    "portes",
+    "porte",
+    "porte",
+    "portions",
+    "portiez",
+    "portent",
+    "portent"
+   ]
+  },
+  "montrer": {
+   "present": [
+    "montre",
+    "montres",
+    "montre",
+    "montre",
+    "montrons",
+    "montrez",
+    "montrent",
+    "montrent"
+   ],
+   "imparfait": [
+    "montrais",
+    "montrais",
+    "montrait",
+    "montrait",
+    "montrions",
+    "montriez",
+    "montraient",
+    "montraient"
+   ],
+   "futur": [
+    "montrerai",
+    "montreras",
+    "montrera",
+    "montrera",
+    "montrerons",
+    "montrerez",
+    "montreront",
+    "montreront"
+   ],
+   "passeCompose": [
+    "ai montré",
+    "as montré",
+    "a montré",
+    "a montré",
+    "avons montré",
+    "avez montré",
+    "ont montré",
+    "ont montré"
+   ],
+   "plusQueParfait": [
+    "avais montré",
+    "avais montré",
+    "avait montré",
+    "avait montré",
+    "avions montré",
+    "aviez montré",
+    "avaient montré",
+    "avaient montré"
+   ],
+   "futurAnterieur": [
+    "aurai montré",
+    "auras montré",
+    "aura montré",
+    "aura montré",
+    "aurons montré",
+    "aurez montré",
+    "auront montré",
+    "auront montré"
+   ],
+   "conditionnel": [
+    "montrerais",
+    "montrerais",
+    "montrerait",
+    "montrerait",
+    "montrerions",
+    "montreriez",
+    "montreraient",
+    "montreraient"
+   ],
+   "conditionnelPasse": [
+    "aurais montré",
+    "aurais montré",
+    "aurait montré",
+    "aurait montré",
+    "aurions montré",
+    "auriez montré",
+    "auraient montré",
+    "auraient montré"
+   ],
+   "subjonctif": [
+    "montre",
+    "montres",
+    "montre",
+    "montre",
+    "montrions",
+    "montriez",
+    "montrent",
+    "montrent"
+   ]
+  },
+  "marcher": {
+   "present": [
+    "marche",
+    "marches",
+    "marche",
+    "marche",
+    "marchons",
+    "marchez",
+    "marchent",
+    "marchent"
+   ],
+   "imparfait": [
+    "marchais",
+    "marchais",
+    "marchait",
+    "marchait",
+    "marchions",
+    "marchiez",
+    "marchaient",
+    "marchaient"
+   ],
+   "futur": [
+    "marcherai",
+    "marcheras",
+    "marchera",
+    "marchera",
+    "marcherons",
+    "marcherez",
+    "marcheront",
+    "marcheront"
+   ],
+   "passeCompose": [
+    "ai marché",
+    "as marché",
+    "a marché",
+    "a marché",
+    "avons marché",
+    "avez marché",
+    "ont marché",
+    "ont marché"
+   ],
+   "plusQueParfait": [
+    "avais marché",
+    "avais marché",
+    "avait marché",
+    "avait marché",
+    "avions marché",
+    "aviez marché",
+    "avaient marché",
+    "avaient marché"
+   ],
+   "futurAnterieur": [
+    "aurai marché",
+    "auras marché",
+    "aura marché",
+    "aura marché",
+    "aurons marché",
+    "aurez marché",
+    "auront marché",
+    "auront marché"
+   ],
+   "conditionnel": [
+    "marcherais",
+    "marcherais",
+    "marcherait",
+    "marcherait",
+    "marcherions",
+    "marcheriez",
+    "marcheraient",
+    "marcheraient"
+   ],
+   "conditionnelPasse": [
+    "aurais marché",
+    "aurais marché",
+    "aurait marché",
+    "aurait marché",
+    "aurions marché",
+    "auriez marché",
+    "auraient marché",
+    "auraient marché"
+   ],
+   "subjonctif": [
+    "marche",
+    "marches",
+    "marche",
+    "marche",
+    "marchions",
+    "marchiez",
+    "marchent",
+    "marchent"
+   ]
+  },
+  "raconter": {
+   "present": [
+    "raconte",
+    "racontes",
+    "raconte",
+    "raconte",
+    "racontons",
+    "racontez",
+    "racontent",
+    "racontent"
+   ],
+   "imparfait": [
+    "racontais",
+    "racontais",
+    "racontait",
+    "racontait",
+    "racontions",
+    "racontiez",
+    "racontaient",
+    "racontaient"
+   ],
+   "futur": [
+    "raconterai",
+    "raconteras",
+    "racontera",
+    "racontera",
+    "raconterons",
+    "raconterez",
+    "raconteront",
+    "raconteront"
+   ],
+   "passeCompose": [
+    "ai raconté",
+    "as raconté",
+    "a raconté",
+    "a raconté",
+    "avons raconté",
+    "avez raconté",
+    "ont raconté",
+    "ont raconté"
+   ],
+   "plusQueParfait": [
+    "avais raconté",
+    "avais raconté",
+    "avait raconté",
+    "avait raconté",
+    "avions raconté",
+    "aviez raconté",
+    "avaient raconté",
+    "avaient raconté"
+   ],
+   "futurAnterieur": [
+    "aurai raconté",
+    "auras raconté",
+    "aura raconté",
+    "aura raconté",
+    "aurons raconté",
+    "aurez raconté",
+    "auront raconté",
+    "auront raconté"
+   ],
+   "conditionnel": [
+    "raconterais",
+    "raconterais",
+    "raconterait",
+    "raconterait",
+    "raconterions",
+    "raconteriez",
+    "raconteraient",
+    "raconteraient"
+   ],
+   "conditionnelPasse": [
+    "aurais raconté",
+    "aurais raconté",
+    "aurait raconté",
+    "aurait raconté",
+    "aurions raconté",
+    "auriez raconté",
+    "auraient raconté",
+    "auraient raconté"
+   ],
+   "subjonctif": [
+    "raconte",
+    "racontes",
+    "raconte",
+    "raconte",
+    "racontions",
+    "racontiez",
+    "racontent",
+    "racontent"
+   ]
+  },
+  "habiter": {
+   "present": [
+    "habite",
+    "habites",
+    "habite",
+    "habite",
+    "habitons",
+    "habitez",
+    "habitent",
+    "habitent"
+   ],
+   "imparfait": [
+    "habitais",
+    "habitais",
+    "habitait",
+    "habitait",
+    "habitions",
+    "habitiez",
+    "habitaient",
+    "habitaient"
+   ],
+   "futur": [
+    "habiterai",
+    "habiteras",
+    "habitera",
+    "habitera",
+    "habiterons",
+    "habiterez",
+    "habiteront",
+    "habiteront"
+   ],
+   "passeCompose": [
+    "ai habité",
+    "as habité",
+    "a habité",
+    "a habité",
+    "avons habité",
+    "avez habité",
+    "ont habité",
+    "ont habité"
+   ],
+   "plusQueParfait": [
+    "avais habité",
+    "avais habité",
+    "avait habité",
+    "avait habité",
+    "avions habité",
+    "aviez habité",
+    "avaient habité",
+    "avaient habité"
+   ],
+   "futurAnterieur": [
+    "aurai habité",
+    "auras habité",
+    "aura habité",
+    "aura habité",
+    "aurons habité",
+    "aurez habité",
+    "auront habité",
+    "auront habité"
+   ],
+   "conditionnel": [
+    "habiterais",
+    "habiterais",
+    "habiterait",
+    "habiterait",
+    "habiterions",
+    "habiteriez",
+    "habiteraient",
+    "habiteraient"
+   ],
+   "conditionnelPasse": [
+    "aurais habité",
+    "aurais habité",
+    "aurait habité",
+    "aurait habité",
+    "aurions habité",
+    "auriez habité",
+    "auraient habité",
+    "auraient habité"
+   ],
+   "subjonctif": [
+    "habite",
+    "habites",
+    "habite",
+    "habite",
+    "habitions",
+    "habitiez",
+    "habitent",
+    "habitent"
+   ]
+  },
+  "étudier": {
+   "present": [
+    "étudie",
+    "étudies",
+    "étudie",
+    "étudie",
+    "étudions",
+    "étudiez",
+    "étudient",
+    "étudient"
+   ],
+   "imparfait": [
+    "étudiais",
+    "étudiais",
+    "étudiait",
+    "étudiait",
+    "étudiions",
+    "étudiiez",
+    "étudiaient",
+    "étudiaient"
+   ],
+   "futur": [
+    "étudierai",
+    "étudieras",
+    "étudiera",
+    "étudiera",
+    "étudierons",
+    "étudierez",
+    "étudieront",
+    "étudieront"
+   ],
+   "passeCompose": [
+    "ai étudié",
+    "as étudié",
+    "a étudié",
+    "a étudié",
+    "avons étudié",
+    "avez étudié",
+    "ont étudié",
+    "ont étudié"
+   ],
+   "plusQueParfait": [
+    "avais étudié",
+    "avais étudié",
+    "avait étudié",
+    "avait étudié",
+    "avions étudié",
+    "aviez étudié",
+    "avaient étudié",
+    "avaient étudié"
+   ],
+   "futurAnterieur": [
+    "aurai étudié",
+    "auras étudié",
+    "aura étudié",
+    "aura étudié",
+    "aurons étudié",
+    "aurez étudié",
+    "auront étudié",
+    "auront étudié"
+   ],
+   "conditionnel": [
+    "étudierais",
+    "étudierais",
+    "étudierait",
+    "étudierait",
+    "étudierions",
+    "étudieriez",
+    "étudieraient",
+    "étudieraient"
+   ],
+   "conditionnelPasse": [
+    "aurais étudié",
+    "aurais étudié",
+    "aurait étudié",
+    "aurait étudié",
+    "aurions étudié",
+    "auriez étudié",
+    "auraient étudié",
+    "auraient étudié"
+   ],
+   "subjonctif": [
+    "étudie",
+    "étudies",
+    "étudie",
+    "étudie",
+    "étudiions",
+    "étudiiez",
+    "étudient",
+    "étudient"
+   ]
+  },
+  "danser": {
+   "present": [
+    "danse",
+    "danses",
+    "danse",
+    "danse",
+    "dansons",
+    "dansez",
+    "dansent",
+    "dansent"
+   ],
+   "imparfait": [
+    "dansais",
+    "dansais",
+    "dansait",
+    "dansait",
+    "dansions",
+    "dansiez",
+    "dansaient",
+    "dansaient"
+   ],
+   "futur": [
+    "danserai",
+    "danseras",
+    "dansera",
+    "dansera",
+    "danserons",
+    "danserez",
+    "danseront",
+    "danseront"
+   ],
+   "passeCompose": [
+    "ai dansé",
+    "as dansé",
+    "a dansé",
+    "a dansé",
+    "avons dansé",
+    "avez dansé",
+    "ont dansé",
+    "ont dansé"
+   ],
+   "plusQueParfait": [
+    "avais dansé",
+    "avais dansé",
+    "avait dansé",
+    "avait dansé",
+    "avions dansé",
+    "aviez dansé",
+    "avaient dansé",
+    "avaient dansé"
+   ],
+   "futurAnterieur": [
+    "aurai dansé",
+    "auras dansé",
+    "aura dansé",
+    "aura dansé",
+    "aurons dansé",
+    "aurez dansé",
+    "auront dansé",
+    "auront dansé"
+   ],
+   "conditionnel": [
+    "danserais",
+    "danserais",
+    "danserait",
+    "danserait",
+    "danserions",
+    "danseriez",
+    "danseraient",
+    "danseraient"
+   ],
+   "conditionnelPasse": [
+    "aurais dansé",
+    "aurais dansé",
+    "aurait dansé",
+    "aurait dansé",
+    "aurions dansé",
+    "auriez dansé",
+    "auraient dansé",
+    "auraient dansé"
+   ],
+   "subjonctif": [
+    "danse",
+    "danses",
+    "danse",
+    "danse",
+    "dansions",
+    "dansiez",
+    "dansent",
+    "dansent"
+   ]
+  },
+  "chanter": {
+   "present": [
+    "chante",
+    "chantes",
+    "chante",
+    "chante",
+    "chantons",
+    "chantez",
+    "chantent",
+    "chantent"
+   ],
+   "imparfait": [
+    "chantais",
+    "chantais",
+    "chantait",
+    "chantait",
+    "chantions",
+    "chantiez",
+    "chantaient",
+    "chantaient"
+   ],
+   "futur": [
+    "chanterai",
+    "chanteras",
+    "chantera",
+    "chantera",
+    "chanterons",
+    "chanterez",
+    "chanteront",
+    "chanteront"
+   ],
+   "passeCompose": [
+    "ai chanté",
+    "as chanté",
+    "a chanté",
+    "a chanté",
+    "avons chanté",
+    "avez chanté",
+    "ont chanté",
+    "ont chanté"
+   ],
+   "plusQueParfait": [
+    "avais chanté",
+    "avais chanté",
+    "avait chanté",
+    "avait chanté",
+    "avions chanté",
+    "aviez chanté",
+    "avaient chanté",
+    "avaient chanté"
+   ],
+   "futurAnterieur": [
+    "aurai chanté",
+    "auras chanté",
+    "aura chanté",
+    "aura chanté",
+    "aurons chanté",
+    "aurez chanté",
+    "auront chanté",
+    "auront chanté"
+   ],
+   "conditionnel": [
+    "chanterais",
+    "chanterais",
+    "chanterait",
+    "chanterait",
+    "chanterions",
+    "chanteriez",
+    "chanteraient",
+    "chanteraient"
+   ],
+   "conditionnelPasse": [
+    "aurais chanté",
+    "aurais chanté",
+    "aurait chanté",
+    "aurait chanté",
+    "aurions chanté",
+    "auriez chanté",
+    "auraient chanté",
+    "auraient chanté"
+   ],
+   "subjonctif": [
+    "chante",
+    "chantes",
+    "chante",
+    "chante",
+    "chantions",
+    "chantiez",
+    "chantent",
+    "chantent"
+   ]
+  },
+  "fermer": {
+   "present": [
+    "ferme",
+    "fermes",
+    "ferme",
+    "ferme",
+    "fermons",
+    "fermez",
+    "ferment",
+    "ferment"
+   ],
+   "imparfait": [
+    "fermais",
+    "fermais",
+    "fermait",
+    "fermait",
+    "fermions",
+    "fermiez",
+    "fermaient",
+    "fermaient"
+   ],
+   "futur": [
+    "fermerai",
+    "fermeras",
+    "fermera",
+    "fermera",
+    "fermerons",
+    "fermerez",
+    "fermeront",
+    "fermeront"
+   ],
+   "passeCompose": [
+    "ai fermé",
+    "as fermé",
+    "a fermé",
+    "a fermé",
+    "avons fermé",
+    "avez fermé",
+    "ont fermé",
+    "ont fermé"
+   ],
+   "plusQueParfait": [
+    "avais fermé",
+    "avais fermé",
+    "avait fermé",
+    "avait fermé",
+    "avions fermé",
+    "aviez fermé",
+    "avaient fermé",
+    "avaient fermé"
+   ],
+   "futurAnterieur": [
+    "aurai fermé",
+    "auras fermé",
+    "aura fermé",
+    "aura fermé",
+    "aurons fermé",
+    "aurez fermé",
+    "auront fermé",
+    "auront fermé"
+   ],
+   "conditionnel": [
+    "fermerais",
+    "fermerais",
+    "fermerait",
+    "fermerait",
+    "fermerions",
+    "fermeriez",
+    "fermeraient",
+    "fermeraient"
+   ],
+   "conditionnelPasse": [
+    "aurais fermé",
+    "aurais fermé",
+    "aurait fermé",
+    "aurait fermé",
+    "aurions fermé",
+    "auriez fermé",
+    "auraient fermé",
+    "auraient fermé"
+   ],
+   "subjonctif": [
+    "ferme",
+    "fermes",
+    "ferme",
+    "ferme",
+    "fermions",
+    "fermiez",
+    "ferment",
+    "ferment"
+   ]
+  },
+  "commencer": {
+   "present": [
+    "commence",
+    "commences",
+    "commence",
+    "commence",
+    "commençons",
+    "commencez",
+    "commencent",
+    "commencent"
+   ],
+   "imparfait": [
+    "commençais",
+    "commençais",
+    "commençait",
+    "commençait",
+    "commencions",
+    "commenciez",
+    "commençaient",
+    "commençaient"
+   ],
+   "futur": [
+    "commencerai",
+    "commenceras",
+    "commencera",
+    "commencera",
+    "commencerons",
+    "commencerez",
+    "commenceront",
+    "commenceront"
+   ],
+   "passeCompose": [
+    "ai commencé",
+    "as commencé",
+    "a commencé",
+    "a commencé",
+    "avons commencé",
+    "avez commencé",
+    "ont commencé",
+    "ont commencé"
+   ],
+   "plusQueParfait": [
+    "avais commencé",
+    "avais commencé",
+    "avait commencé",
+    "avait commencé",
+    "avions commencé",
+    "aviez commencé",
+    "avaient commencé",
+    "avaient commencé"
+   ],
+   "futurAnterieur": [
+    "aurai commencé",
+    "auras commencé",
+    "aura commencé",
+    "aura commencé",
+    "aurons commencé",
+    "aurez commencé",
+    "auront commencé",
+    "auront commencé"
+   ],
+   "conditionnel": [
+    "commencerais",
+    "commencerais",
+    "commencerait",
+    "commencerait",
+    "commencerions",
+    "commenceriez",
+    "commenceraient",
+    "commenceraient"
+   ],
+   "conditionnelPasse": [
+    "aurais commencé",
+    "aurais commencé",
+    "aurait commencé",
+    "aurait commencé",
+    "aurions commencé",
+    "auriez commencé",
+    "auraient commencé",
+    "auraient commencé"
+   ],
+   "subjonctif": [
+    "commence",
+    "commences",
+    "commence",
+    "commence",
+    "commencions",
+    "commenciez",
+    "commencent",
+    "commencent"
+   ]
+  },
+  "manger": {
+   "present": [
+    "mange",
+    "manges",
+    "mange",
+    "mange",
+    "mangeons",
+    "mangez",
+    "mangent",
+    "mangent"
+   ],
+   "imparfait": [
+    "mangeais",
+    "mangeais",
+    "mangeait",
+    "mangeait",
+    "mangions",
+    "mangiez",
+    "mangeaient",
+    "mangeaient"
+   ],
+   "futur": [
+    "mangerai",
+    "mangeras",
+    "mangera",
+    "mangera",
+    "mangerons",
+    "mangerez",
+    "mangeront",
+    "mangeront"
+   ],
+   "passeCompose": [
+    "ai mangé",
+    "as mangé",
+    "a mangé",
+    "a mangé",
+    "avons mangé",
+    "avez mangé",
+    "ont mangé",
+    "ont mangé"
+   ],
+   "plusQueParfait": [
+    "avais mangé",
+    "avais mangé",
+    "avait mangé",
+    "avait mangé",
+    "avions mangé",
+    "aviez mangé",
+    "avaient mangé",
+    "avaient mangé"
+   ],
+   "futurAnterieur": [
+    "aurai mangé",
+    "auras mangé",
+    "aura mangé",
+    "aura mangé",
+    "aurons mangé",
+    "aurez mangé",
+    "auront mangé",
+    "auront mangé"
+   ],
+   "conditionnel": [
+    "mangerais",
+    "mangerais",
+    "mangerait",
+    "mangerait",
+    "mangerions",
+    "mangeriez",
+    "mangeraient",
+    "mangeraient"
+   ],
+   "conditionnelPasse": [
+    "aurais mangé",
+    "aurais mangé",
+    "aurait mangé",
+    "aurait mangé",
+    "aurions mangé",
+    "auriez mangé",
+    "auraient mangé",
+    "auraient mangé"
+   ],
+   "subjonctif": [
+    "mange",
+    "manges",
+    "mange",
+    "mange",
+    "mangions",
+    "mangiez",
+    "mangent",
+    "mangent"
+   ]
+  },
+  "acheter": {
+   "present": [
+    "achète",
+    "achètes",
+    "achète",
+    "achète",
+    "achetons",
+    "achetez",
+    "achètent",
+    "achètent"
+   ],
+   "imparfait": [
+    "achetais",
+    "achetais",
+    "achetait",
+    "achetait",
+    "achetions",
+    "achetiez",
+    "achetaient",
+    "achetaient"
+   ],
+   "futur": [
+    "achèterai",
+    "achèteras",
+    "achètera",
+    "achètera",
+    "achèterons",
+    "achèterez",
+    "achèteront",
+    "achèteront"
+   ],
+   "passeCompose": [
+    "ai acheté",
+    "as acheté",
+    "a acheté",
+    "a acheté",
+    "avons acheté",
+    "avez acheté",
+    "ont acheté",
+    "ont acheté"
+   ],
+   "plusQueParfait": [
+    "avais acheté",
+    "avais acheté",
+    "avait acheté",
+    "avait acheté",
+    "avions acheté",
+    "aviez acheté",
+    "avaient acheté",
+    "avaient acheté"
+   ],
+   "futurAnterieur": [
+    "aurai acheté",
+    "auras acheté",
+    "aura acheté",
+    "aura acheté",
+    "aurons acheté",
+    "aurez acheté",
+    "auront acheté",
+    "auront acheté"
+   ],
+   "conditionnel": [
+    "achèterais",
+    "achèterais",
+    "achèterait",
+    "achèterait",
+    "achèterions",
+    "achèteriez",
+    "achèteraient",
+    "achèteraient"
+   ],
+   "conditionnelPasse": [
+    "aurais acheté",
+    "aurais acheté",
+    "aurait acheté",
+    "aurait acheté",
+    "aurions acheté",
+    "auriez acheté",
+    "auraient acheté",
+    "auraient acheté"
+   ],
+   "subjonctif": [
+    "achète",
+    "achètes",
+    "achète",
+    "achète",
+    "achetions",
+    "achetiez",
+    "achètent",
+    "achètent"
+   ]
+  },
+  "appeler": {
+   "present": [
+    "appelle",
+    "appelles",
+    "appelle",
+    "appelle",
+    "appelons",
+    "appelez",
+    "appellent",
+    "appellent"
+   ],
+   "imparfait": [
+    "appelais",
+    "appelais",
+    "appelait",
+    "appelait",
+    "appelions",
+    "appeliez",
+    "appelaient",
+    "appelaient"
+   ],
+   "futur": [
+    "appellerai",
+    "appelleras",
+    "appellera",
+    "appellera",
+    "appellerons",
+    "appellerez",
+    "appelleront",
+    "appelleront"
+   ],
+   "passeCompose": [
+    "ai appelé",
+    "as appelé",
+    "a appelé",
+    "a appelé",
+    "avons appelé",
+    "avez appelé",
+    "ont appelé",
+    "ont appelé"
+   ],
+   "plusQueParfait": [
+    "avais appelé",
+    "avais appelé",
+    "avait appelé",
+    "avait appelé",
+    "avions appelé",
+    "aviez appelé",
+    "avaient appelé",
+    "avaient appelé"
+   ],
+   "futurAnterieur": [
+    "aurai appelé",
+    "auras appelé",
+    "aura appelé",
+    "aura appelé",
+    "aurons appelé",
+    "aurez appelé",
+    "auront appelé",
+    "auront appelé"
+   ],
+   "conditionnel": [
+    "appellerais",
+    "appellerais",
+    "appellerait",
+    "appellerait",
+    "appellerions",
+    "appelleriez",
+    "appelleraient",
+    "appelleraient"
+   ],
+   "conditionnelPasse": [
+    "aurais appelé",
+    "aurais appelé",
+    "aurait appelé",
+    "aurait appelé",
+    "aurions appelé",
+    "auriez appelé",
+    "auraient appelé",
+    "auraient appelé"
+   ],
+   "subjonctif": [
+    "appelle",
+    "appelles",
+    "appelle",
+    "appelle",
+    "appelions",
+    "appeliez",
+    "appellent",
+    "appellent"
+   ]
+  },
+  "jeter": {
+   "present": [
+    "jette",
+    "jettes",
+    "jette",
+    "jette",
+    "jetons",
+    "jetez",
+    "jettent",
+    "jettent"
+   ],
+   "imparfait": [
+    "jetais",
+    "jetais",
+    "jetait",
+    "jetait",
+    "jetions",
+    "jetiez",
+    "jetaient",
+    "jetaient"
+   ],
+   "futur": [
+    "jetterai",
+    "jetteras",
+    "jettera",
+    "jettera",
+    "jetterons",
+    "jetterez",
+    "jetteront",
+    "jetteront"
+   ],
+   "passeCompose": [
+    "ai jeté",
+    "as jeté",
+    "a jeté",
+    "a jeté",
+    "avons jeté",
+    "avez jeté",
+    "ont jeté",
+    "ont jeté"
+   ],
+   "plusQueParfait": [
+    "avais jeté",
+    "avais jeté",
+    "avait jeté",
+    "avait jeté",
+    "avions jeté",
+    "aviez jeté",
+    "avaient jeté",
+    "avaient jeté"
+   ],
+   "futurAnterieur": [
+    "aurai jeté",
+    "auras jeté",
+    "aura jeté",
+    "aura jeté",
+    "aurons jeté",
+    "aurez jeté",
+    "auront jeté",
+    "auront jeté"
+   ],
+   "conditionnel": [
+    "jetterais",
+    "jetterais",
+    "jetterait",
+    "jetterait",
+    "jetterions",
+    "jetteriez",
+    "jetteraient",
+    "jetteraient"
+   ],
+   "conditionnelPasse": [
+    "aurais jeté",
+    "aurais jeté",
+    "aurait jeté",
+    "aurait jeté",
+    "aurions jeté",
+    "auriez jeté",
+    "auraient jeté",
+    "auraient jeté"
+   ],
+   "subjonctif": [
+    "jette",
+    "jettes",
+    "jette",
+    "jette",
+    "jetions",
+    "jetiez",
+    "jettent",
+    "jettent"
+   ]
+  },
+  "envoyer": {
+   "present": [
+    "envoie",
+    "envoies",
+    "envoie",
+    "envoie",
+    "envoyons",
+    "envoyez",
+    "envoient",
+    "envoient"
+   ],
+   "imparfait": [
+    "envoyais",
+    "envoyais",
+    "envoyait",
+    "envoyait",
+    "envoyions",
+    "envoyiez",
+    "envoyaient",
+    "envoyaient"
+   ],
+   "futur": [
+    "enverrai",
+    "enverras",
+    "enverra",
+    "enverra",
+    "enverrons",
+    "enverrez",
+    "enverront",
+    "enverront"
+   ],
+   "passeCompose": [
+    "ai envoyé",
+    "as envoyé",
+    "a envoyé",
+    "a envoyé",
+    "avons envoyé",
+    "avez envoyé",
+    "ont envoyé",
+    "ont envoyé"
+   ],
+   "plusQueParfait": [
+    "avais envoyé",
+    "avais envoyé",
+    "avait envoyé",
+    "avait envoyé",
+    "avions envoyé",
+    "aviez envoyé",
+    "avaient envoyé",
+    "avaient envoyé"
+   ],
+   "futurAnterieur": [
+    "aurai envoyé",
+    "auras envoyé",
+    "aura envoyé",
+    "aura envoyé",
+    "aurons envoyé",
+    "aurez envoyé",
+    "auront envoyé",
+    "auront envoyé"
+   ],
+   "conditionnel": [
+    "enverrais",
+    "enverrais",
+    "enverrait",
+    "enverrait",
+    "enverrions",
+    "enverriez",
+    "enverraient",
+    "enverraient"
+   ],
+   "conditionnelPasse": [
+    "aurais envoyé",
+    "aurais envoyé",
+    "aurait envoyé",
+    "aurait envoyé",
+    "aurions envoyé",
+    "auriez envoyé",
+    "auraient envoyé",
+    "auraient envoyé"
+   ],
+   "subjonctif": [
+    "envoie",
+    "envoies",
+    "envoie",
+    "envoie",
+    "envoyions",
+    "envoyiez",
+    "envoient",
+    "envoient"
+   ]
+  },
+  "essayer": {
+   "present": [
+    "essaye",
+    "essayes",
+    "essaye",
+    "essaye",
+    "essayons",
+    "essayez",
+    "essayent",
+    "essayent"
+   ],
+   "imparfait": [
+    "essayais",
+    "essayais",
+    "essayait",
+    "essayait",
+    "essayions",
+    "essayiez",
+    "essayaient",
+    "essayaient"
+   ],
+   "futur": [
+    "essayerai",
+    "essayeras",
+    "essayera",
+    "essayera",
+    "essayerons",
+    "essayerez",
+    "essayeront",
+    "essayeront"
+   ],
+   "passeCompose": [
+    "ai essayé",
+    "as essayé",
+    "a essayé",
+    "a essayé",
+    "avons essayé",
+    "avez essayé",
+    "ont essayé",
+    "ont essayé"
+   ],
+   "plusQueParfait": [
+    "avais essayé",
+    "avais essayé",
+    "avait essayé",
+    "avait essayé",
+    "avions essayé",
+    "aviez essayé",
+    "avaient essayé",
+    "avaient essayé"
+   ],
+   "futurAnterieur": [
+    "aurai essayé",
+    "auras essayé",
+    "aura essayé",
+    "aura essayé",
+    "aurons essayé",
+    "aurez essayé",
+    "auront essayé",
+    "auront essayé"
+   ],
+   "conditionnel": [
+    "essayerais",
+    "essayerais",
+    "essayerait",
+    "essayerait",
+    "essayerions",
+    "essayeriez",
+    "essayeraient",
+    "essayeraient"
+   ],
+   "conditionnelPasse": [
+    "aurais essayé",
+    "aurais essayé",
+    "aurait essayé",
+    "aurait essayé",
+    "aurions essayé",
+    "auriez essayé",
+    "auraient essayé",
+    "auraient essayé"
+   ],
+   "subjonctif": [
+    "essaye",
+    "essayes",
+    "essaye",
+    "essaye",
+    "essayions",
+    "essayiez",
+    "essayent",
+    "essayent"
+   ]
+  },
+  "nettoyer": {
+   "present": [
+    "nettoie",
+    "nettoies",
+    "nettoie",
+    "nettoie",
+    "nettoyons",
+    "nettoyez",
+    "nettoient",
+    "nettoient"
+   ],
+   "imparfait": [
+    "nettoyais",
+    "nettoyais",
+    "nettoyait",
+    "nettoyait",
+    "nettoyions",
+    "nettoyiez",
+    "nettoyaient",
+    "nettoyaient"
+   ],
+   "futur": [
+    "nettoierai",
+    "nettoieras",
+    "nettoiera",
+    "nettoiera",
+    "nettoierons",
+    "nettoierez",
+    "nettoieront",
+    "nettoieront"
+   ],
+   "passeCompose": [
+    "ai nettoyé",
+    "as nettoyé",
+    "a nettoyé",
+    "a nettoyé",
+    "avons nettoyé",
+    "avez nettoyé",
+    "ont nettoyé",
+    "ont nettoyé"
+   ],
+   "plusQueParfait": [
+    "avais nettoyé",
+    "avais nettoyé",
+    "avait nettoyé",
+    "avait nettoyé",
+    "avions nettoyé",
+    "aviez nettoyé",
+    "avaient nettoyé",
+    "avaient nettoyé"
+   ],
+   "futurAnterieur": [
+    "aurai nettoyé",
+    "auras nettoyé",
+    "aura nettoyé",
+    "aura nettoyé",
+    "aurons nettoyé",
+    "aurez nettoyé",
+    "auront nettoyé",
+    "auront nettoyé"
+   ],
+   "conditionnel": [
+    "nettoierais",
+    "nettoierais",
+    "nettoierait",
+    "nettoierait",
+    "nettoierions",
+    "nettoieriez",
+    "nettoieraient",
+    "nettoieraient"
+   ],
+   "conditionnelPasse": [
+    "aurais nettoyé",
+    "aurais nettoyé",
+    "aurait nettoyé",
+    "aurait nettoyé",
+    "aurions nettoyé",
+    "auriez nettoyé",
+    "auraient nettoyé",
+    "auraient nettoyé"
+   ],
+   "subjonctif": [
+    "nettoie",
+    "nettoies",
+    "nettoie",
+    "nettoie",
+    "nettoyions",
+    "nettoyiez",
+    "nettoient",
+    "nettoient"
+   ]
+  },
+  "préférer": {
+   "present": [
+    "préfère",
+    "préfères",
+    "préfère",
+    "préfère",
+    "préférons",
+    "préférez",
+    "préfèrent",
+    "préfèrent"
+   ],
+   "imparfait": [
+    "préférais",
+    "préférais",
+    "préférait",
+    "préférait",
+    "préférions",
+    "préfériez",
+    "préféraient",
+    "préféraient"
+   ],
+   "futur": [
+    "préférerai",
+    "préféreras",
+    "préférera",
+    "préférera",
+    "préférerons",
+    "préférerez",
+    "préféreront",
+    "préféreront"
+   ],
+   "passeCompose": [
+    "ai préféré",
+    "as préféré",
+    "a préféré",
+    "a préféré",
+    "avons préféré",
+    "avez préféré",
+    "ont préféré",
+    "ont préféré"
+   ],
+   "plusQueParfait": [
+    "avais préféré",
+    "avais préféré",
+    "avait préféré",
+    "avait préféré",
+    "avions préféré",
+    "aviez préféré",
+    "avaient préféré",
+    "avaient préféré"
+   ],
+   "futurAnterieur": [
+    "aurai préféré",
+    "auras préféré",
+    "aura préféré",
+    "aura préféré",
+    "aurons préféré",
+    "aurez préféré",
+    "auront préféré",
+    "auront préféré"
+   ],
+   "conditionnel": [
+    "préférerais",
+    "préférerais",
+    "préférerait",
+    "préférerait",
+    "préférerions",
+    "préféreriez",
+    "préféreraient",
+    "préféreraient"
+   ],
+   "conditionnelPasse": [
+    "aurais préféré",
+    "aurais préféré",
+    "aurait préféré",
+    "aurait préféré",
+    "aurions préféré",
+    "auriez préféré",
+    "auraient préféré",
+    "auraient préféré"
+   ],
+   "subjonctif": [
+    "préfère",
+    "préfères",
+    "préfère",
+    "préfère",
+    "préférions",
+    "préfériez",
+    "préfèrent",
+    "préfèrent"
+   ]
+  },
+  "espérer": {
+   "present": [
+    "espère",
+    "espères",
+    "espère",
+    "espère",
+    "espérons",
+    "espérez",
+    "espèrent",
+    "espèrent"
+   ],
+   "imparfait": [
+    "espérais",
+    "espérais",
+    "espérait",
+    "espérait",
+    "espérions",
+    "espériez",
+    "espéraient",
+    "espéraient"
+   ],
+   "futur": [
+    "espérerai",
+    "espéreras",
+    "espérera",
+    "espérera",
+    "espérerons",
+    "espérerez",
+    "espéreront",
+    "espéreront"
+   ],
+   "passeCompose": [
+    "ai espéré",
+    "as espéré",
+    "a espéré",
+    "a espéré",
+    "avons espéré",
+    "avez espéré",
+    "ont espéré",
+    "ont espéré"
+   ],
+   "plusQueParfait": [
+    "avais espéré",
+    "avais espéré",
+    "avait espéré",
+    "avait espéré",
+    "avions espéré",
+    "aviez espéré",
+    "avaient espéré",
+    "avaient espéré"
+   ],
+   "futurAnterieur": [
+    "aurai espéré",
+    "auras espéré",
+    "aura espéré",
+    "aura espéré",
+    "aurons espéré",
+    "aurez espéré",
+    "auront espéré",
+    "auront espéré"
+   ],
+   "conditionnel": [
+    "espérerais",
+    "espérerais",
+    "espérerait",
+    "espérerait",
+    "espérerions",
+    "espéreriez",
+    "espéreraient",
+    "espéreraient"
+   ],
+   "conditionnelPasse": [
+    "aurais espéré",
+    "aurais espéré",
+    "aurait espéré",
+    "aurait espéré",
+    "aurions espéré",
+    "auriez espéré",
+    "auraient espéré",
+    "auraient espéré"
+   ],
+   "subjonctif": [
+    "espère",
+    "espères",
+    "espère",
+    "espère",
+    "espérions",
+    "espériez",
+    "espèrent",
+    "espèrent"
+   ]
+  },
+  "répéter": {
+   "present": [
+    "répète",
+    "répètes",
+    "répète",
+    "répète",
+    "répétons",
+    "répétez",
+    "répètent",
+    "répètent"
+   ],
+   "imparfait": [
+    "répétais",
+    "répétais",
+    "répétait",
+    "répétait",
+    "répétions",
+    "répétiez",
+    "répétaient",
+    "répétaient"
+   ],
+   "futur": [
+    "répéterai",
+    "répéteras",
+    "répétera",
+    "répétera",
+    "répéterons",
+    "répéterez",
+    "répéteront",
+    "répéteront"
+   ],
+   "passeCompose": [
+    "ai répété",
+    "as répété",
+    "a répété",
+    "a répété",
+    "avons répété",
+    "avez répété",
+    "ont répété",
+    "ont répété"
+   ],
+   "plusQueParfait": [
+    "avais répété",
+    "avais répété",
+    "avait répété",
+    "avait répété",
+    "avions répété",
+    "aviez répété",
+    "avaient répété",
+    "avaient répété"
+   ],
+   "futurAnterieur": [
+    "aurai répété",
+    "auras répété",
+    "aura répété",
+    "aura répété",
+    "aurons répété",
+    "aurez répété",
+    "auront répété",
+    "auront répété"
+   ],
+   "conditionnel": [
+    "répéterais",
+    "répéterais",
+    "répéterait",
+    "répéterait",
+    "répéterions",
+    "répéteriez",
+    "répéteraient",
+    "répéteraient"
+   ],
+   "conditionnelPasse": [
+    "aurais répété",
+    "aurais répété",
+    "aurait répété",
+    "aurait répété",
+    "aurions répété",
+    "auriez répété",
+    "auraient répété",
+    "auraient répété"
+   ],
+   "subjonctif": [
+    "répète",
+    "répètes",
+    "répète",
+    "répète",
+    "répétions",
+    "répétiez",
+    "répètent",
+    "répètent"
+   ]
+  },
+  "lever": {
+   "present": [
+    "lève",
+    "lèves",
+    "lève",
+    "lève",
+    "levons",
+    "levez",
+    "lèvent",
+    "lèvent"
+   ],
+   "imparfait": [
+    "levais",
+    "levais",
+    "levait",
+    "levait",
+    "levions",
+    "leviez",
+    "levaient",
+    "levaient"
+   ],
+   "futur": [
+    "lèverai",
+    "lèveras",
+    "lèvera",
+    "lèvera",
+    "lèverons",
+    "lèverez",
+    "lèveront",
+    "lèveront"
+   ],
+   "passeCompose": [
+    "ai levé",
+    "as levé",
+    "a levé",
+    "a levé",
+    "avons levé",
+    "avez levé",
+    "ont levé",
+    "ont levé"
+   ],
+   "plusQueParfait": [
+    "avais levé",
+    "avais levé",
+    "avait levé",
+    "avait levé",
+    "avions levé",
+    "aviez levé",
+    "avaient levé",
+    "avaient levé"
+   ],
+   "futurAnterieur": [
+    "aurai levé",
+    "auras levé",
+    "aura levé",
+    "aura levé",
+    "aurons levé",
+    "aurez levé",
+    "auront levé",
+    "auront levé"
+   ],
+   "conditionnel": [
+    "lèverais",
+    "lèverais",
+    "lèverait",
+    "lèverait",
+    "lèverions",
+    "lèveriez",
+    "lèveraient",
+    "lèveraient"
+   ],
+   "conditionnelPasse": [
+    "aurais levé",
+    "aurais levé",
+    "aurait levé",
+    "aurait levé",
+    "aurions levé",
+    "auriez levé",
+    "auraient levé",
+    "auraient levé"
+   ],
+   "subjonctif": [
+    "lève",
+    "lèves",
+    "lève",
+    "lève",
+    "levions",
+    "leviez",
+    "lèvent",
+    "lèvent"
+   ]
+  },
+  "peser": {
+   "present": [
+    "pèse",
+    "pèses",
+    "pèse",
+    "pèse",
+    "pesons",
+    "pesez",
+    "pèsent",
+    "pèsent"
+   ],
+   "imparfait": [
+    "pesais",
+    "pesais",
+    "pesait",
+    "pesait",
+    "pesions",
+    "pesiez",
+    "pesaient",
+    "pesaient"
+   ],
+   "futur": [
+    "pèserai",
+    "pèseras",
+    "pèsera",
+    "pèsera",
+    "pèserons",
+    "pèserez",
+    "pèseront",
+    "pèseront"
+   ],
+   "passeCompose": [
+    "ai pesé",
+    "as pesé",
+    "a pesé",
+    "a pesé",
+    "avons pesé",
+    "avez pesé",
+    "ont pesé",
+    "ont pesé"
+   ],
+   "plusQueParfait": [
+    "avais pesé",
+    "avais pesé",
+    "avait pesé",
+    "avait pesé",
+    "avions pesé",
+    "aviez pesé",
+    "avaient pesé",
+    "avaient pesé"
+   ],
+   "futurAnterieur": [
+    "aurai pesé",
+    "auras pesé",
+    "aura pesé",
+    "aura pesé",
+    "aurons pesé",
+    "aurez pesé",
+    "auront pesé",
+    "auront pesé"
+   ],
+   "conditionnel": [
+    "pèserais",
+    "pèserais",
+    "pèserait",
+    "pèserait",
+    "pèserions",
+    "pèseriez",
+    "pèseraient",
+    "pèseraient"
+   ],
+   "conditionnelPasse": [
+    "aurais pesé",
+    "aurais pesé",
+    "aurait pesé",
+    "aurait pesé",
+    "aurions pesé",
+    "auriez pesé",
+    "auraient pesé",
+    "auraient pesé"
+   ],
+   "subjonctif": [
+    "pèse",
+    "pèses",
+    "pèse",
+    "pèse",
+    "pesions",
+    "pesiez",
+    "pèsent",
+    "pèsent"
+   ]
+  },
+  "payer": {
+   "present": [
+    "paye",
+    "payes",
+    "paye",
+    "paye",
+    "payons",
+    "payez",
+    "payent",
+    "payent"
+   ],
+   "imparfait": [
+    "payais",
+    "payais",
+    "payait",
+    "payait",
+    "payions",
+    "payiez",
+    "payaient",
+    "payaient"
+   ],
+   "futur": [
+    "payerai",
+    "payeras",
+    "payera",
+    "payera",
+    "payerons",
+    "payerez",
+    "payeront",
+    "payeront"
+   ],
+   "passeCompose": [
+    "ai payé",
+    "as payé",
+    "a payé",
+    "a payé",
+    "avons payé",
+    "avez payé",
+    "ont payé",
+    "ont payé"
+   ],
+   "plusQueParfait": [
+    "avais payé",
+    "avais payé",
+    "avait payé",
+    "avait payé",
+    "avions payé",
+    "aviez payé",
+    "avaient payé",
+    "avaient payé"
+   ],
+   "futurAnterieur": [
+    "aurai payé",
+    "auras payé",
+    "aura payé",
+    "aura payé",
+    "aurons payé",
+    "aurez payé",
+    "auront payé",
+    "auront payé"
+   ],
+   "conditionnel": [
+    "payerais",
+    "payerais",
+    "payerait",
+    "payerait",
+    "payerions",
+    "payeriez",
+    "payeraient",
+    "payeraient"
+   ],
+   "conditionnelPasse": [
+    "aurais payé",
+    "aurais payé",
+    "aurait payé",
+    "aurait payé",
+    "aurions payé",
+    "auriez payé",
+    "auraient payé",
+    "auraient payé"
+   ],
+   "subjonctif": [
+    "paye",
+    "payes",
+    "paye",
+    "paye",
+    "payions",
+    "payiez",
+    "payent",
+    "payent"
+   ]
+  },
+  "employer": {
+   "present": [
+    "emploie",
+    "emploies",
+    "emploie",
+    "emploie",
+    "employons",
+    "employez",
+    "emploient",
+    "emploient"
+   ],
+   "imparfait": [
+    "employais",
+    "employais",
+    "employait",
+    "employait",
+    "employions",
+    "employiez",
+    "employaient",
+    "employaient"
+   ],
+   "futur": [
+    "emploierai",
+    "emploieras",
+    "emploiera",
+    "emploiera",
+    "emploierons",
+    "emploierez",
+    "emploieront",
+    "emploieront"
+   ],
+   "passeCompose": [
+    "ai employé",
+    "as employé",
+    "a employé",
+    "a employé",
+    "avons employé",
+    "avez employé",
+    "ont employé",
+    "ont employé"
+   ],
+   "plusQueParfait": [
+    "avais employé",
+    "avais employé",
+    "avait employé",
+    "avait employé",
+    "avions employé",
+    "aviez employé",
+    "avaient employé",
+    "avaient employé"
+   ],
+   "futurAnterieur": [
+    "aurai employé",
+    "auras employé",
+    "aura employé",
+    "aura employé",
+    "aurons employé",
+    "aurez employé",
+    "auront employé",
+    "auront employé"
+   ],
+   "conditionnel": [
+    "emploierais",
+    "emploierais",
+    "emploierait",
+    "emploierait",
+    "emploierions",
+    "emploieriez",
+    "emploieraient",
+    "emploieraient"
+   ],
+   "conditionnelPasse": [
+    "aurais employé",
+    "aurais employé",
+    "aurait employé",
+    "aurait employé",
+    "aurions employé",
+    "auriez employé",
+    "auraient employé",
+    "auraient employé"
+   ],
+   "subjonctif": [
+    "emploie",
+    "emploies",
+    "emploie",
+    "emploie",
+    "employions",
+    "employiez",
+    "emploient",
+    "emploient"
+   ]
+  },
+  "finir": {
+   "present": [
+    "finis",
+    "finis",
+    "finit",
+    "finit",
+    "finissons",
+    "finissez",
+    "finissent",
+    "finissent"
+   ],
+   "imparfait": [
+    "finissais",
+    "finissais",
+    "finissait",
+    "finissait",
+    "finissions",
+    "finissiez",
+    "finissaient",
+    "finissaient"
+   ],
+   "futur": [
+    "finirai",
+    "finiras",
+    "finira",
+    "finira",
+    "finirons",
+    "finirez",
+    "finiront",
+    "finiront"
+   ],
+   "passeCompose": [
+    "ai fini",
+    "as fini",
+    "a fini",
+    "a fini",
+    "avons fini",
+    "avez fini",
+    "ont fini",
+    "ont fini"
+   ],
+   "plusQueParfait": [
+    "avais fini",
+    "avais fini",
+    "avait fini",
+    "avait fini",
+    "avions fini",
+    "aviez fini",
+    "avaient fini",
+    "avaient fini"
+   ],
+   "futurAnterieur": [
+    "aurai fini",
+    "auras fini",
+    "aura fini",
+    "aura fini",
+    "aurons fini",
+    "aurez fini",
+    "auront fini",
+    "auront fini"
+   ],
+   "conditionnel": [
+    "finirais",
+    "finirais",
+    "finirait",
+    "finirait",
+    "finirions",
+    "finiriez",
+    "finiraient",
+    "finiraient"
+   ],
+   "conditionnelPasse": [
+    "aurais fini",
+    "aurais fini",
+    "aurait fini",
+    "aurait fini",
+    "aurions fini",
+    "auriez fini",
+    "auraient fini",
+    "auraient fini"
+   ],
+   "subjonctif": [
+    "finisse",
+    "finisses",
+    "finisse",
+    "finisse",
+    "finissions",
+    "finissiez",
+    "finissent",
+    "finissent"
+   ]
+  },
+  "choisir": {
+   "present": [
+    "choisis",
+    "choisis",
+    "choisit",
+    "choisit",
+    "choisissons",
+    "choisissez",
+    "choisissent",
+    "choisissent"
+   ],
+   "imparfait": [
+    "choisissais",
+    "choisissais",
+    "choisissait",
+    "choisissait",
+    "choisissions",
+    "choisissiez",
+    "choisissaient",
+    "choisissaient"
+   ],
+   "futur": [
+    "choisirai",
+    "choisiras",
+    "choisira",
+    "choisira",
+    "choisirons",
+    "choisirez",
+    "choisiront",
+    "choisiront"
+   ],
+   "passeCompose": [
+    "ai choisi",
+    "as choisi",
+    "a choisi",
+    "a choisi",
+    "avons choisi",
+    "avez choisi",
+    "ont choisi",
+    "ont choisi"
+   ],
+   "plusQueParfait": [
+    "avais choisi",
+    "avais choisi",
+    "avait choisi",
+    "avait choisi",
+    "avions choisi",
+    "aviez choisi",
+    "avaient choisi",
+    "avaient choisi"
+   ],
+   "futurAnterieur": [
+    "aurai choisi",
+    "auras choisi",
+    "aura choisi",
+    "aura choisi",
+    "aurons choisi",
+    "aurez choisi",
+    "auront choisi",
+    "auront choisi"
+   ],
+   "conditionnel": [
+    "choisirais",
+    "choisirais",
+    "choisirait",
+    "choisirait",
+    "choisirions",
+    "choisiriez",
+    "choisiraient",
+    "choisiraient"
+   ],
+   "conditionnelPasse": [
+    "aurais choisi",
+    "aurais choisi",
+    "aurait choisi",
+    "aurait choisi",
+    "aurions choisi",
+    "auriez choisi",
+    "auraient choisi",
+    "auraient choisi"
+   ],
+   "subjonctif": [
+    "choisisse",
+    "choisisses",
+    "choisisse",
+    "choisisse",
+    "choisissions",
+    "choisissiez",
+    "choisissent",
+    "choisissent"
+   ]
+  },
+  "réussir": {
+   "present": [
+    "réussis",
+    "réussis",
+    "réussit",
+    "réussit",
+    "réussissons",
+    "réussissez",
+    "réussissent",
+    "réussissent"
+   ],
+   "imparfait": [
+    "réussissais",
+    "réussissais",
+    "réussissait",
+    "réussissait",
+    "réussissions",
+    "réussissiez",
+    "réussissaient",
+    "réussissaient"
+   ],
+   "futur": [
+    "réussirai",
+    "réussiras",
+    "réussira",
+    "réussira",
+    "réussirons",
+    "réussirez",
+    "réussiront",
+    "réussiront"
+   ],
+   "passeCompose": [
+    "ai réussi",
+    "as réussi",
+    "a réussi",
+    "a réussi",
+    "avons réussi",
+    "avez réussi",
+    "ont réussi",
+    "ont réussi"
+   ],
+   "plusQueParfait": [
+    "avais réussi",
+    "avais réussi",
+    "avait réussi",
+    "avait réussi",
+    "avions réussi",
+    "aviez réussi",
+    "avaient réussi",
+    "avaient réussi"
+   ],
+   "futurAnterieur": [
+    "aurai réussi",
+    "auras réussi",
+    "aura réussi",
+    "aura réussi",
+    "aurons réussi",
+    "aurez réussi",
+    "auront réussi",
+    "auront réussi"
+   ],
+   "conditionnel": [
+    "réussirais",
+    "réussirais",
+    "réussirait",
+    "réussirait",
+    "réussirions",
+    "réussiriez",
+    "réussiraient",
+    "réussiraient"
+   ],
+   "conditionnelPasse": [
+    "aurais réussi",
+    "aurais réussi",
+    "aurait réussi",
+    "aurait réussi",
+    "aurions réussi",
+    "auriez réussi",
+    "auraient réussi",
+    "auraient réussi"
+   ],
+   "subjonctif": [
+    "réussisse",
+    "réussisses",
+    "réussisse",
+    "réussisse",
+    "réussissions",
+    "réussissiez",
+    "réussissent",
+    "réussissent"
+   ]
+  },
+  "réfléchir": {
+   "present": [
+    "réfléchis",
+    "réfléchis",
+    "réfléchit",
+    "réfléchit",
+    "réfléchissons",
+    "réfléchissez",
+    "réfléchissent",
+    "réfléchissent"
+   ],
+   "imparfait": [
+    "réfléchissais",
+    "réfléchissais",
+    "réfléchissait",
+    "réfléchissait",
+    "réfléchissions",
+    "réfléchissiez",
+    "réfléchissaient",
+    "réfléchissaient"
+   ],
+   "futur": [
+    "réfléchirai",
+    "réfléchiras",
+    "réfléchira",
+    "réfléchira",
+    "réfléchirons",
+    "réfléchirez",
+    "réfléchiront",
+    "réfléchiront"
+   ],
+   "passeCompose": [
+    "ai réfléchi",
+    "as réfléchi",
+    "a réfléchi",
+    "a réfléchi",
+    "avons réfléchi",
+    "avez réfléchi",
+    "ont réfléchi",
+    "ont réfléchi"
+   ],
+   "plusQueParfait": [
+    "avais réfléchi",
+    "avais réfléchi",
+    "avait réfléchi",
+    "avait réfléchi",
+    "avions réfléchi",
+    "aviez réfléchi",
+    "avaient réfléchi",
+    "avaient réfléchi"
+   ],
+   "futurAnterieur": [
+    "aurai réfléchi",
+    "auras réfléchi",
+    "aura réfléchi",
+    "aura réfléchi",
+    "aurons réfléchi",
+    "aurez réfléchi",
+    "auront réfléchi",
+    "auront réfléchi"
+   ],
+   "conditionnel": [
+    "réfléchirais",
+    "réfléchirais",
+    "réfléchirait",
+    "réfléchirait",
+    "réfléchirions",
+    "réfléchiriez",
+    "réfléchiraient",
+    "réfléchiraient"
+   ],
+   "conditionnelPasse": [
+    "aurais réfléchi",
+    "aurais réfléchi",
+    "aurait réfléchi",
+    "aurait réfléchi",
+    "aurions réfléchi",
+    "auriez réfléchi",
+    "auraient réfléchi",
+    "auraient réfléchi"
+   ],
+   "subjonctif": [
+    "réfléchisse",
+    "réfléchisses",
+    "réfléchisse",
+    "réfléchisse",
+    "réfléchissions",
+    "réfléchissiez",
+    "réfléchissent",
+    "réfléchissent"
+   ]
+  },
+  "grandir": {
+   "present": [
+    "grandis",
+    "grandis",
+    "grandit",
+    "grandit",
+    "grandissons",
+    "grandissez",
+    "grandissent",
+    "grandissent"
+   ],
+   "imparfait": [
+    "grandissais",
+    "grandissais",
+    "grandissait",
+    "grandissait",
+    "grandissions",
+    "grandissiez",
+    "grandissaient",
+    "grandissaient"
+   ],
+   "futur": [
+    "grandirai",
+    "grandiras",
+    "grandira",
+    "grandira",
+    "grandirons",
+    "grandirez",
+    "grandiront",
+    "grandiront"
+   ],
+   "passeCompose": [
+    "ai grandi",
+    "as grandi",
+    "a grandi",
+    "a grandi",
+    "avons grandi",
+    "avez grandi",
+    "ont grandi",
+    "ont grandi"
+   ],
+   "plusQueParfait": [
+    "avais grandi",
+    "avais grandi",
+    "avait grandi",
+    "avait grandi",
+    "avions grandi",
+    "aviez grandi",
+    "avaient grandi",
+    "avaient grandi"
+   ],
+   "futurAnterieur": [
+    "aurai grandi",
+    "auras grandi",
+    "aura grandi",
+    "aura grandi",
+    "aurons grandi",
+    "aurez grandi",
+    "auront grandi",
+    "auront grandi"
+   ],
+   "conditionnel": [
+    "grandirais",
+    "grandirais",
+    "grandirait",
+    "grandirait",
+    "grandirions",
+    "grandiriez",
+    "grandiraient",
+    "grandiraient"
+   ],
+   "conditionnelPasse": [
+    "aurais grandi",
+    "aurais grandi",
+    "aurait grandi",
+    "aurait grandi",
+    "aurions grandi",
+    "auriez grandi",
+    "auraient grandi",
+    "auraient grandi"
+   ],
+   "subjonctif": [
+    "grandisse",
+    "grandisses",
+    "grandisse",
+    "grandisse",
+    "grandissions",
+    "grandissiez",
+    "grandissent",
+    "grandissent"
+   ]
+  },
+  "grossir": {
+   "present": [
+    "grossis",
+    "grossis",
+    "grossit",
+    "grossit",
+    "grossissons",
+    "grossissez",
+    "grossissent",
+    "grossissent"
+   ],
+   "imparfait": [
+    "grossissais",
+    "grossissais",
+    "grossissait",
+    "grossissait",
+    "grossissions",
+    "grossissiez",
+    "grossissaient",
+    "grossissaient"
+   ],
+   "futur": [
+    "grossirai",
+    "grossiras",
+    "grossira",
+    "grossira",
+    "grossirons",
+    "grossirez",
+    "grossiront",
+    "grossiront"
+   ],
+   "passeCompose": [
+    "ai grossi",
+    "as grossi",
+    "a grossi",
+    "a grossi",
+    "avons grossi",
+    "avez grossi",
+    "ont grossi",
+    "ont grossi"
+   ],
+   "plusQueParfait": [
+    "avais grossi",
+    "avais grossi",
+    "avait grossi",
+    "avait grossi",
+    "avions grossi",
+    "aviez grossi",
+    "avaient grossi",
+    "avaient grossi"
+   ],
+   "futurAnterieur": [
+    "aurai grossi",
+    "auras grossi",
+    "aura grossi",
+    "aura grossi",
+    "aurons grossi",
+    "aurez grossi",
+    "auront grossi",
+    "auront grossi"
+   ],
+   "conditionnel": [
+    "grossirais",
+    "grossirais",
+    "grossirait",
+    "grossirait",
+    "grossirions",
+    "grossiriez",
+    "grossiraient",
+    "grossiraient"
+   ],
+   "conditionnelPasse": [
+    "aurais grossi",
+    "aurais grossi",
+    "aurait grossi",
+    "aurait grossi",
+    "aurions grossi",
+    "auriez grossi",
+    "auraient grossi",
+    "auraient grossi"
+   ],
+   "subjonctif": [
+    "grossisse",
+    "grossisses",
+    "grossisse",
+    "grossisse",
+    "grossissions",
+    "grossissiez",
+    "grossissent",
+    "grossissent"
+   ]
+  },
+  "obéir": {
+   "present": [
+    "obéis",
+    "obéis",
+    "obéit",
+    "obéit",
+    "obéissons",
+    "obéissez",
+    "obéissent",
+    "obéissent"
+   ],
+   "imparfait": [
+    "obéissais",
+    "obéissais",
+    "obéissait",
+    "obéissait",
+    "obéissions",
+    "obéissiez",
+    "obéissaient",
+    "obéissaient"
+   ],
+   "futur": [
+    "obéirai",
+    "obéiras",
+    "obéira",
+    "obéira",
+    "obéirons",
+    "obéirez",
+    "obéiront",
+    "obéiront"
+   ],
+   "passeCompose": [
+    "ai obéi",
+    "as obéi",
+    "a obéi",
+    "a obéi",
+    "avons obéi",
+    "avez obéi",
+    "ont obéi",
+    "ont obéi"
+   ],
+   "plusQueParfait": [
+    "avais obéi",
+    "avais obéi",
+    "avait obéi",
+    "avait obéi",
+    "avions obéi",
+    "aviez obéi",
+    "avaient obéi",
+    "avaient obéi"
+   ],
+   "futurAnterieur": [
+    "aurai obéi",
+    "auras obéi",
+    "aura obéi",
+    "aura obéi",
+    "aurons obéi",
+    "aurez obéi",
+    "auront obéi",
+    "auront obéi"
+   ],
+   "conditionnel": [
+    "obéirais",
+    "obéirais",
+    "obéirait",
+    "obéirait",
+    "obéirions",
+    "obéiriez",
+    "obéiraient",
+    "obéiraient"
+   ],
+   "conditionnelPasse": [
+    "aurais obéi",
+    "aurais obéi",
+    "aurait obéi",
+    "aurait obéi",
+    "aurions obéi",
+    "auriez obéi",
+    "auraient obéi",
+    "auraient obéi"
+   ],
+   "subjonctif": [
+    "obéisse",
+    "obéisses",
+    "obéisse",
+    "obéisse",
+    "obéissions",
+    "obéissiez",
+    "obéissent",
+    "obéissent"
+   ]
+  },
+  "remplir": {
+   "present": [
+    "remplis",
+    "remplis",
+    "remplit",
+    "remplit",
+    "remplissons",
+    "remplissez",
+    "remplissent",
+    "remplissent"
+   ],
+   "imparfait": [
+    "remplissais",
+    "remplissais",
+    "remplissait",
+    "remplissait",
+    "remplissions",
+    "remplissiez",
+    "remplissaient",
+    "remplissaient"
+   ],
+   "futur": [
+    "remplirai",
+    "rempliras",
+    "remplira",
+    "remplira",
+    "remplirons",
+    "remplirez",
+    "rempliront",
+    "rempliront"
+   ],
+   "passeCompose": [
+    "ai rempli",
+    "as rempli",
+    "a rempli",
+    "a rempli",
+    "avons rempli",
+    "avez rempli",
+    "ont rempli",
+    "ont rempli"
+   ],
+   "plusQueParfait": [
+    "avais rempli",
+    "avais rempli",
+    "avait rempli",
+    "avait rempli",
+    "avions rempli",
+    "aviez rempli",
+    "avaient rempli",
+    "avaient rempli"
+   ],
+   "futurAnterieur": [
+    "aurai rempli",
+    "auras rempli",
+    "aura rempli",
+    "aura rempli",
+    "aurons rempli",
+    "aurez rempli",
+    "auront rempli",
+    "auront rempli"
+   ],
+   "conditionnel": [
+    "remplirais",
+    "remplirais",
+    "remplirait",
+    "remplirait",
+    "remplirions",
+    "rempliriez",
+    "rempliraient",
+    "rempliraient"
+   ],
+   "conditionnelPasse": [
+    "aurais rempli",
+    "aurais rempli",
+    "aurait rempli",
+    "aurait rempli",
+    "aurions rempli",
+    "auriez rempli",
+    "auraient rempli",
+    "auraient rempli"
+   ],
+   "subjonctif": [
+    "remplisse",
+    "remplisses",
+    "remplisse",
+    "remplisse",
+    "remplissions",
+    "remplissiez",
+    "remplissent",
+    "remplissent"
+   ]
+  },
+  "saisir": {
+   "present": [
+    "saisis",
+    "saisis",
+    "saisit",
+    "saisit",
+    "saisissons",
+    "saisissez",
+    "saisissent",
+    "saisissent"
+   ],
+   "imparfait": [
+    "saisissais",
+    "saisissais",
+    "saisissait",
+    "saisissait",
+    "saisissions",
+    "saisissiez",
+    "saisissaient",
+    "saisissaient"
+   ],
+   "futur": [
+    "saisirai",
+    "saisiras",
+    "saisira",
+    "saisira",
+    "saisirons",
+    "saisirez",
+    "saisiront",
+    "saisiront"
+   ],
+   "passeCompose": [
+    "ai saisi",
+    "as saisi",
+    "a saisi",
+    "a saisi",
+    "avons saisi",
+    "avez saisi",
+    "ont saisi",
+    "ont saisi"
+   ],
+   "plusQueParfait": [
+    "avais saisi",
+    "avais saisi",
+    "avait saisi",
+    "avait saisi",
+    "avions saisi",
+    "aviez saisi",
+    "avaient saisi",
+    "avaient saisi"
+   ],
+   "futurAnterieur": [
+    "aurai saisi",
+    "auras saisi",
+    "aura saisi",
+    "aura saisi",
+    "aurons saisi",
+    "aurez saisi",
+    "auront saisi",
+    "auront saisi"
+   ],
+   "conditionnel": [
+    "saisirais",
+    "saisirais",
+    "saisirait",
+    "saisirait",
+    "saisirions",
+    "saisiriez",
+    "saisiraient",
+    "saisiraient"
+   ],
+   "conditionnelPasse": [
+    "aurais saisi",
+    "aurais saisi",
+    "aurait saisi",
+    "aurait saisi",
+    "aurions saisi",
+    "auriez saisi",
+    "auraient saisi",
+    "auraient saisi"
+   ],
+   "subjonctif": [
+    "saisisse",
+    "saisisses",
+    "saisisse",
+    "saisisse",
+    "saisissions",
+    "saisissiez",
+    "saisissent",
+    "saisissent"
+   ]
+  },
+  "punir": {
+   "present": [
+    "punis",
+    "punis",
+    "punit",
+    "punit",
+    "punissons",
+    "punissez",
+    "punissent",
+    "punissent"
+   ],
+   "imparfait": [
+    "punissais",
+    "punissais",
+    "punissait",
+    "punissait",
+    "punissions",
+    "punissiez",
+    "punissaient",
+    "punissaient"
+   ],
+   "futur": [
+    "punirai",
+    "puniras",
+    "punira",
+    "punira",
+    "punirons",
+    "punirez",
+    "puniront",
+    "puniront"
+   ],
+   "passeCompose": [
+    "ai puni",
+    "as puni",
+    "a puni",
+    "a puni",
+    "avons puni",
+    "avez puni",
+    "ont puni",
+    "ont puni"
+   ],
+   "plusQueParfait": [
+    "avais puni",
+    "avais puni",
+    "avait puni",
+    "avait puni",
+    "avions puni",
+    "aviez puni",
+    "avaient puni",
+    "avaient puni"
+   ],
+   "futurAnterieur": [
+    "aurai puni",
+    "auras puni",
+    "aura puni",
+    "aura puni",
+    "aurons puni",
+    "aurez puni",
+    "auront puni",
+    "auront puni"
+   ],
+   "conditionnel": [
+    "punirais",
+    "punirais",
+    "punirait",
+    "punirait",
+    "punirions",
+    "puniriez",
+    "puniraient",
+    "puniraient"
+   ],
+   "conditionnelPasse": [
+    "aurais puni",
+    "aurais puni",
+    "aurait puni",
+    "aurait puni",
+    "aurions puni",
+    "auriez puni",
+    "auraient puni",
+    "auraient puni"
+   ],
+   "subjonctif": [
+    "punisse",
+    "punisses",
+    "punisse",
+    "punisse",
+    "punissions",
+    "punissiez",
+    "punissent",
+    "punissent"
+   ]
+  },
+  "être": {
+   "present": [
+    "suis",
+    "es",
+    "est",
+    "est",
+    "sommes",
+    "êtes",
+    "sont",
+    "sont"
+   ],
+   "imparfait": [
+    "étais",
+    "étais",
+    "était",
+    "était",
+    "étions",
+    "étiez",
+    "étaient",
+    "étaient"
+   ],
+   "futur": [
+    "serai",
+    "seras",
+    "sera",
+    "sera",
+    "serons",
+    "serez",
+    "seront",
+    "seront"
+   ],
+   "passeCompose": [
+    "ai été",
+    "as été",
+    "a été",
+    "a été",
+    "avons été",
+    "avez été",
+    "ont été",
+    "ont été"
+   ],
+   "plusQueParfait": [
+    "avais été",
+    "avais été",
+    "avait été",
+    "avait été",
+    "avions été",
+    "aviez été",
+    "avaient été",
+    "avaient été"
+   ],
+   "futurAnterieur": [
+    "aurai été",
+    "auras été",
+    "aura été",
+    "aura été",
+    "aurons été",
+    "aurez été",
+    "auront été",
+    "auront été"
+   ],
+   "conditionnel": [
+    "serais",
+    "serais",
+    "serait",
+    "serait",
+    "serions",
+    "seriez",
+    "seraient",
+    "seraient"
+   ],
+   "conditionnelPasse": [
+    "aurais été",
+    "aurais été",
+    "aurait été",
+    "aurait été",
+    "aurions été",
+    "auriez été",
+    "auraient été",
+    "auraient été"
+   ],
+   "subjonctif": [
+    "sois",
+    "sois",
+    "soit",
+    "soit",
+    "soyons",
+    "soyez",
+    "soient",
+    "soient"
+   ]
+  },
+  "avoir": {
+   "present": [
+    "ai",
+    "as",
+    "a",
+    "a",
+    "avons",
+    "avez",
+    "ont",
+    "ont"
+   ],
+   "imparfait": [
+    "avais",
+    "avais",
+    "avait",
+    "avait",
+    "avions",
+    "aviez",
+    "avaient",
+    "avaient"
+   ],
+   "futur": [
+    "aurai",
+    "auras",
+    "aura",
+    "aura",
+    "aurons",
+    "aurez",
+    "auront",
+    "auront"
+   ],
+   "passeCompose": [
+    "ai eu",
+    "as eu",
+    "a eu",
+    "a eu",
+    "avons eu",
+    "avez eu",
+    "ont eu",
+    "ont eu"
+   ],
+   "plusQueParfait": [
+    "avais eu",
+    "avais eu",
+    "avait eu",
+    "avait eu",
+    "avions eu",
+    "aviez eu",
+    "avaient eu",
+    "avaient eu"
+   ],
+   "futurAnterieur": [
+    "aurai eu",
+    "auras eu",
+    "aura eu",
+    "aura eu",
+    "aurons eu",
+    "aurez eu",
+    "auront eu",
+    "auront eu"
+   ],
+   "conditionnel": [
+    "aurais",
+    "aurais",
+    "aurait",
+    "aurait",
+    "aurions",
+    "auriez",
+    "auraient",
+    "auraient"
+   ],
+   "conditionnelPasse": [
+    "aurais eu",
+    "aurais eu",
+    "aurait eu",
+    "aurait eu",
+    "aurions eu",
+    "auriez eu",
+    "auraient eu",
+    "auraient eu"
+   ],
+   "subjonctif": [
+    "aie",
+    "aies",
+    "ait",
+    "ait",
+    "ayons",
+    "ayez",
+    "aient",
+    "aient"
+   ]
+  },
+  "aller": {
+   "present": [
+    "vais",
+    "vas",
+    "va",
+    "va",
+    "allons",
+    "allez",
+    "vont",
+    "vont"
+   ],
+   "imparfait": [
+    "allais",
+    "allais",
+    "allait",
+    "allait",
+    "allions",
+    "alliez",
+    "allaient",
+    "allaient"
+   ],
+   "futur": [
+    "irai",
+    "iras",
+    "ira",
+    "ira",
+    "irons",
+    "irez",
+    "iront",
+    "iront"
+   ],
+   "passeCompose": [
+    "suis allé|suis allée",
+    "es allé|es allée",
+    "est allé",
+    "est allée",
+    "sommes allés|sommes allées",
+    "êtes allés|êtes allées|êtes allé|êtes allée",
+    "sont allés",
+    "sont allées"
+   ],
+   "plusQueParfait": [
+    "étais allé|étais allée",
+    "étais allé|étais allée",
+    "était allé",
+    "était allée",
+    "étions allés|étions allées",
+    "étiez allés|étiez allées|étiez allé|étiez allée",
+    "étaient allés",
+    "étaient allées"
+   ],
+   "futurAnterieur": [
+    "serai allé|serai allée",
+    "seras allé|seras allée",
+    "sera allé",
+    "sera allée",
+    "serons allés|serons allées",
+    "serez allés|serez allées|serez allé|serez allée",
+    "seront allés",
+    "seront allées"
+   ],
+   "conditionnel": [
+    "irais",
+    "irais",
+    "irait",
+    "irait",
+    "irions",
+    "iriez",
+    "iraient",
+    "iraient"
+   ],
+   "conditionnelPasse": [
+    "serais allé|serais allée",
+    "serais allé|serais allée",
+    "serait allé",
+    "serait allée",
+    "serions allés|serions allées",
+    "seriez allés|seriez allées|seriez allé|seriez allée",
+    "seraient allés",
+    "seraient allées"
+   ],
+   "subjonctif": [
+    "aille",
+    "ailles",
+    "aille",
+    "aille",
+    "allions",
+    "alliez",
+    "aillent",
+    "aillent"
+   ]
+  },
+  "faire": {
+   "present": [
+    "fais",
+    "fais",
+    "fait",
+    "fait",
+    "faisons",
+    "faites",
+    "font",
+    "font"
+   ],
+   "imparfait": [
+    "faisais",
+    "faisais",
+    "faisait",
+    "faisait",
+    "faisions",
+    "faisiez",
+    "faisaient",
+    "faisaient"
+   ],
+   "futur": [
+    "ferai",
+    "feras",
+    "fera",
+    "fera",
+    "ferons",
+    "ferez",
+    "feront",
+    "feront"
+   ],
+   "passeCompose": [
+    "ai fait",
+    "as fait",
+    "a fait",
+    "a fait",
+    "avons fait",
+    "avez fait",
+    "ont fait",
+    "ont fait"
+   ],
+   "plusQueParfait": [
+    "avais fait",
+    "avais fait",
+    "avait fait",
+    "avait fait",
+    "avions fait",
+    "aviez fait",
+    "avaient fait",
+    "avaient fait"
+   ],
+   "futurAnterieur": [
+    "aurai fait",
+    "auras fait",
+    "aura fait",
+    "aura fait",
+    "aurons fait",
+    "aurez fait",
+    "auront fait",
+    "auront fait"
+   ],
+   "conditionnel": [
+    "ferais",
+    "ferais",
+    "ferait",
+    "ferait",
+    "ferions",
+    "feriez",
+    "feraient",
+    "feraient"
+   ],
+   "conditionnelPasse": [
+    "aurais fait",
+    "aurais fait",
+    "aurait fait",
+    "aurait fait",
+    "aurions fait",
+    "auriez fait",
+    "auraient fait",
+    "auraient fait"
+   ],
+   "subjonctif": [
+    "fasse",
+    "fasses",
+    "fasse",
+    "fasse",
+    "fassions",
+    "fassiez",
+    "fassent",
+    "fassent"
+   ]
+  },
+  "dire": {
+   "present": [
+    "dis",
+    "dis",
+    "dit",
+    "dit",
+    "disons",
+    "dites",
+    "disent",
+    "disent"
+   ],
+   "imparfait": [
+    "disais",
+    "disais",
+    "disait",
+    "disait",
+    "disions",
+    "disiez",
+    "disaient",
+    "disaient"
+   ],
+   "futur": [
+    "dirai",
+    "diras",
+    "dira",
+    "dira",
+    "dirons",
+    "direz",
+    "diront",
+    "diront"
+   ],
+   "passeCompose": [
+    "ai dit",
+    "as dit",
+    "a dit",
+    "a dit",
+    "avons dit",
+    "avez dit",
+    "ont dit",
+    "ont dit"
+   ],
+   "plusQueParfait": [
+    "avais dit",
+    "avais dit",
+    "avait dit",
+    "avait dit",
+    "avions dit",
+    "aviez dit",
+    "avaient dit",
+    "avaient dit"
+   ],
+   "futurAnterieur": [
+    "aurai dit",
+    "auras dit",
+    "aura dit",
+    "aura dit",
+    "aurons dit",
+    "aurez dit",
+    "auront dit",
+    "auront dit"
+   ],
+   "conditionnel": [
+    "dirais",
+    "dirais",
+    "dirait",
+    "dirait",
+    "dirions",
+    "diriez",
+    "diraient",
+    "diraient"
+   ],
+   "conditionnelPasse": [
+    "aurais dit",
+    "aurais dit",
+    "aurait dit",
+    "aurait dit",
+    "aurions dit",
+    "auriez dit",
+    "auraient dit",
+    "auraient dit"
+   ],
+   "subjonctif": [
+    "dise",
+    "dises",
+    "dise",
+    "dise",
+    "disions",
+    "disiez",
+    "disent",
+    "disent"
+   ]
+  },
+  "pouvoir": {
+   "present": [
+    "puis",
+    "peux",
+    "peut",
+    "peut",
+    "pouvons",
+    "pouvez",
+    "peuvent",
+    "peuvent"
+   ],
+   "imparfait": [
+    "pouvais",
+    "pouvais",
+    "pouvait",
+    "pouvait",
+    "pouvions",
+    "pouviez",
+    "pouvaient",
+    "pouvaient"
+   ],
+   "futur": [
+    "pourrai",
+    "pourras",
+    "pourra",
+    "pourra",
+    "pourrons",
+    "pourrez",
+    "pourront",
+    "pourront"
+   ],
+   "passeCompose": [
+    "ai pu",
+    "as pu",
+    "a pu",
+    "a pu",
+    "avons pu",
+    "avez pu",
+    "ont pu",
+    "ont pu"
+   ],
+   "plusQueParfait": [
+    "avais pu",
+    "avais pu",
+    "avait pu",
+    "avait pu",
+    "avions pu",
+    "aviez pu",
+    "avaient pu",
+    "avaient pu"
+   ],
+   "futurAnterieur": [
+    "aurai pu",
+    "auras pu",
+    "aura pu",
+    "aura pu",
+    "aurons pu",
+    "aurez pu",
+    "auront pu",
+    "auront pu"
+   ],
+   "conditionnel": [
+    "pourrais",
+    "pourrais",
+    "pourrait",
+    "pourrait",
+    "pourrions",
+    "pourriez",
+    "pourraient",
+    "pourraient"
+   ],
+   "conditionnelPasse": [
+    "aurais pu",
+    "aurais pu",
+    "aurait pu",
+    "aurait pu",
+    "aurions pu",
+    "auriez pu",
+    "auraient pu",
+    "auraient pu"
+   ],
+   "subjonctif": [
+    "puisse",
+    "puisses",
+    "puisse",
+    "puisse",
+    "puissions",
+    "puissiez",
+    "puissent",
+    "puissent"
+   ]
+  },
+  "voir": {
+   "present": [
+    "vois",
+    "vois",
+    "voit",
+    "voit",
+    "voyons",
+    "voyez",
+    "voient",
+    "voient"
+   ],
+   "imparfait": [
+    "voyais",
+    "voyais",
+    "voyait",
+    "voyait",
+    "voyions",
+    "voyiez",
+    "voyaient",
+    "voyaient"
+   ],
+   "futur": [
+    "verrai",
+    "verras",
+    "verra",
+    "verra",
+    "verrons",
+    "verrez",
+    "verront",
+    "verront"
+   ],
+   "passeCompose": [
+    "ai vu",
+    "as vu",
+    "a vu",
+    "a vu",
+    "avons vu",
+    "avez vu",
+    "ont vu",
+    "ont vu"
+   ],
+   "plusQueParfait": [
+    "avais vu",
+    "avais vu",
+    "avait vu",
+    "avait vu",
+    "avions vu",
+    "aviez vu",
+    "avaient vu",
+    "avaient vu"
+   ],
+   "futurAnterieur": [
+    "aurai vu",
+    "auras vu",
+    "aura vu",
+    "aura vu",
+    "aurons vu",
+    "aurez vu",
+    "auront vu",
+    "auront vu"
+   ],
+   "conditionnel": [
+    "verrais",
+    "verrais",
+    "verrait",
+    "verrait",
+    "verrions",
+    "verriez",
+    "verraient",
+    "verraient"
+   ],
+   "conditionnelPasse": [
+    "aurais vu",
+    "aurais vu",
+    "aurait vu",
+    "aurait vu",
+    "aurions vu",
+    "auriez vu",
+    "auraient vu",
+    "auraient vu"
+   ],
+   "subjonctif": [
+    "voie",
+    "voies",
+    "voie",
+    "voie",
+    "voyions",
+    "voyiez",
+    "voient",
+    "voient"
+   ]
+  },
+  "savoir": {
+   "present": [
+    "sais",
+    "sais",
+    "sait",
+    "sait",
+    "savons",
+    "savez",
+    "savent",
+    "savent"
+   ],
+   "imparfait": [
+    "savais",
+    "savais",
+    "savait",
+    "savait",
+    "savions",
+    "saviez",
+    "savaient",
+    "savaient"
+   ],
+   "futur": [
+    "saurai",
+    "sauras",
+    "saura",
+    "saura",
+    "saurons",
+    "saurez",
+    "sauront",
+    "sauront"
+   ],
+   "passeCompose": [
+    "ai su",
+    "as su",
+    "a su",
+    "a su",
+    "avons su",
+    "avez su",
+    "ont su",
+    "ont su"
+   ],
+   "plusQueParfait": [
+    "avais su",
+    "avais su",
+    "avait su",
+    "avait su",
+    "avions su",
+    "aviez su",
+    "avaient su",
+    "avaient su"
+   ],
+   "futurAnterieur": [
+    "aurai su",
+    "auras su",
+    "aura su",
+    "aura su",
+    "aurons su",
+    "aurez su",
+    "auront su",
+    "auront su"
+   ],
+   "conditionnel": [
+    "saurais",
+    "saurais",
+    "saurait",
+    "saurait",
+    "saurions",
+    "sauriez",
+    "sauraient",
+    "sauraient"
+   ],
+   "conditionnelPasse": [
+    "aurais su",
+    "aurais su",
+    "aurait su",
+    "aurait su",
+    "aurions su",
+    "auriez su",
+    "auraient su",
+    "auraient su"
+   ],
+   "subjonctif": [
+    "sache",
+    "saches",
+    "sache",
+    "sache",
+    "sachions",
+    "sachiez",
+    "sachent",
+    "sachent"
+   ]
+  },
+  "vouloir": {
+   "present": [
+    "veux",
+    "veux",
+    "veut",
+    "veut",
+    "voulons",
+    "voulez",
+    "veulent",
+    "veulent"
+   ],
+   "imparfait": [
+    "voulais",
+    "voulais",
+    "voulait",
+    "voulait",
+    "voulions",
+    "vouliez",
+    "voulaient",
+    "voulaient"
+   ],
+   "futur": [
+    "voudrai",
+    "voudras",
+    "voudra",
+    "voudra",
+    "voudrons",
+    "voudrez",
+    "voudront",
+    "voudront"
+   ],
+   "passeCompose": [
+    "ai voulu",
+    "as voulu",
+    "a voulu",
+    "a voulu",
+    "avons voulu",
+    "avez voulu",
+    "ont voulu",
+    "ont voulu"
+   ],
+   "plusQueParfait": [
+    "avais voulu",
+    "avais voulu",
+    "avait voulu",
+    "avait voulu",
+    "avions voulu",
+    "aviez voulu",
+    "avaient voulu",
+    "avaient voulu"
+   ],
+   "futurAnterieur": [
+    "aurai voulu",
+    "auras voulu",
+    "aura voulu",
+    "aura voulu",
+    "aurons voulu",
+    "aurez voulu",
+    "auront voulu",
+    "auront voulu"
+   ],
+   "conditionnel": [
+    "voudrais",
+    "voudrais",
+    "voudrait",
+    "voudrait",
+    "voudrions",
+    "voudriez",
+    "voudraient",
+    "voudraient"
+   ],
+   "conditionnelPasse": [
+    "aurais voulu",
+    "aurais voulu",
+    "aurait voulu",
+    "aurait voulu",
+    "aurions voulu",
+    "auriez voulu",
+    "auraient voulu",
+    "auraient voulu"
+   ],
+   "subjonctif": [
+    "veuille",
+    "veuilles",
+    "veuille",
+    "veuille",
+    "voulions",
+    "vouliez",
+    "veuillent",
+    "veuillent"
+   ]
+  },
+  "venir": {
+   "present": [
+    "viens",
+    "viens",
+    "vient",
+    "vient",
+    "venons",
+    "venez",
+    "viennent",
+    "viennent"
+   ],
+   "imparfait": [
+    "venais",
+    "venais",
+    "venait",
+    "venait",
+    "venions",
+    "veniez",
+    "venaient",
+    "venaient"
+   ],
+   "futur": [
+    "viendrai",
+    "viendras",
+    "viendra",
+    "viendra",
+    "viendrons",
+    "viendrez",
+    "viendront",
+    "viendront"
+   ],
+   "passeCompose": [
+    "suis venu|suis venue",
+    "es venu|es venue",
+    "est venu",
+    "est venue",
+    "sommes venus|sommes venues",
+    "êtes venus|êtes venues|êtes venu|êtes venue",
+    "sont venus",
+    "sont venues"
+   ],
+   "plusQueParfait": [
+    "étais venu|étais venue",
+    "étais venu|étais venue",
+    "était venu",
+    "était venue",
+    "étions venus|étions venues",
+    "étiez venus|étiez venues|étiez venu|étiez venue",
+    "étaient venus",
+    "étaient venues"
+   ],
+   "futurAnterieur": [
+    "serai venu|serai venue",
+    "seras venu|seras venue",
+    "sera venu",
+    "sera venue",
+    "serons venus|serons venues",
+    "serez venus|serez venues|serez venu|serez venue",
+    "seront venus",
+    "seront venues"
+   ],
+   "conditionnel": [
+    "viendrais",
+    "viendrais",
+    "viendrait",
+    "viendrait",
+    "viendrions",
+    "viendriez",
+    "viendraient",
+    "viendraient"
+   ],
+   "conditionnelPasse": [
+    "serais venu|serais venue",
+    "serais venu|serais venue",
+    "serait venu",
+    "serait venue",
+    "serions venus|serions venues",
+    "seriez venus|seriez venues|seriez venu|seriez venue",
+    "seraient venus",
+    "seraient venues"
+   ],
+   "subjonctif": [
+    "vienne",
+    "viennes",
+    "vienne",
+    "vienne",
+    "venions",
+    "veniez",
+    "viennent",
+    "viennent"
+   ]
+  },
+  "devoir": {
+   "present": [
+    "dois",
+    "dois",
+    "doit",
+    "doit",
+    "devons",
+    "devez",
+    "doivent",
+    "doivent"
+   ],
+   "imparfait": [
+    "devais",
+    "devais",
+    "devait",
+    "devait",
+    "devions",
+    "deviez",
+    "devaient",
+    "devaient"
+   ],
+   "futur": [
+    "devrai",
+    "devras",
+    "devra",
+    "devra",
+    "devrons",
+    "devrez",
+    "devront",
+    "devront"
+   ],
+   "passeCompose": [
+    "ai dû",
+    "as dû",
+    "a dû",
+    "a dû",
+    "avons dû",
+    "avez dû",
+    "ont dû",
+    "ont dû"
+   ],
+   "plusQueParfait": [
+    "avais dû",
+    "avais dû",
+    "avait dû",
+    "avait dû",
+    "avions dû",
+    "aviez dû",
+    "avaient dû",
+    "avaient dû"
+   ],
+   "futurAnterieur": [
+    "aurai dû",
+    "auras dû",
+    "aura dû",
+    "aura dû",
+    "aurons dû",
+    "aurez dû",
+    "auront dû",
+    "auront dû"
+   ],
+   "conditionnel": [
+    "devrais",
+    "devrais",
+    "devrait",
+    "devrait",
+    "devrions",
+    "devriez",
+    "devraient",
+    "devraient"
+   ],
+   "conditionnelPasse": [
+    "aurais dû",
+    "aurais dû",
+    "aurait dû",
+    "aurait dû",
+    "aurions dû",
+    "auriez dû",
+    "auraient dû",
+    "auraient dû"
+   ],
+   "subjonctif": [
+    "doive",
+    "doives",
+    "doive",
+    "doive",
+    "devions",
+    "deviez",
+    "doivent",
+    "doivent"
+   ]
+  },
+  "prendre": {
+   "present": [
+    "prends",
+    "prends",
+    "prend",
+    "prend",
+    "prenons",
+    "prenez",
+    "prennent",
+    "prennent"
+   ],
+   "imparfait": [
+    "prenais",
+    "prenais",
+    "prenait",
+    "prenait",
+    "prenions",
+    "preniez",
+    "prenaient",
+    "prenaient"
+   ],
+   "futur": [
+    "prendrai",
+    "prendras",
+    "prendra",
+    "prendra",
+    "prendrons",
+    "prendrez",
+    "prendront",
+    "prendront"
+   ],
+   "passeCompose": [
+    "ai pris",
+    "as pris",
+    "a pris",
+    "a pris",
+    "avons pris",
+    "avez pris",
+    "ont pris",
+    "ont pris"
+   ],
+   "plusQueParfait": [
+    "avais pris",
+    "avais pris",
+    "avait pris",
+    "avait pris",
+    "avions pris",
+    "aviez pris",
+    "avaient pris",
+    "avaient pris"
+   ],
+   "futurAnterieur": [
+    "aurai pris",
+    "auras pris",
+    "aura pris",
+    "aura pris",
+    "aurons pris",
+    "aurez pris",
+    "auront pris",
+    "auront pris"
+   ],
+   "conditionnel": [
+    "prendrais",
+    "prendrais",
+    "prendrait",
+    "prendrait",
+    "prendrions",
+    "prendriez",
+    "prendraient",
+    "prendraient"
+   ],
+   "conditionnelPasse": [
+    "aurais pris",
+    "aurais pris",
+    "aurait pris",
+    "aurait pris",
+    "aurions pris",
+    "auriez pris",
+    "auraient pris",
+    "auraient pris"
+   ],
+   "subjonctif": [
+    "prenne",
+    "prennes",
+    "prenne",
+    "prenne",
+    "prenions",
+    "preniez",
+    "prennent",
+    "prennent"
+   ]
+  },
+  "mettre": {
+   "present": [
+    "mets",
+    "mets",
+    "met",
+    "met",
+    "mettons",
+    "mettez",
+    "mettent",
+    "mettent"
+   ],
+   "imparfait": [
+    "mettais",
+    "mettais",
+    "mettait",
+    "mettait",
+    "mettions",
+    "mettiez",
+    "mettaient",
+    "mettaient"
+   ],
+   "futur": [
+    "mettrai",
+    "mettras",
+    "mettra",
+    "mettra",
+    "mettrons",
+    "mettrez",
+    "mettront",
+    "mettront"
+   ],
+   "passeCompose": [
+    "ai mis",
+    "as mis",
+    "a mis",
+    "a mis",
+    "avons mis",
+    "avez mis",
+    "ont mis",
+    "ont mis"
+   ],
+   "plusQueParfait": [
+    "avais mis",
+    "avais mis",
+    "avait mis",
+    "avait mis",
+    "avions mis",
+    "aviez mis",
+    "avaient mis",
+    "avaient mis"
+   ],
+   "futurAnterieur": [
+    "aurai mis",
+    "auras mis",
+    "aura mis",
+    "aura mis",
+    "aurons mis",
+    "aurez mis",
+    "auront mis",
+    "auront mis"
+   ],
+   "conditionnel": [
+    "mettrais",
+    "mettrais",
+    "mettrait",
+    "mettrait",
+    "mettrions",
+    "mettriez",
+    "mettraient",
+    "mettraient"
+   ],
+   "conditionnelPasse": [
+    "aurais mis",
+    "aurais mis",
+    "aurait mis",
+    "aurait mis",
+    "aurions mis",
+    "auriez mis",
+    "auraient mis",
+    "auraient mis"
+   ],
+   "subjonctif": [
+    "mette",
+    "mettes",
+    "mette",
+    "mette",
+    "mettions",
+    "mettiez",
+    "mettent",
+    "mettent"
+   ]
+  },
+  "tenir": {
+   "present": [
+    "tiens",
+    "tiens",
+    "tient",
+    "tient",
+    "tenons",
+    "tenez",
+    "tiennent",
+    "tiennent"
+   ],
+   "imparfait": [
+    "tenais",
+    "tenais",
+    "tenait",
+    "tenait",
+    "tenions",
+    "teniez",
+    "tenaient",
+    "tenaient"
+   ],
+   "futur": [
+    "tiendrai",
+    "tiendras",
+    "tiendra",
+    "tiendra",
+    "tiendrons",
+    "tiendrez",
+    "tiendront",
+    "tiendront"
+   ],
+   "passeCompose": [
+    "ai tenu",
+    "as tenu",
+    "a tenu",
+    "a tenu",
+    "avons tenu",
+    "avez tenu",
+    "ont tenu",
+    "ont tenu"
+   ],
+   "plusQueParfait": [
+    "avais tenu",
+    "avais tenu",
+    "avait tenu",
+    "avait tenu",
+    "avions tenu",
+    "aviez tenu",
+    "avaient tenu",
+    "avaient tenu"
+   ],
+   "futurAnterieur": [
+    "aurai tenu",
+    "auras tenu",
+    "aura tenu",
+    "aura tenu",
+    "aurons tenu",
+    "aurez tenu",
+    "auront tenu",
+    "auront tenu"
+   ],
+   "conditionnel": [
+    "tiendrais",
+    "tiendrais",
+    "tiendrait",
+    "tiendrait",
+    "tiendrions",
+    "tiendriez",
+    "tiendraient",
+    "tiendraient"
+   ],
+   "conditionnelPasse": [
+    "aurais tenu",
+    "aurais tenu",
+    "aurait tenu",
+    "aurait tenu",
+    "aurions tenu",
+    "auriez tenu",
+    "auraient tenu",
+    "auraient tenu"
+   ],
+   "subjonctif": [
+    "tienne",
+    "tiennes",
+    "tienne",
+    "tienne",
+    "tenions",
+    "teniez",
+    "tiennent",
+    "tiennent"
+   ]
+  },
+  "partir": {
+   "present": [
+    "pars",
+    "pars",
+    "part",
+    "part",
+    "partons",
+    "partez",
+    "partent",
+    "partent"
+   ],
+   "imparfait": [
+    "partais",
+    "partais",
+    "partait",
+    "partait",
+    "partions",
+    "partiez",
+    "partaient",
+    "partaient"
+   ],
+   "futur": [
+    "partirai",
+    "partiras",
+    "partira",
+    "partira",
+    "partirons",
+    "partirez",
+    "partiront",
+    "partiront"
+   ],
+   "passeCompose": [
+    "suis parti|suis partie",
+    "es parti|es partie",
+    "est parti",
+    "est partie",
+    "sommes partis|sommes parties",
+    "êtes partis|êtes parties|êtes parti|êtes partie",
+    "sont partis",
+    "sont parties"
+   ],
+   "plusQueParfait": [
+    "étais parti|étais partie",
+    "étais parti|étais partie",
+    "était parti",
+    "était partie",
+    "étions partis|étions parties",
+    "étiez partis|étiez parties|étiez parti|étiez partie",
+    "étaient partis",
+    "étaient parties"
+   ],
+   "futurAnterieur": [
+    "serai parti|serai partie",
+    "seras parti|seras partie",
+    "sera parti",
+    "sera partie",
+    "serons partis|serons parties",
+    "serez partis|serez parties|serez parti|serez partie",
+    "seront partis",
+    "seront parties"
+   ],
+   "conditionnel": [
+    "partirais",
+    "partirais",
+    "partirait",
+    "partirait",
+    "partirions",
+    "partiriez",
+    "partiraient",
+    "partiraient"
+   ],
+   "conditionnelPasse": [
+    "serais parti|serais partie",
+    "serais parti|serais partie",
+    "serait parti",
+    "serait partie",
+    "serions partis|serions parties",
+    "seriez partis|seriez parties|seriez parti|seriez partie",
+    "seraient partis",
+    "seraient parties"
+   ],
+   "subjonctif": [
+    "parte",
+    "partes",
+    "parte",
+    "parte",
+    "partions",
+    "partiez",
+    "partent",
+    "partent"
+   ]
+  },
+  "sortir": {
+   "present": [
+    "sors",
+    "sors",
+    "sort",
+    "sort",
+    "sortons",
+    "sortez",
+    "sortent",
+    "sortent"
+   ],
+   "imparfait": [
+    "sortais",
+    "sortais",
+    "sortait",
+    "sortait",
+    "sortions",
+    "sortiez",
+    "sortaient",
+    "sortaient"
+   ],
+   "futur": [
+    "sortirai",
+    "sortiras",
+    "sortira",
+    "sortira",
+    "sortirons",
+    "sortirez",
+    "sortiront",
+    "sortiront"
+   ],
+   "passeCompose": [
+    "suis sorti|suis sortie",
+    "es sorti|es sortie",
+    "est sorti",
+    "est sortie",
+    "sommes sortis|sommes sorties",
+    "êtes sortis|êtes sorties|êtes sorti|êtes sortie",
+    "sont sortis",
+    "sont sorties"
+   ],
+   "plusQueParfait": [
+    "étais sorti|étais sortie",
+    "étais sorti|étais sortie",
+    "était sorti",
+    "était sortie",
+    "étions sortis|étions sorties",
+    "étiez sortis|étiez sorties|étiez sorti|étiez sortie",
+    "étaient sortis",
+    "étaient sorties"
+   ],
+   "futurAnterieur": [
+    "serai sorti|serai sortie",
+    "seras sorti|seras sortie",
+    "sera sorti",
+    "sera sortie",
+    "serons sortis|serons sorties",
+    "serez sortis|serez sorties|serez sorti|serez sortie",
+    "seront sortis",
+    "seront sorties"
+   ],
+   "conditionnel": [
+    "sortirais",
+    "sortirais",
+    "sortirait",
+    "sortirait",
+    "sortirions",
+    "sortiriez",
+    "sortiraient",
+    "sortiraient"
+   ],
+   "conditionnelPasse": [
+    "serais sorti|serais sortie",
+    "serais sorti|serais sortie",
+    "serait sorti",
+    "serait sortie",
+    "serions sortis|serions sorties",
+    "seriez sortis|seriez sorties|seriez sorti|seriez sortie",
+    "seraient sortis",
+    "seraient sorties"
+   ],
+   "subjonctif": [
+    "sorte",
+    "sortes",
+    "sorte",
+    "sorte",
+    "sortions",
+    "sortiez",
+    "sortent",
+    "sortent"
+   ]
+  },
+  "dormir": {
+   "present": [
+    "dors",
+    "dors",
+    "dort",
+    "dort",
+    "dormons",
+    "dormez",
+    "dorment",
+    "dorment"
+   ],
+   "imparfait": [
+    "dormais",
+    "dormais",
+    "dormait",
+    "dormait",
+    "dormions",
+    "dormiez",
+    "dormaient",
+    "dormaient"
+   ],
+   "futur": [
+    "dormirai",
+    "dormiras",
+    "dormira",
+    "dormira",
+    "dormirons",
+    "dormirez",
+    "dormiront",
+    "dormiront"
+   ],
+   "passeCompose": [
+    "ai dormi",
+    "as dormi",
+    "a dormi",
+    "a dormi",
+    "avons dormi",
+    "avez dormi",
+    "ont dormi",
+    "ont dormi"
+   ],
+   "plusQueParfait": [
+    "avais dormi",
+    "avais dormi",
+    "avait dormi",
+    "avait dormi",
+    "avions dormi",
+    "aviez dormi",
+    "avaient dormi",
+    "avaient dormi"
+   ],
+   "futurAnterieur": [
+    "aurai dormi",
+    "auras dormi",
+    "aura dormi",
+    "aura dormi",
+    "aurons dormi",
+    "aurez dormi",
+    "auront dormi",
+    "auront dormi"
+   ],
+   "conditionnel": [
+    "dormirais",
+    "dormirais",
+    "dormirait",
+    "dormirait",
+    "dormirions",
+    "dormiriez",
+    "dormiraient",
+    "dormiraient"
+   ],
+   "conditionnelPasse": [
+    "aurais dormi",
+    "aurais dormi",
+    "aurait dormi",
+    "aurait dormi",
+    "aurions dormi",
+    "auriez dormi",
+    "auraient dormi",
+    "auraient dormi"
+   ],
+   "subjonctif": [
+    "dorme",
+    "dormes",
+    "dorme",
+    "dorme",
+    "dormions",
+    "dormiez",
+    "dorment",
+    "dorment"
+   ]
+  },
+  "servir": {
+   "present": [
+    "sers",
+    "sers",
+    "sert",
+    "sert",
+    "servons",
+    "servez",
+    "servent",
+    "servent"
+   ],
+   "imparfait": [
+    "servais",
+    "servais",
+    "servait",
+    "servait",
+    "servions",
+    "serviez",
+    "servaient",
+    "servaient"
+   ],
+   "futur": [
+    "servirai",
+    "serviras",
+    "servira",
+    "servira",
+    "servirons",
+    "servirez",
+    "serviront",
+    "serviront"
+   ],
+   "passeCompose": [
+    "ai servi",
+    "as servi",
+    "a servi",
+    "a servi",
+    "avons servi",
+    "avez servi",
+    "ont servi",
+    "ont servi"
+   ],
+   "plusQueParfait": [
+    "avais servi",
+    "avais servi",
+    "avait servi",
+    "avait servi",
+    "avions servi",
+    "aviez servi",
+    "avaient servi",
+    "avaient servi"
+   ],
+   "futurAnterieur": [
+    "aurai servi",
+    "auras servi",
+    "aura servi",
+    "aura servi",
+    "aurons servi",
+    "aurez servi",
+    "auront servi",
+    "auront servi"
+   ],
+   "conditionnel": [
+    "servirais",
+    "servirais",
+    "servirait",
+    "servirait",
+    "servirions",
+    "serviriez",
+    "serviraient",
+    "serviraient"
+   ],
+   "conditionnelPasse": [
+    "aurais servi",
+    "aurais servi",
+    "aurait servi",
+    "aurait servi",
+    "aurions servi",
+    "auriez servi",
+    "auraient servi",
+    "auraient servi"
+   ],
+   "subjonctif": [
+    "serve",
+    "serves",
+    "serve",
+    "serve",
+    "servions",
+    "serviez",
+    "servent",
+    "servent"
+   ]
+  },
+  "sentir": {
+   "present": [
+    "sens",
+    "sens",
+    "sent",
+    "sent",
+    "sentons",
+    "sentez",
+    "sentent",
+    "sentent"
+   ],
+   "imparfait": [
+    "sentais",
+    "sentais",
+    "sentait",
+    "sentait",
+    "sentions",
+    "sentiez",
+    "sentaient",
+    "sentaient"
+   ],
+   "futur": [
+    "sentirai",
+    "sentiras",
+    "sentira",
+    "sentira",
+    "sentirons",
+    "sentirez",
+    "sentiront",
+    "sentiront"
+   ],
+   "passeCompose": [
+    "ai senti",
+    "as senti",
+    "a senti",
+    "a senti",
+    "avons senti",
+    "avez senti",
+    "ont senti",
+    "ont senti"
+   ],
+   "plusQueParfait": [
+    "avais senti",
+    "avais senti",
+    "avait senti",
+    "avait senti",
+    "avions senti",
+    "aviez senti",
+    "avaient senti",
+    "avaient senti"
+   ],
+   "futurAnterieur": [
+    "aurai senti",
+    "auras senti",
+    "aura senti",
+    "aura senti",
+    "aurons senti",
+    "aurez senti",
+    "auront senti",
+    "auront senti"
+   ],
+   "conditionnel": [
+    "sentirais",
+    "sentirais",
+    "sentirait",
+    "sentirait",
+    "sentirions",
+    "sentiriez",
+    "sentiraient",
+    "sentiraient"
+   ],
+   "conditionnelPasse": [
+    "aurais senti",
+    "aurais senti",
+    "aurait senti",
+    "aurait senti",
+    "aurions senti",
+    "auriez senti",
+    "auraient senti",
+    "auraient senti"
+   ],
+   "subjonctif": [
+    "sente",
+    "sentes",
+    "sente",
+    "sente",
+    "sentions",
+    "sentiez",
+    "sentent",
+    "sentent"
+   ]
+  },
+  "courir": {
+   "present": [
+    "cours",
+    "cours",
+    "court",
+    "court",
+    "courons",
+    "courez",
+    "courent",
+    "courent"
+   ],
+   "imparfait": [
+    "courais",
+    "courais",
+    "courait",
+    "courait",
+    "courions",
+    "couriez",
+    "couraient",
+    "couraient"
+   ],
+   "futur": [
+    "courrai",
+    "courras",
+    "courra",
+    "courra",
+    "courrons",
+    "courrez",
+    "courront",
+    "courront"
+   ],
+   "passeCompose": [
+    "ai couru",
+    "as couru",
+    "a couru",
+    "a couru",
+    "avons couru",
+    "avez couru",
+    "ont couru",
+    "ont couru"
+   ],
+   "plusQueParfait": [
+    "avais couru",
+    "avais couru",
+    "avait couru",
+    "avait couru",
+    "avions couru",
+    "aviez couru",
+    "avaient couru",
+    "avaient couru"
+   ],
+   "futurAnterieur": [
+    "aurai couru",
+    "auras couru",
+    "aura couru",
+    "aura couru",
+    "aurons couru",
+    "aurez couru",
+    "auront couru",
+    "auront couru"
+   ],
+   "conditionnel": [
+    "courrais",
+    "courrais",
+    "courrait",
+    "courrait",
+    "courrions",
+    "courriez",
+    "courraient",
+    "courraient"
+   ],
+   "conditionnelPasse": [
+    "aurais couru",
+    "aurais couru",
+    "aurait couru",
+    "aurait couru",
+    "aurions couru",
+    "auriez couru",
+    "auraient couru",
+    "auraient couru"
+   ],
+   "subjonctif": [
+    "coure",
+    "coures",
+    "coure",
+    "coure",
+    "courions",
+    "couriez",
+    "courent",
+    "courent"
+   ]
+  },
+  "mourir": {
+   "present": [
+    "meurs",
+    "meurs",
+    "meurt",
+    "meurt",
+    "mourons",
+    "mourez",
+    "meurent",
+    "meurent"
+   ],
+   "imparfait": [
+    "mourais",
+    "mourais",
+    "mourait",
+    "mourait",
+    "mourions",
+    "mouriez",
+    "mouraient",
+    "mouraient"
+   ],
+   "futur": [
+    "mourrai",
+    "mourras",
+    "mourra",
+    "mourra",
+    "mourrons",
+    "mourrez",
+    "mourront",
+    "mourront"
+   ],
+   "passeCompose": [
+    "suis mort|suis morte",
+    "es mort|es morte",
+    "est mort",
+    "est morte",
+    "sommes morts|sommes mortes",
+    "êtes morts|êtes mortes|êtes mort|êtes morte",
+    "sont morts",
+    "sont mortes"
+   ],
+   "plusQueParfait": [
+    "étais mort|étais morte",
+    "étais mort|étais morte",
+    "était mort",
+    "était morte",
+    "étions morts|étions mortes",
+    "étiez morts|étiez mortes|étiez mort|étiez morte",
+    "étaient morts",
+    "étaient mortes"
+   ],
+   "futurAnterieur": [
+    "serai mort|serai morte",
+    "seras mort|seras morte",
+    "sera mort",
+    "sera morte",
+    "serons morts|serons mortes",
+    "serez morts|serez mortes|serez mort|serez morte",
+    "seront morts",
+    "seront mortes"
+   ],
+   "conditionnel": [
+    "mourrais",
+    "mourrais",
+    "mourrait",
+    "mourrait",
+    "mourrions",
+    "mourriez",
+    "mourraient",
+    "mourraient"
+   ],
+   "conditionnelPasse": [
+    "serais mort|serais morte",
+    "serais mort|serais morte",
+    "serait mort",
+    "serait morte",
+    "serions morts|serions mortes",
+    "seriez morts|seriez mortes|seriez mort|seriez morte",
+    "seraient morts",
+    "seraient mortes"
+   ],
+   "subjonctif": [
+    "meure",
+    "meures",
+    "meure",
+    "meure",
+    "mourions",
+    "mouriez",
+    "meurent",
+    "meurent"
+   ]
+  },
+  "ouvrir": {
+   "present": [
+    "ouvre",
+    "ouvres",
+    "ouvre",
+    "ouvre",
+    "ouvrons",
+    "ouvrez",
+    "ouvrent",
+    "ouvrent"
+   ],
+   "imparfait": [
+    "ouvrais",
+    "ouvrais",
+    "ouvrait",
+    "ouvrait",
+    "ouvrions",
+    "ouvriez",
+    "ouvraient",
+    "ouvraient"
+   ],
+   "futur": [
+    "ouvrirai",
+    "ouvriras",
+    "ouvrira",
+    "ouvrira",
+    "ouvrirons",
+    "ouvrirez",
+    "ouvriront",
+    "ouvriront"
+   ],
+   "passeCompose": [
+    "ai ouvert",
+    "as ouvert",
+    "a ouvert",
+    "a ouvert",
+    "avons ouvert",
+    "avez ouvert",
+    "ont ouvert",
+    "ont ouvert"
+   ],
+   "plusQueParfait": [
+    "avais ouvert",
+    "avais ouvert",
+    "avait ouvert",
+    "avait ouvert",
+    "avions ouvert",
+    "aviez ouvert",
+    "avaient ouvert",
+    "avaient ouvert"
+   ],
+   "futurAnterieur": [
+    "aurai ouvert",
+    "auras ouvert",
+    "aura ouvert",
+    "aura ouvert",
+    "aurons ouvert",
+    "aurez ouvert",
+    "auront ouvert",
+    "auront ouvert"
+   ],
+   "conditionnel": [
+    "ouvrirais",
+    "ouvrirais",
+    "ouvrirait",
+    "ouvrirait",
+    "ouvririons",
+    "ouvririez",
+    "ouvriraient",
+    "ouvriraient"
+   ],
+   "conditionnelPasse": [
+    "aurais ouvert",
+    "aurais ouvert",
+    "aurait ouvert",
+    "aurait ouvert",
+    "aurions ouvert",
+    "auriez ouvert",
+    "auraient ouvert",
+    "auraient ouvert"
+   ],
+   "subjonctif": [
+    "ouvre",
+    "ouvres",
+    "ouvre",
+    "ouvre",
+    "ouvrions",
+    "ouvriez",
+    "ouvrent",
+    "ouvrent"
+   ]
+  },
+  "offrir": {
+   "present": [
+    "offre",
+    "offres",
+    "offre",
+    "offre",
+    "offrons",
+    "offrez",
+    "offrent",
+    "offrent"
+   ],
+   "imparfait": [
+    "offrais",
+    "offrais",
+    "offrait",
+    "offrait",
+    "offrions",
+    "offriez",
+    "offraient",
+    "offraient"
+   ],
+   "futur": [
+    "offrirai",
+    "offriras",
+    "offrira",
+    "offrira",
+    "offrirons",
+    "offrirez",
+    "offriront",
+    "offriront"
+   ],
+   "passeCompose": [
+    "ai offert",
+    "as offert",
+    "a offert",
+    "a offert",
+    "avons offert",
+    "avez offert",
+    "ont offert",
+    "ont offert"
+   ],
+   "plusQueParfait": [
+    "avais offert",
+    "avais offert",
+    "avait offert",
+    "avait offert",
+    "avions offert",
+    "aviez offert",
+    "avaient offert",
+    "avaient offert"
+   ],
+   "futurAnterieur": [
+    "aurai offert",
+    "auras offert",
+    "aura offert",
+    "aura offert",
+    "aurons offert",
+    "aurez offert",
+    "auront offert",
+    "auront offert"
+   ],
+   "conditionnel": [
+    "offrirais",
+    "offrirais",
+    "offrirait",
+    "offrirait",
+    "offririons",
+    "offririez",
+    "offriraient",
+    "offriraient"
+   ],
+   "conditionnelPasse": [
+    "aurais offert",
+    "aurais offert",
+    "aurait offert",
+    "aurait offert",
+    "aurions offert",
+    "auriez offert",
+    "auraient offert",
+    "auraient offert"
+   ],
+   "subjonctif": [
+    "offre",
+    "offres",
+    "offre",
+    "offre",
+    "offrions",
+    "offriez",
+    "offrent",
+    "offrent"
+   ]
+  },
+  "souffrir": {
+   "present": [
+    "souffre",
+    "souffres",
+    "souffre",
+    "souffre",
+    "souffrons",
+    "souffrez",
+    "souffrent",
+    "souffrent"
+   ],
+   "imparfait": [
+    "souffrais",
+    "souffrais",
+    "souffrait",
+    "souffrait",
+    "souffrions",
+    "souffriez",
+    "souffraient",
+    "souffraient"
+   ],
+   "futur": [
+    "souffrirai",
+    "souffriras",
+    "souffrira",
+    "souffrira",
+    "souffrirons",
+    "souffrirez",
+    "souffriront",
+    "souffriront"
+   ],
+   "passeCompose": [
+    "ai souffert",
+    "as souffert",
+    "a souffert",
+    "a souffert",
+    "avons souffert",
+    "avez souffert",
+    "ont souffert",
+    "ont souffert"
+   ],
+   "plusQueParfait": [
+    "avais souffert",
+    "avais souffert",
+    "avait souffert",
+    "avait souffert",
+    "avions souffert",
+    "aviez souffert",
+    "avaient souffert",
+    "avaient souffert"
+   ],
+   "futurAnterieur": [
+    "aurai souffert",
+    "auras souffert",
+    "aura souffert",
+    "aura souffert",
+    "aurons souffert",
+    "aurez souffert",
+    "auront souffert",
+    "auront souffert"
+   ],
+   "conditionnel": [
+    "souffrirais",
+    "souffrirais",
+    "souffrirait",
+    "souffrirait",
+    "souffririons",
+    "souffririez",
+    "souffriraient",
+    "souffriraient"
+   ],
+   "conditionnelPasse": [
+    "aurais souffert",
+    "aurais souffert",
+    "aurait souffert",
+    "aurait souffert",
+    "aurions souffert",
+    "auriez souffert",
+    "auraient souffert",
+    "auraient souffert"
+   ],
+   "subjonctif": [
+    "souffre",
+    "souffres",
+    "souffre",
+    "souffre",
+    "souffrions",
+    "souffriez",
+    "souffrent",
+    "souffrent"
+   ]
+  },
+  "couvrir": {
+   "present": [
+    "couvre",
+    "couvres",
+    "couvre",
+    "couvre",
+    "couvrons",
+    "couvrez",
+    "couvrent",
+    "couvrent"
+   ],
+   "imparfait": [
+    "couvrais",
+    "couvrais",
+    "couvrait",
+    "couvrait",
+    "couvrions",
+    "couvriez",
+    "couvraient",
+    "couvraient"
+   ],
+   "futur": [
+    "couvrirai",
+    "couvriras",
+    "couvrira",
+    "couvrira",
+    "couvrirons",
+    "couvrirez",
+    "couvriront",
+    "couvriront"
+   ],
+   "passeCompose": [
+    "ai couvert",
+    "as couvert",
+    "a couvert",
+    "a couvert",
+    "avons couvert",
+    "avez couvert",
+    "ont couvert",
+    "ont couvert"
+   ],
+   "plusQueParfait": [
+    "avais couvert",
+    "avais couvert",
+    "avait couvert",
+    "avait couvert",
+    "avions couvert",
+    "aviez couvert",
+    "avaient couvert",
+    "avaient couvert"
+   ],
+   "futurAnterieur": [
+    "aurai couvert",
+    "auras couvert",
+    "aura couvert",
+    "aura couvert",
+    "aurons couvert",
+    "aurez couvert",
+    "auront couvert",
+    "auront couvert"
+   ],
+   "conditionnel": [
+    "couvrirais",
+    "couvrirais",
+    "couvrirait",
+    "couvrirait",
+    "couvririons",
+    "couvririez",
+    "couvriraient",
+    "couvriraient"
+   ],
+   "conditionnelPasse": [
+    "aurais couvert",
+    "aurais couvert",
+    "aurait couvert",
+    "aurait couvert",
+    "aurions couvert",
+    "auriez couvert",
+    "auraient couvert",
+    "auraient couvert"
+   ],
+   "subjonctif": [
+    "couvre",
+    "couvres",
+    "couvre",
+    "couvre",
+    "couvrions",
+    "couvriez",
+    "couvrent",
+    "couvrent"
+   ]
+  },
+  "découvrir": {
+   "present": [
+    "découvre",
+    "découvres",
+    "découvre",
+    "découvre",
+    "découvrons",
+    "découvrez",
+    "découvrent",
+    "découvrent"
+   ],
+   "imparfait": [
+    "découvrais",
+    "découvrais",
+    "découvrait",
+    "découvrait",
+    "découvrions",
+    "découvriez",
+    "découvraient",
+    "découvraient"
+   ],
+   "futur": [
+    "découvrirai",
+    "découvriras",
+    "découvrira",
+    "découvrira",
+    "découvrirons",
+    "découvrirez",
+    "découvriront",
+    "découvriront"
+   ],
+   "passeCompose": [
+    "ai découvert",
+    "as découvert",
+    "a découvert",
+    "a découvert",
+    "avons découvert",
+    "avez découvert",
+    "ont découvert",
+    "ont découvert"
+   ],
+   "plusQueParfait": [
+    "avais découvert",
+    "avais découvert",
+    "avait découvert",
+    "avait découvert",
+    "avions découvert",
+    "aviez découvert",
+    "avaient découvert",
+    "avaient découvert"
+   ],
+   "futurAnterieur": [
+    "aurai découvert",
+    "auras découvert",
+    "aura découvert",
+    "aura découvert",
+    "aurons découvert",
+    "aurez découvert",
+    "auront découvert",
+    "auront découvert"
+   ],
+   "conditionnel": [
+    "découvrirais",
+    "découvrirais",
+    "découvrirait",
+    "découvrirait",
+    "découvririons",
+    "découvririez",
+    "découvriraient",
+    "découvriraient"
+   ],
+   "conditionnelPasse": [
+    "aurais découvert",
+    "aurais découvert",
+    "aurait découvert",
+    "aurait découvert",
+    "aurions découvert",
+    "auriez découvert",
+    "auraient découvert",
+    "auraient découvert"
+   ],
+   "subjonctif": [
+    "découvre",
+    "découvres",
+    "découvre",
+    "découvre",
+    "découvrions",
+    "découvriez",
+    "découvrent",
+    "découvrent"
+   ]
+  },
+  "recevoir": {
+   "present": [
+    "reçois",
+    "reçois",
+    "reçoit",
+    "reçoit",
+    "recevons",
+    "recevez",
+    "reçoivent",
+    "reçoivent"
+   ],
+   "imparfait": [
+    "recevais",
+    "recevais",
+    "recevait",
+    "recevait",
+    "recevions",
+    "receviez",
+    "recevaient",
+    "recevaient"
+   ],
+   "futur": [
+    "recevrai",
+    "recevras",
+    "recevra",
+    "recevra",
+    "recevrons",
+    "recevrez",
+    "recevront",
+    "recevront"
+   ],
+   "passeCompose": [
+    "ai reçu",
+    "as reçu",
+    "a reçu",
+    "a reçu",
+    "avons reçu",
+    "avez reçu",
+    "ont reçu",
+    "ont reçu"
+   ],
+   "plusQueParfait": [
+    "avais reçu",
+    "avais reçu",
+    "avait reçu",
+    "avait reçu",
+    "avions reçu",
+    "aviez reçu",
+    "avaient reçu",
+    "avaient reçu"
+   ],
+   "futurAnterieur": [
+    "aurai reçu",
+    "auras reçu",
+    "aura reçu",
+    "aura reçu",
+    "aurons reçu",
+    "aurez reçu",
+    "auront reçu",
+    "auront reçu"
+   ],
+   "conditionnel": [
+    "recevrais",
+    "recevrais",
+    "recevrait",
+    "recevrait",
+    "recevrions",
+    "recevriez",
+    "recevraient",
+    "recevraient"
+   ],
+   "conditionnelPasse": [
+    "aurais reçu",
+    "aurais reçu",
+    "aurait reçu",
+    "aurait reçu",
+    "aurions reçu",
+    "auriez reçu",
+    "auraient reçu",
+    "auraient reçu"
+   ],
+   "subjonctif": [
+    "reçoive",
+    "reçoives",
+    "reçoive",
+    "reçoive",
+    "recevions",
+    "receviez",
+    "reçoivent",
+    "reçoivent"
+   ]
+  },
+  "connaître": {
+   "present": [
+    "connais",
+    "connais",
+    "connaît",
+    "connaît",
+    "connaissons",
+    "connaissez",
+    "connaissent",
+    "connaissent"
+   ],
+   "imparfait": [
+    "connaissais",
+    "connaissais",
+    "connaissait",
+    "connaissait",
+    "connaissions",
+    "connaissiez",
+    "connaissaient",
+    "connaissaient"
+   ],
+   "futur": [
+    "connaîtrai",
+    "connaîtras",
+    "connaîtra",
+    "connaîtra",
+    "connaîtrons",
+    "connaîtrez",
+    "connaîtront",
+    "connaîtront"
+   ],
+   "passeCompose": [
+    "ai connu",
+    "as connu",
+    "a connu",
+    "a connu",
+    "avons connu",
+    "avez connu",
+    "ont connu",
+    "ont connu"
+   ],
+   "plusQueParfait": [
+    "avais connu",
+    "avais connu",
+    "avait connu",
+    "avait connu",
+    "avions connu",
+    "aviez connu",
+    "avaient connu",
+    "avaient connu"
+   ],
+   "futurAnterieur": [
+    "aurai connu",
+    "auras connu",
+    "aura connu",
+    "aura connu",
+    "aurons connu",
+    "aurez connu",
+    "auront connu",
+    "auront connu"
+   ],
+   "conditionnel": [
+    "connaîtrais",
+    "connaîtrais",
+    "connaîtrait",
+    "connaîtrait",
+    "connaîtrions",
+    "connaîtriez",
+    "connaîtraient",
+    "connaîtraient"
+   ],
+   "conditionnelPasse": [
+    "aurais connu",
+    "aurais connu",
+    "aurait connu",
+    "aurait connu",
+    "aurions connu",
+    "auriez connu",
+    "auraient connu",
+    "auraient connu"
+   ],
+   "subjonctif": [
+    "connaisse",
+    "connaisses",
+    "connaisse",
+    "connaisse",
+    "connaissions",
+    "connaissiez",
+    "connaissent",
+    "connaissent"
+   ]
+  },
+  "paraître": {
+   "present": [
+    "parais",
+    "parais",
+    "paraît",
+    "paraît",
+    "paraissons",
+    "paraissez",
+    "paraissent",
+    "paraissent"
+   ],
+   "imparfait": [
+    "paraissais",
+    "paraissais",
+    "paraissait",
+    "paraissait",
+    "paraissions",
+    "paraissiez",
+    "paraissaient",
+    "paraissaient"
+   ],
+   "futur": [
+    "paraîtrai",
+    "paraîtras",
+    "paraîtra",
+    "paraîtra",
+    "paraîtrons",
+    "paraîtrez",
+    "paraîtront",
+    "paraîtront"
+   ],
+   "passeCompose": [
+    "ai paru",
+    "as paru",
+    "a paru",
+    "a paru",
+    "avons paru",
+    "avez paru",
+    "ont paru",
+    "ont paru"
+   ],
+   "plusQueParfait": [
+    "avais paru",
+    "avais paru",
+    "avait paru",
+    "avait paru",
+    "avions paru",
+    "aviez paru",
+    "avaient paru",
+    "avaient paru"
+   ],
+   "futurAnterieur": [
+    "aurai paru",
+    "auras paru",
+    "aura paru",
+    "aura paru",
+    "aurons paru",
+    "aurez paru",
+    "auront paru",
+    "auront paru"
+   ],
+   "conditionnel": [
+    "paraîtrais",
+    "paraîtrais",
+    "paraîtrait",
+    "paraîtrait",
+    "paraîtrions",
+    "paraîtriez",
+    "paraîtraient",
+    "paraîtraient"
+   ],
+   "conditionnelPasse": [
+    "aurais paru",
+    "aurais paru",
+    "aurait paru",
+    "aurait paru",
+    "aurions paru",
+    "auriez paru",
+    "auraient paru",
+    "auraient paru"
+   ],
+   "subjonctif": [
+    "paraisse",
+    "paraisses",
+    "paraisse",
+    "paraisse",
+    "paraissions",
+    "paraissiez",
+    "paraissent",
+    "paraissent"
+   ]
+  },
+  "naître": {
+   "present": [
+    "nais",
+    "nais",
+    "naît",
+    "naît",
+    "naissons",
+    "naissez",
+    "naissent",
+    "naissent"
+   ],
+   "imparfait": [
+    "naissais",
+    "naissais",
+    "naissait",
+    "naissait",
+    "naissions",
+    "naissiez",
+    "naissaient",
+    "naissaient"
+   ],
+   "futur": [
+    "naîtrai",
+    "naîtras",
+    "naîtra",
+    "naîtra",
+    "naîtrons",
+    "naîtrez",
+    "naîtront",
+    "naîtront"
+   ],
+   "passeCompose": [
+    "suis né|suis née",
+    "es né|es née",
+    "est né",
+    "est née",
+    "sommes nés|sommes nées",
+    "êtes nés|êtes nées|êtes né|êtes née",
+    "sont nés",
+    "sont nées"
+   ],
+   "plusQueParfait": [
+    "étais né|étais née",
+    "étais né|étais née",
+    "était né",
+    "était née",
+    "étions nés|étions nées",
+    "étiez nés|étiez nées|étiez né|étiez née",
+    "étaient nés",
+    "étaient nées"
+   ],
+   "futurAnterieur": [
+    "serai né|serai née",
+    "seras né|seras née",
+    "sera né",
+    "sera née",
+    "serons nés|serons nées",
+    "serez nés|serez nées|serez né|serez née",
+    "seront nés",
+    "seront nées"
+   ],
+   "conditionnel": [
+    "naîtrais",
+    "naîtrais",
+    "naîtrait",
+    "naîtrait",
+    "naîtrions",
+    "naîtriez",
+    "naîtraient",
+    "naîtraient"
+   ],
+   "conditionnelPasse": [
+    "serais né|serais née",
+    "serais né|serais née",
+    "serait né",
+    "serait née",
+    "serions nés|serions nées",
+    "seriez nés|seriez nées|seriez né|seriez née",
+    "seraient nés",
+    "seraient nées"
+   ],
+   "subjonctif": [
+    "naisse",
+    "naisses",
+    "naisse",
+    "naisse",
+    "naissions",
+    "naissiez",
+    "naissent",
+    "naissent"
+   ]
+  },
+  "lire": {
+   "present": [
+    "lis",
+    "lis",
+    "lit",
+    "lit",
+    "lisons",
+    "lisez",
+    "lisent",
+    "lisent"
+   ],
+   "imparfait": [
+    "lisais",
+    "lisais",
+    "lisait",
+    "lisait",
+    "lisions",
+    "lisiez",
+    "lisaient",
+    "lisaient"
+   ],
+   "futur": [
+    "lirai",
+    "liras",
+    "lira",
+    "lira",
+    "lirons",
+    "lirez",
+    "liront",
+    "liront"
+   ],
+   "passeCompose": [
+    "ai lu",
+    "as lu",
+    "a lu",
+    "a lu",
+    "avons lu",
+    "avez lu",
+    "ont lu",
+    "ont lu"
+   ],
+   "plusQueParfait": [
+    "avais lu",
+    "avais lu",
+    "avait lu",
+    "avait lu",
+    "avions lu",
+    "aviez lu",
+    "avaient lu",
+    "avaient lu"
+   ],
+   "futurAnterieur": [
+    "aurai lu",
+    "auras lu",
+    "aura lu",
+    "aura lu",
+    "aurons lu",
+    "aurez lu",
+    "auront lu",
+    "auront lu"
+   ],
+   "conditionnel": [
+    "lirais",
+    "lirais",
+    "lirait",
+    "lirait",
+    "lirions",
+    "liriez",
+    "liraient",
+    "liraient"
+   ],
+   "conditionnelPasse": [
+    "aurais lu",
+    "aurais lu",
+    "aurait lu",
+    "aurait lu",
+    "aurions lu",
+    "auriez lu",
+    "auraient lu",
+    "auraient lu"
+   ],
+   "subjonctif": [
+    "lise",
+    "lises",
+    "lise",
+    "lise",
+    "lisions",
+    "lisiez",
+    "lisent",
+    "lisent"
+   ]
+  },
+  "écrire": {
+   "present": [
+    "écris",
+    "écris",
+    "écrit",
+    "écrit",
+    "écrivons",
+    "écrivez",
+    "écrivent",
+    "écrivent"
+   ],
+   "imparfait": [
+    "écrivais",
+    "écrivais",
+    "écrivait",
+    "écrivait",
+    "écrivions",
+    "écriviez",
+    "écrivaient",
+    "écrivaient"
+   ],
+   "futur": [
+    "écrirai",
+    "écriras",
+    "écrira",
+    "écrira",
+    "écrirons",
+    "écrirez",
+    "écriront",
+    "écriront"
+   ],
+   "passeCompose": [
+    "ai écrit",
+    "as écrit",
+    "a écrit",
+    "a écrit",
+    "avons écrit",
+    "avez écrit",
+    "ont écrit",
+    "ont écrit"
+   ],
+   "plusQueParfait": [
+    "avais écrit",
+    "avais écrit",
+    "avait écrit",
+    "avait écrit",
+    "avions écrit",
+    "aviez écrit",
+    "avaient écrit",
+    "avaient écrit"
+   ],
+   "futurAnterieur": [
+    "aurai écrit",
+    "auras écrit",
+    "aura écrit",
+    "aura écrit",
+    "aurons écrit",
+    "aurez écrit",
+    "auront écrit",
+    "auront écrit"
+   ],
+   "conditionnel": [
+    "écrirais",
+    "écrirais",
+    "écrirait",
+    "écrirait",
+    "écririons",
+    "écririez",
+    "écriraient",
+    "écriraient"
+   ],
+   "conditionnelPasse": [
+    "aurais écrit",
+    "aurais écrit",
+    "aurait écrit",
+    "aurait écrit",
+    "aurions écrit",
+    "auriez écrit",
+    "auraient écrit",
+    "auraient écrit"
+   ],
+   "subjonctif": [
+    "écrive",
+    "écrives",
+    "écrive",
+    "écrive",
+    "écrivions",
+    "écriviez",
+    "écrivent",
+    "écrivent"
+   ]
+  },
+  "vivre": {
+   "present": [
+    "vis",
+    "vis",
+    "vit",
+    "vit",
+    "vivons",
+    "vivez",
+    "vivent",
+    "vivent"
+   ],
+   "imparfait": [
+    "vivais",
+    "vivais",
+    "vivait",
+    "vivait",
+    "vivions",
+    "viviez",
+    "vivaient",
+    "vivaient"
+   ],
+   "futur": [
+    "vivrai",
+    "vivras",
+    "vivra",
+    "vivra",
+    "vivrons",
+    "vivrez",
+    "vivront",
+    "vivront"
+   ],
+   "passeCompose": [
+    "ai vécu",
+    "as vécu",
+    "a vécu",
+    "a vécu",
+    "avons vécu",
+    "avez vécu",
+    "ont vécu",
+    "ont vécu"
+   ],
+   "plusQueParfait": [
+    "avais vécu",
+    "avais vécu",
+    "avait vécu",
+    "avait vécu",
+    "avions vécu",
+    "aviez vécu",
+    "avaient vécu",
+    "avaient vécu"
+   ],
+   "futurAnterieur": [
+    "aurai vécu",
+    "auras vécu",
+    "aura vécu",
+    "aura vécu",
+    "aurons vécu",
+    "aurez vécu",
+    "auront vécu",
+    "auront vécu"
+   ],
+   "conditionnel": [
+    "vivrais",
+    "vivrais",
+    "vivrait",
+    "vivrait",
+    "vivrions",
+    "vivriez",
+    "vivraient",
+    "vivraient"
+   ],
+   "conditionnelPasse": [
+    "aurais vécu",
+    "aurais vécu",
+    "aurait vécu",
+    "aurait vécu",
+    "aurions vécu",
+    "auriez vécu",
+    "auraient vécu",
+    "auraient vécu"
+   ],
+   "subjonctif": [
+    "vive",
+    "vives",
+    "vive",
+    "vive",
+    "vivions",
+    "viviez",
+    "vivent",
+    "vivent"
+   ]
+  },
+  "suivre": {
+   "present": [
+    "suis",
+    "suis",
+    "suit",
+    "suit",
+    "suivons",
+    "suivez",
+    "suivent",
+    "suivent"
+   ],
+   "imparfait": [
+    "suivais",
+    "suivais",
+    "suivait",
+    "suivait",
+    "suivions",
+    "suiviez",
+    "suivaient",
+    "suivaient"
+   ],
+   "futur": [
+    "suivrai",
+    "suivras",
+    "suivra",
+    "suivra",
+    "suivrons",
+    "suivrez",
+    "suivront",
+    "suivront"
+   ],
+   "passeCompose": [
+    "ai suivi",
+    "as suivi",
+    "a suivi",
+    "a suivi",
+    "avons suivi",
+    "avez suivi",
+    "ont suivi",
+    "ont suivi"
+   ],
+   "plusQueParfait": [
+    "avais suivi",
+    "avais suivi",
+    "avait suivi",
+    "avait suivi",
+    "avions suivi",
+    "aviez suivi",
+    "avaient suivi",
+    "avaient suivi"
+   ],
+   "futurAnterieur": [
+    "aurai suivi",
+    "auras suivi",
+    "aura suivi",
+    "aura suivi",
+    "aurons suivi",
+    "aurez suivi",
+    "auront suivi",
+    "auront suivi"
+   ],
+   "conditionnel": [
+    "suivrais",
+    "suivrais",
+    "suivrait",
+    "suivrait",
+    "suivrions",
+    "suivriez",
+    "suivraient",
+    "suivraient"
+   ],
+   "conditionnelPasse": [
+    "aurais suivi",
+    "aurais suivi",
+    "aurait suivi",
+    "aurait suivi",
+    "aurions suivi",
+    "auriez suivi",
+    "auraient suivi",
+    "auraient suivi"
+   ],
+   "subjonctif": [
+    "suive",
+    "suives",
+    "suive",
+    "suive",
+    "suivions",
+    "suiviez",
+    "suivent",
+    "suivent"
+   ]
+  },
+  "conduire": {
+   "present": [
+    "conduis",
+    "conduis",
+    "conduit",
+    "conduit",
+    "conduisons",
+    "conduisez",
+    "conduisent",
+    "conduisent"
+   ],
+   "imparfait": [
+    "conduisais",
+    "conduisais",
+    "conduisait",
+    "conduisait",
+    "conduisions",
+    "conduisiez",
+    "conduisaient",
+    "conduisaient"
+   ],
+   "futur": [
+    "conduirai",
+    "conduiras",
+    "conduira",
+    "conduira",
+    "conduirons",
+    "conduirez",
+    "conduiront",
+    "conduiront"
+   ],
+   "passeCompose": [
+    "ai conduit",
+    "as conduit",
+    "a conduit",
+    "a conduit",
+    "avons conduit",
+    "avez conduit",
+    "ont conduit",
+    "ont conduit"
+   ],
+   "plusQueParfait": [
+    "avais conduit",
+    "avais conduit",
+    "avait conduit",
+    "avait conduit",
+    "avions conduit",
+    "aviez conduit",
+    "avaient conduit",
+    "avaient conduit"
+   ],
+   "futurAnterieur": [
+    "aurai conduit",
+    "auras conduit",
+    "aura conduit",
+    "aura conduit",
+    "aurons conduit",
+    "aurez conduit",
+    "auront conduit",
+    "auront conduit"
+   ],
+   "conditionnel": [
+    "conduirais",
+    "conduirais",
+    "conduirait",
+    "conduirait",
+    "conduirions",
+    "conduiriez",
+    "conduiraient",
+    "conduiraient"
+   ],
+   "conditionnelPasse": [
+    "aurais conduit",
+    "aurais conduit",
+    "aurait conduit",
+    "aurait conduit",
+    "aurions conduit",
+    "auriez conduit",
+    "auraient conduit",
+    "auraient conduit"
+   ],
+   "subjonctif": [
+    "conduise",
+    "conduises",
+    "conduise",
+    "conduise",
+    "conduisions",
+    "conduisiez",
+    "conduisent",
+    "conduisent"
+   ]
+  },
+  "construire": {
+   "present": [
+    "construis",
+    "construis",
+    "construit",
+    "construit",
+    "construisons",
+    "construisez",
+    "construisent",
+    "construisent"
+   ],
+   "imparfait": [
+    "construisais",
+    "construisais",
+    "construisait",
+    "construisait",
+    "construisions",
+    "construisiez",
+    "construisaient",
+    "construisaient"
+   ],
+   "futur": [
+    "construirai",
+    "construiras",
+    "construira",
+    "construira",
+    "construirons",
+    "construirez",
+    "construiront",
+    "construiront"
+   ],
+   "passeCompose": [
+    "ai construit",
+    "as construit",
+    "a construit",
+    "a construit",
+    "avons construit",
+    "avez construit",
+    "ont construit",
+    "ont construit"
+   ],
+   "plusQueParfait": [
+    "avais construit",
+    "avais construit",
+    "avait construit",
+    "avait construit",
+    "avions construit",
+    "aviez construit",
+    "avaient construit",
+    "avaient construit"
+   ],
+   "futurAnterieur": [
+    "aurai construit",
+    "auras construit",
+    "aura construit",
+    "aura construit",
+    "aurons construit",
+    "aurez construit",
+    "auront construit",
+    "auront construit"
+   ],
+   "conditionnel": [
+    "construirais",
+    "construirais",
+    "construirait",
+    "construirait",
+    "construirions",
+    "construiriez",
+    "construiraient",
+    "construiraient"
+   ],
+   "conditionnelPasse": [
+    "aurais construit",
+    "aurais construit",
+    "aurait construit",
+    "aurait construit",
+    "aurions construit",
+    "auriez construit",
+    "auraient construit",
+    "auraient construit"
+   ],
+   "subjonctif": [
+    "construise",
+    "construises",
+    "construise",
+    "construise",
+    "construisions",
+    "construisiez",
+    "construisent",
+    "construisent"
+   ]
+  },
+  "plaire": {
+   "present": [
+    "plais",
+    "plais",
+    "plaît",
+    "plaît",
+    "plaisons",
+    "plaisez",
+    "plaisent",
+    "plaisent"
+   ],
+   "imparfait": [
+    "plaisais",
+    "plaisais",
+    "plaisait",
+    "plaisait",
+    "plaisions",
+    "plaisiez",
+    "plaisaient",
+    "plaisaient"
+   ],
+   "futur": [
+    "plairai",
+    "plairas",
+    "plaira",
+    "plaira",
+    "plairons",
+    "plairez",
+    "plairont",
+    "plairont"
+   ],
+   "passeCompose": [
+    "ai plu",
+    "as plu",
+    "a plu",
+    "a plu",
+    "avons plu",
+    "avez plu",
+    "ont plu",
+    "ont plu"
+   ],
+   "plusQueParfait": [
+    "avais plu",
+    "avais plu",
+    "avait plu",
+    "avait plu",
+    "avions plu",
+    "aviez plu",
+    "avaient plu",
+    "avaient plu"
+   ],
+   "futurAnterieur": [
+    "aurai plu",
+    "auras plu",
+    "aura plu",
+    "aura plu",
+    "aurons plu",
+    "aurez plu",
+    "auront plu",
+    "auront plu"
+   ],
+   "conditionnel": [
+    "plairais",
+    "plairais",
+    "plairait",
+    "plairait",
+    "plairions",
+    "plairiez",
+    "plairaient",
+    "plairaient"
+   ],
+   "conditionnelPasse": [
+    "aurais plu",
+    "aurais plu",
+    "aurait plu",
+    "aurait plu",
+    "aurions plu",
+    "auriez plu",
+    "auraient plu",
+    "auraient plu"
+   ],
+   "subjonctif": [
+    "plaise",
+    "plaises",
+    "plaise",
+    "plaise",
+    "plaisions",
+    "plaisiez",
+    "plaisent",
+    "plaisent"
+   ]
+  },
+  "rire": {
+   "present": [
+    "ris",
+    "ris",
+    "rit",
+    "rit",
+    "rions",
+    "riez",
+    "rient",
+    "rient"
+   ],
+   "imparfait": [
+    "riais",
+    "riais",
+    "riait",
+    "riait",
+    "riions",
+    "riiez",
+    "riaient",
+    "riaient"
+   ],
+   "futur": [
+    "rirai",
+    "riras",
+    "rira",
+    "rira",
+    "rirons",
+    "rirez",
+    "riront",
+    "riront"
+   ],
+   "passeCompose": [
+    "ai ri",
+    "as ri",
+    "a ri",
+    "a ri",
+    "avons ri",
+    "avez ri",
+    "ont ri",
+    "ont ri"
+   ],
+   "plusQueParfait": [
+    "avais ri",
+    "avais ri",
+    "avait ri",
+    "avait ri",
+    "avions ri",
+    "aviez ri",
+    "avaient ri",
+    "avaient ri"
+   ],
+   "futurAnterieur": [
+    "aurai ri",
+    "auras ri",
+    "aura ri",
+    "aura ri",
+    "aurons ri",
+    "aurez ri",
+    "auront ri",
+    "auront ri"
+   ],
+   "conditionnel": [
+    "rirais",
+    "rirais",
+    "rirait",
+    "rirait",
+    "ririons",
+    "ririez",
+    "riraient",
+    "riraient"
+   ],
+   "conditionnelPasse": [
+    "aurais ri",
+    "aurais ri",
+    "aurait ri",
+    "aurait ri",
+    "aurions ri",
+    "auriez ri",
+    "auraient ri",
+    "auraient ri"
+   ],
+   "subjonctif": [
+    "rie",
+    "ries",
+    "rie",
+    "rie",
+    "riions",
+    "riiez",
+    "rient",
+    "rient"
+   ]
+  },
+  "croire": {
+   "present": [
+    "crois",
+    "crois",
+    "croit",
+    "croit",
+    "croyons",
+    "croyez",
+    "croient",
+    "croient"
+   ],
+   "imparfait": [
+    "croyais",
+    "croyais",
+    "croyait",
+    "croyait",
+    "croyions",
+    "croyiez",
+    "croyaient",
+    "croyaient"
+   ],
+   "futur": [
+    "croirai",
+    "croiras",
+    "croira",
+    "croira",
+    "croirons",
+    "croirez",
+    "croiront",
+    "croiront"
+   ],
+   "passeCompose": [
+    "ai cru",
+    "as cru",
+    "a cru",
+    "a cru",
+    "avons cru",
+    "avez cru",
+    "ont cru",
+    "ont cru"
+   ],
+   "plusQueParfait": [
+    "avais cru",
+    "avais cru",
+    "avait cru",
+    "avait cru",
+    "avions cru",
+    "aviez cru",
+    "avaient cru",
+    "avaient cru"
+   ],
+   "futurAnterieur": [
+    "aurai cru",
+    "auras cru",
+    "aura cru",
+    "aura cru",
+    "aurons cru",
+    "aurez cru",
+    "auront cru",
+    "auront cru"
+   ],
+   "conditionnel": [
+    "croirais",
+    "croirais",
+    "croirait",
+    "croirait",
+    "croirions",
+    "croiriez",
+    "croiraient",
+    "croiraient"
+   ],
+   "conditionnelPasse": [
+    "aurais cru",
+    "aurais cru",
+    "aurait cru",
+    "aurait cru",
+    "aurions cru",
+    "auriez cru",
+    "auraient cru",
+    "auraient cru"
+   ],
+   "subjonctif": [
+    "croie",
+    "croies",
+    "croie",
+    "croie",
+    "croyions",
+    "croyiez",
+    "croient",
+    "croient"
+   ]
+  },
+  "boire": {
+   "present": [
+    "bois",
+    "bois",
+    "boit",
+    "boit",
+    "buvons",
+    "buvez",
+    "boivent",
+    "boivent"
+   ],
+   "imparfait": [
+    "buvais",
+    "buvais",
+    "buvait",
+    "buvait",
+    "buvions",
+    "buviez",
+    "buvaient",
+    "buvaient"
+   ],
+   "futur": [
+    "boirai",
+    "boiras",
+    "boira",
+    "boira",
+    "boirons",
+    "boirez",
+    "boiront",
+    "boiront"
+   ],
+   "passeCompose": [
+    "ai bu",
+    "as bu",
+    "a bu",
+    "a bu",
+    "avons bu",
+    "avez bu",
+    "ont bu",
+    "ont bu"
+   ],
+   "plusQueParfait": [
+    "avais bu",
+    "avais bu",
+    "avait bu",
+    "avait bu",
+    "avions bu",
+    "aviez bu",
+    "avaient bu",
+    "avaient bu"
+   ],
+   "futurAnterieur": [
+    "aurai bu",
+    "auras bu",
+    "aura bu",
+    "aura bu",
+    "aurons bu",
+    "aurez bu",
+    "auront bu",
+    "auront bu"
+   ],
+   "conditionnel": [
+    "boirais",
+    "boirais",
+    "boirait",
+    "boirait",
+    "boirions",
+    "boiriez",
+    "boiraient",
+    "boiraient"
+   ],
+   "conditionnelPasse": [
+    "aurais bu",
+    "aurais bu",
+    "aurait bu",
+    "aurait bu",
+    "aurions bu",
+    "auriez bu",
+    "auraient bu",
+    "auraient bu"
+   ],
+   "subjonctif": [
+    "boive",
+    "boives",
+    "boive",
+    "boive",
+    "buvions",
+    "buviez",
+    "boivent",
+    "boivent"
+   ]
+  }
+ },
+ "meanings": {
+  "parler": "to speak",
+  "aimer": "to love / like",
+  "donner": "to give",
+  "trouver": "to find",
+  "passer": "to pass / spend",
+  "regarder": "to look / watch",
+  "demander": "to ask",
+  "penser": "to think",
+  "chercher": "to look for",
+  "jouer": "to play",
+  "travailler": "to work",
+  "arriver": "to arrive",
+  "rester": "to stay",
+  "écouter": "to listen",
+  "gagner": "to win / earn",
+  "expliquer": "to explain",
+  "décider": "to decide",
+  "présenter": "to present",
+  "continuer": "to continue",
+  "accepter": "to accept",
+  "monter": "to go up",
+  "quitter": "to leave",
+  "tomber": "to fall",
+  "utiliser": "to use",
+  "ajouter": "to add",
+  "proposer": "to propose",
+  "porter": "to wear / carry",
+  "montrer": "to show",
+  "marcher": "to walk",
+  "raconter": "to tell",
+  "habiter": "to live (reside)",
+  "étudier": "to study",
+  "danser": "to dance",
+  "chanter": "to sing",
+  "fermer": "to close",
+  "commencer": "to begin",
+  "manger": "to eat",
+  "acheter": "to buy",
+  "appeler": "to call",
+  "jeter": "to throw",
+  "envoyer": "to send",
+  "essayer": "to try",
+  "nettoyer": "to clean",
+  "préférer": "to prefer",
+  "espérer": "to hope",
+  "répéter": "to repeat",
+  "lever": "to lift / raise",
+  "peser": "to weigh",
+  "payer": "to pay",
+  "employer": "to employ / use",
+  "finir": "to finish",
+  "choisir": "to choose",
+  "réussir": "to succeed",
+  "réfléchir": "to reflect / think",
+  "grandir": "to grow up",
+  "grossir": "to gain weight",
+  "obéir": "to obey",
+  "remplir": "to fill",
+  "saisir": "to seize",
+  "punir": "to punish",
+  "être": "to be",
+  "avoir": "to have",
+  "aller": "to go",
+  "faire": "to do / make",
+  "dire": "to say",
+  "pouvoir": "to be able / can",
+  "voir": "to see",
+  "savoir": "to know (a fact)",
+  "vouloir": "to want",
+  "venir": "to come",
+  "devoir": "must / to owe",
+  "prendre": "to take",
+  "mettre": "to put",
+  "tenir": "to hold",
+  "partir": "to leave",
+  "sortir": "to go out",
+  "dormir": "to sleep",
+  "servir": "to serve",
+  "sentir": "to feel / smell",
+  "courir": "to run",
+  "mourir": "to die",
+  "ouvrir": "to open",
+  "offrir": "to offer",
+  "souffrir": "to suffer",
+  "couvrir": "to cover",
+  "découvrir": "to discover",
+  "recevoir": "to receive",
+  "connaître": "to know (a person/place)",
+  "paraître": "to appear / seem",
+  "naître": "to be born",
+  "lire": "to read",
+  "écrire": "to write",
+  "vivre": "to live",
+  "suivre": "to follow",
+  "conduire": "to drive / lead",
+  "construire": "to build",
+  "plaire": "to please",
+  "rire": "to laugh",
+  "croire": "to believe",
+  "boire": "to drink"
+ }
+}
