@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { getArticle } from '../data/content';
 import { db } from '../lib/db';
+import { upsertArticleProgress } from '../lib/articleProgress';
 import { buildParagraphs, lemmaOf, type Token } from '../lib/lemmatize';
 import WordModal, { type LookupRequest } from '../components/WordModal';
 
@@ -33,18 +34,6 @@ function groupTokens(tokens: Token[]): Token[][] {
   return groups;
 }
 
-async function upsertProgress(articleId: number, patch: Partial<{ read: 0 | 1; position: number }>) {
-  const now = Date.now();
-  const existing = await db.articleProgress.get(articleId);
-  await db.articleProgress.put({
-    articleId,
-    read: patch.read ?? existing?.read ?? 0,
-    position: patch.position ?? existing?.position ?? 0,
-    lastOpenedAt: now,
-    updatedAt: now,
-  });
-}
-
 export default function ArticlePage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -67,12 +56,39 @@ export default function ArticlePage() {
 
   const [lookup, setLookup] = useState<LookupRequest | null>(null);
 
+  // Typewriter reveal of the headline — the conjugation drill's verb animation,
+  // minus the key clicks (reading is the quiet room of the app). A hidden ghost
+  // of the full title reserves the final layout, so nothing shifts while it types.
+  const [typed, setTyped] = useState('');
+  const [rendering, setRendering] = useState(true);
+  useEffect(() => {
+    if (!article) return;
+    const word = article.title;
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      setTyped(word);
+      setRendering(false);
+      return;
+    }
+    setTyped('');
+    setRendering(true);
+    let i = 0;
+    const timer = window.setInterval(() => {
+      i += 1;
+      setTyped(word.slice(0, i));
+      if (i >= word.length) {
+        window.clearInterval(timer);
+        setRendering(false);
+      }
+    }, 30);
+    return () => window.clearInterval(timer);
+  }, [article]);
+
   // Record the visit and restore the saved scroll position once.
   const restoredRef = useRef(false);
   useEffect(() => {
     if (!article) return;
     db.articleProgress.get(article.id).then((p) => {
-      upsertProgress(article.id, {});
+      upsertArticleProgress(article.id, {});
       if (!restoredRef.current) {
         restoredRef.current = true;
         if (p && p.position > 0 && !p.read) {
@@ -89,7 +105,7 @@ export default function ArticlePage() {
   useEffect(() => {
     if (!article) return;
     let timer: number | null = null;
-    const save = () => upsertProgress(article.id, { position: currentScrollPosition() });
+    const save = () => upsertArticleProgress(article.id, { position: currentScrollPosition() });
     const onScroll = () => {
       if (timer !== null) return;
       timer = window.setTimeout(() => {
@@ -143,7 +159,17 @@ export default function ArticlePage() {
         </span>
       </div>
 
-      <h2 className="article-title">{article.title}</h2>
+      <h2 className="article-title" aria-label={article.title}>
+        <span className="article-title__ghost" aria-hidden>
+          {article.title}
+        </span>
+        <span
+          className={`article-title__typed${rendering ? ' is-typing' : ''}`}
+          aria-hidden
+        >
+          {typed}
+        </span>
+      </h2>
       <p className="article-subtitle">{article.title_en}</p>
       <p className="article-meta">
         {article.word_count} words · {article.readingMinutes} min read
@@ -208,9 +234,9 @@ export default function ArticlePage() {
           className={`btn ${isRead ? 'btn--ghost' : 'btn--accent'}`}
           onClick={async () => {
             if (isRead) {
-              await upsertProgress(article.id, { read: 0 });
+              await upsertArticleProgress(article.id, { read: 0 });
             } else {
-              await upsertProgress(article.id, { read: 1 });
+              await upsertArticleProgress(article.id, { read: 1 });
               navigate('/reading', { state: { justRead: article.id } });
             }
           }}

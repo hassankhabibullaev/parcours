@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
-import { TENSES, verbList, type TenseKey } from '../data/content';
+import { TENSES, type TenseKey } from '../data/content';
 import { MIXED_BLOB, MIXED_STRIPE, TENSE_FAMILIES, TENSE_THEMES } from '../lib/tenseThemes';
 
 function cardStyle(key: TenseKey, index: number): CSSProperties {
@@ -20,7 +20,7 @@ export default function ConjugationPage() {
     <>
       <h2 className="page-heading">Conjugation</h2>
       <p className="page-subheading">
-        {verbList.length} verbs · type the forms — accent slips are forgiven.
+        Nine tenses to master — accent slips are forgiven.
       </p>
 
       <div className="tense-family" style={{ '--tc': MIXED_STRIPE } as CSSProperties}>

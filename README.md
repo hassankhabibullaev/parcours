@@ -53,7 +53,9 @@ scripts/build-lemmas.py     regenerates src/data/lemmas.json (spaCy; run only if
 index.html · vite.config.ts meta/PWA tags · PWA manifest, name, icons, theme
 wrangler.toml               Cloudflare Pages config + KV binding for sync
 functions/api/sync/[code].ts server-side sync merge (last-write-wins) over KV
-public/icons/               app icons ("P" seal, cream on red #B3362A)
+public/icons/               app icons ("P" seal, cream on red #B3362A); art is inset with
+                            safe-area padding so OS corner masks never clip the frame, and
+                            the browser icons carry baked-in rounded corners
 src/
   main.tsx · App.tsx        bootstrap (router, SW registration) · all routes
   styles/global.css         the entire design system
@@ -61,7 +63,7 @@ src/
     content.ts              typed exports of both datasets + TENSES metadata
     lemmas.json             GENERATED form→lemma table — do not hand-edit
   lib/                      the logic layer (see below)
-  components/               Layout, icons, modals, drill chrome, SyncCard
+  components/               Layout, icons, modals, drill chrome, SyncModal
   pages/                    one file per route
 ```
 
@@ -70,6 +72,7 @@ Where things live in `src/lib/`:
 | Concern | File |
 |---|---|
 | Shared IndexedDB store & schema | `db.ts` |
+| Article read/position write path | `articleProgress.ts` |
 | Cross-device sync client | `sync.ts` |
 | Device / sync code generation | `deviceCode.ts` |
 | Lemma lookup, tokenizer, paragraph/sentence splitting | `lemmatize.ts` |
@@ -120,14 +123,21 @@ can't index booleans).
 
 ## Modules
 
-**Home (`pages/HomePage.tsx`)** — live stats (words saved, articles read, practice
-rounds), an "À la une" continue-reading card, and the sync panel (`components/SyncCard.tsx`).
+**Home (`pages/HomePage.tsx`)** — "Your progression" (articles/words/rounds with mini
+progress bars, learnt count, and a practice-day streak), then an "À la une" card that
+always offers the first unread article ("Read next"), then a one-line sync row whose
+button opens `components/SyncModal.tsx` (Import from / Export to another device).
 
-**Reading** — `pages/ReadingPage.tsx` is the filterable library (CEFR + read filters);
-`pages/ArticlePage.tsx` renders an article as tappable word tokens (tap → `WordModal`
-lookup/save), a drop cap, live highlighting of saved lemmas, and scroll-progress
-tracking. Lemmatization is `lib/lemmatize.ts` over the generated `data/lemmas.json`;
-dictionary lookups are online (`lib/dictionary.ts`, cached after first use).
+**Reading** — `pages/ReadingPage.tsx` is the filterable library (CEFR + read filters).
+Unread articles sit on top; read ones sink below an "Already read" divider, rendered in
+a burgundy-tinted greyscale with a rubber-stamp label, and every card has an icon-only
+read/unread toggle (marking read replays the stamp + sink send-off). The list always
+opens scrolled to the top. `pages/ArticlePage.tsx` renders an article as tappable word
+tokens (tap → `WordModal` lookup/save), a drop cap, live highlighting of saved lemmas,
+scroll-progress tracking, and a typewriter reveal of the headline (the conjugation
+drill's animation, silent). Progress writes go through `lib/articleProgress.ts`.
+Lemmatization is `lib/lemmatize.ts` over the generated `data/lemmas.json`; dictionary
+lookups are online (`lib/dictionary.ts`, cached after first use).
 
 **Vocabulary** — `pages/VocabularyPage.tsx` shows the lexicon (auto-managed **Still
 Learning** / **Learnt** groups driven by `streak`) plus an offline dictionary search
@@ -141,12 +151,18 @@ randomization lives in `lib/conjugation.ts`. Typing only; per-tense colors from
 `lib/tenseThemes.ts`.
 
 **Sync (`lib/sync.ts` + `functions/api/sync/[code].ts`)** — opt-in, code-based. Each
-device generates a memorable code (`word-word-word-NN`, `lib/deviceCode.ts`); entering
-another device's code links them. `syncNow()` uploads the device's full state, the
-Function merges it into the KV bucket for that code (last-write-wins by `updatedAt`,
-deletions via `tombstones`), and returns the merged state to apply locally. `Layout`
-auto-syncs on load and on refocus once linked. The code is the only secret — anyone who
-knows it can read/write that bucket (by design).
+device generates a memorable code (`word-word-word-NN`, `lib/deviceCode.ts`); the
+Home sync modal's Import flow links this device to another's code, Export shows this
+device's code (publishing its state first so the code is immediately redeemable).
+`syncNow()` uploads the device's full state, the Function merges it into the KV bucket
+for that code (last-write-wins by `updatedAt`, deletions via `tombstones`), and returns
+the merged state to apply locally. `Layout` auto-syncs on load and on refocus once
+linked. The code is the only secret — anyone who knows it can read/write that bucket
+(by design). Two hard-won invariants: tombstones must round-trip with their `key`
+field (it is the client table's primary key; the server re-derives it when serializing,
+which also heals buckets written before the fix), and `syncNow()` never rejects — it
+reports `{ ok: false, error }` so the UI can't get stuck on "Syncing…". A failed
+Import rolls the linked code back.
 
 ## Design system (`src/styles/global.css`)
 
@@ -154,10 +170,12 @@ Newspaper aesthetic: cream paper (`--paper`), ink text (`--ink`), one accent —
 red (`--accent #B3362A`). System serif for text, system sans (`--sans`) for UI labels.
 CEFR badge colors `--level-a1…c2`. Reusable classes: `.card`, `.btn--primary/accent/
 ghost`, `.chip`, `.section-label`, `.text-input`, `.drill-*`, `.feedback--*`,
-`.level-badge--*`. Layout is a 680px column with a fixed bottom tab bar. Conjugation and
-Vocabulary drills share one drill language (stage cards, in-input feedback, HUD pills,
-results card) themed by `--tc`/`--tc-wash`/`--stripe`; all animations respect
-`prefers-reduced-motion`.
+`.level-badge--*`. The masthead is ink-colored with double-rule flourishes flanking the
+wordmark. Layout is a 680px column with a fixed bottom tab bar (`z-index: 40`, above
+all page content, below modals at 60). Read library cards are washed toward
+`--burgundy` via `color-mix`. Conjugation and Vocabulary drills share one drill
+language (stage cards, in-input feedback, HUD pills, results card) themed by
+`--tc`/`--tc-wash`/`--stripe`; all animations respect `prefers-reduced-motion`.
 
 ## Conventions (don't re-litigate silently)
 

@@ -1,5 +1,5 @@
 /* ————————————————————————————————————————————————
-   Rédaction design system — "the editor's desk"
+   Parcours design system — "the editor's desk"
    Cream paper, dark ink, one red editor's pen.
    ———————————————————————————————————————————————— */
 
@@ -78,7 +78,7 @@ a {
 
 .masthead__title {
   margin: 0;
-  color: var(--burgundy);
+  color: var(--ink);
   font-size: 30px;
   font-weight: 700;
   letter-spacing: 0.09em;
@@ -90,6 +90,16 @@ a {
   align-items: center;
   gap: 10px;
   text-decoration: none;
+}
+
+/* Classic masthead flourish: short double rules flanking the wordmark. */
+.masthead__title a::before,
+.masthead__title a::after {
+  content: '';
+  width: 24px;
+  height: 5px;
+  border-top: 1px solid var(--rule-strong);
+  border-bottom: 1px solid var(--rule-strong);
 }
 
 .masthead__logo {
@@ -170,7 +180,7 @@ a {
   background: var(--paper-raised);
   border: 1px solid var(--rule);
   border-radius: 10px;
-  padding: 14px 8px 11px;
+  padding: 14px 10px 12px;
   text-align: center;
 }
 
@@ -187,6 +197,28 @@ a {
   font-size: 10.5px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.stat__bar {
+  height: 4px;
+  margin-top: 9px;
+  background: var(--paper-sunken);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.stat__bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 99px;
+  transition: width 0.5s ease;
+}
+
+.stat__foot {
+  margin-top: 6px;
+  color: var(--ink-faint);
+  font-family: var(--sans);
+  font-size: 10px;
 }
 
 /* ——— Buttons ——— */
@@ -207,6 +239,11 @@ a {
 
 .btn:active {
   opacity: 0.75;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: default;
 }
 
 .btn--primary {
@@ -283,36 +320,101 @@ a {
   text-transform: uppercase;
 }
 
-.sync-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 4px;
-}
-
-.sync-actions .btn {
-  flex: 1;
-}
-
 .sync-status {
-  margin: 8px 0 0;
+  margin: 12px 0 0;
   font-family: var(--sans);
   font-size: 12.5px;
 }
 
-.sync-link {
+/* The Home sync section: one status line, one button. */
+.sync-row {
   display: flex;
-  gap: 8px;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--rule);
+  align-items: center;
+  gap: 12px;
 }
 
-.sync-link .text-input {
+.sync-row__status {
   flex: 1;
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 14px;
 }
 
-.sync-link .btn {
+.btn__icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* The two directions offered by the sync modal. */
+.sync-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 13px 14px;
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+  border-radius: 10px;
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.sync-option + .sync-option {
+  margin-top: 10px;
+}
+
+.sync-option:active {
+  border-color: var(--accent);
+  background: var(--accent-wash);
+}
+
+.sync-option__icon {
   flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  margin-top: 2px;
+  color: var(--accent-deep);
+}
+
+.sync-option__title {
+  display: block;
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.sync-option__hint {
+  display: block;
+  margin-top: 2px;
+  color: var(--ink-soft);
+  font-size: 13px;
+}
+
+.modal__heading {
+  margin: 0 0 4px;
+  padding-right: 28px;
+  font-size: 22px;
+}
+
+.modal__lede {
+  margin: 0 0 14px;
+  color: var(--ink-soft);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.modal__back {
+  display: inline-block;
+  margin-bottom: 10px;
+  color: var(--ink-soft);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.modal__footer-btn {
+  width: 100%;
+  margin-top: 14px;
 }
 
 /* ——— Bottom tab bar ——— */
@@ -322,6 +424,9 @@ a {
   bottom: 0;
   left: 0;
   right: 0;
+  /* Above every page element (animated cards, floating tags…);
+     below modal backdrops (z-index 60). */
+  z-index: 40;
   display: flex;
   justify-content: center;
   gap: 4px;
@@ -390,10 +495,25 @@ a {
   text-decoration: none;
 }
 
+/* Read articles: greyscale washed toward the brand burgundy — the page keeps
+   its warmth, only the ink has "dried". The stamp alone stays saturated. */
 .article-card--read {
-  background: var(--paper);
+  background: color-mix(in srgb, var(--paper) 92%, var(--burgundy));
+  border-color: color-mix(in srgb, var(--rule) 80%, var(--burgundy));
   box-shadow: none;
-  opacity: 0.62;
+}
+
+.article-card--read .article-card__title {
+  color: color-mix(in srgb, #837c72 70%, var(--burgundy));
+}
+
+.article-card--read .article-card__subtitle,
+.article-card--read .article-card__meta {
+  color: color-mix(in srgb, #98917f 78%, var(--burgundy));
+}
+
+.article-card--read .level-badge {
+  background: color-mix(in srgb, #9c968c 60%, var(--burgundy));
 }
 
 .article-card__top {
@@ -401,6 +521,52 @@ a {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 6px;
+}
+
+.article-card__top-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.article-card__toggle {
+  width: 30px;
+  height: 30px;
+  margin: -4px -6px -4px 0;
+  color: var(--ink-faint);
+}
+
+.article-card__toggle svg {
+  width: 18px;
+  height: 18px;
+}
+
+@media (hover: hover) {
+  .article-card__toggle:hover {
+    color: var(--accent-deep);
+    background: var(--accent-wash);
+  }
+}
+
+/* Divider the read pile sits under. */
+.read-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 26px 0 12px;
+  color: color-mix(in srgb, var(--ink-soft) 55%, var(--burgundy));
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.read-divider::before,
+.read-divider::after {
+  content: '';
+  flex: 1;
+  border-top: 1px dashed var(--rule-strong);
 }
 
 .article-card__title {
@@ -430,6 +596,22 @@ a {
   font-weight: 700;
 }
 
+/* Rubber-stamp label on read articles — the one saturated thing on the card. */
+.already-stamp {
+  display: inline-block;
+  padding: 2px 8px;
+  border: 1.5px solid color-mix(in srgb, var(--burgundy) 75%, transparent);
+  border-radius: 5px;
+  color: var(--burgundy);
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform: rotate(-3deg);
+}
+
 /* The card just marked read: stamped in place, then sent down to the read group. */
 
 .article-card--just-read {
@@ -441,31 +623,30 @@ a {
     opacity: 1;
   }
   to {
-    opacity: 0.62;
-    background: var(--paper);
+    background: color-mix(in srgb, var(--paper) 92%, var(--burgundy));
+    border-color: color-mix(in srgb, var(--rule) 80%, var(--burgundy));
     box-shadow: none;
   }
 }
 
-.article-card--just-read .read-stamp--in {
-  display: inline-block;
+.article-card--just-read .already-stamp--in {
   animation: stamp-in 0.4s ease 0.4s both;
 }
 
 @keyframes stamp-in {
   from {
     opacity: 0;
-    transform: scale(1.7) rotate(-8deg);
+    transform: scale(1.7) rotate(5deg);
   }
   to {
     opacity: 1;
-    transform: none;
+    transform: scale(1) rotate(-3deg);
   }
 }
 
 .article-card--sinking {
   overflow: hidden;
-  background: var(--paper);
+  background: color-mix(in srgb, var(--paper) 92%, var(--burgundy));
   box-shadow: none;
   pointer-events: none;
   animation: card-sink 0.55s ease both;
@@ -473,7 +654,7 @@ a {
 
 @keyframes card-sink {
   from {
-    opacity: 0.62;
+    opacity: 1;
     max-height: 220px;
   }
   to {
@@ -511,9 +692,32 @@ a {
 }
 
 .article-title {
+  position: relative;
   margin: 0 0 2px;
   font-size: 27px;
   line-height: 1.15;
+}
+
+/* Typewriter headline: an invisible ghost of the full title holds the layout
+   while the visible copy types over it (same trick as the conjugation verb). */
+.article-title__ghost {
+  visibility: hidden;
+}
+
+.article-title__typed {
+  position: absolute;
+  inset: 0;
+}
+
+.article-title__typed.is-typing::after {
+  content: '';
+  display: inline-block;
+  width: 2px;
+  height: 0.85em;
+  margin-left: 3px;
+  vertical-align: baseline;
+  background: var(--accent);
+  animation: caret-blink 0.8s steps(1) infinite;
 }
 
 .article-subtitle {
@@ -1994,7 +2198,7 @@ a {
   .vocab-hint,
   .skeleton,
   .article-card--just-read,
-  .article-card--just-read .read-stamp--in,
+  .article-card--just-read .already-stamp--in,
   .article-card--sinking {
     animation: none;
   }
@@ -2002,7 +2206,8 @@ a {
   .tense-card,
   .drill-card,
   .match-tile,
-  .conj-progress__fill {
+  .conj-progress__fill,
+  .stat__bar-fill {
     transition: none;
   }
 }

@@ -176,9 +176,7 @@ export default function VocabularyPage() {
     <>
       <h2 className="page-heading">Vocabulary</h2>
       <p className="page-subheading">
-        {words.length === 0
-          ? 'Your lexicon is empty for now.'
-          : `${words.length} entries · ${learnt.length} learnt.`}
+        Your growing word collection — drill it in three ways.
       </p>
 
       <div className="section-label">Practice</div>

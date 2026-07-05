@@ -31,7 +31,9 @@ type Table = keyof typeof PKS;
 const TABLES = Object.keys(PKS) as Table[];
 
 type Row = Record<string, unknown> & { updatedAt?: number };
-type Tombstone = { table: string; recordId: string; deletedAt: number };
+// `key` is the client's primary key (`${table}:${recordId}`) — it must survive
+// the round-trip or Dexie's bulkPut rejects the row and the whole sync fails.
+type Tombstone = { key: string; table: string; recordId: string; deletedAt: number };
 type Bucket = {
   savedWords: Record<string, Row>;
   articleProgress: Record<string, Row>;
@@ -91,7 +93,7 @@ function merge(bucket: Bucket, body: Record<string, unknown>): Bucket {
     const key = `${t.table}:${t.recordId}`;
     const cur = bucket.tombstones[key];
     if (!cur || (t.deletedAt ?? 0) >= cur.deletedAt) {
-      bucket.tombstones[key] = { table: t.table, recordId: String(t.recordId), deletedAt: t.deletedAt ?? 0 };
+      bucket.tombstones[key] = { key, table: t.table, recordId: String(t.recordId), deletedAt: t.deletedAt ?? 0 };
     }
   }
 
@@ -114,7 +116,9 @@ function toPayload(bucket: Bucket) {
     articleProgress: Object.values(bucket.articleProgress),
     practiceResults: Object.values(bucket.practiceResults),
     kv: Object.values(bucket.kv),
-    tombstones: Object.values(bucket.tombstones),
+    // Re-derive `key` from the map key: buckets written by older versions
+    // stored tombstones without it, which broke every client that synced them.
+    tombstones: Object.entries(bucket.tombstones).map(([key, t]) => ({ ...t, key })),
     updatedAt: bucket.updatedAt,
   };
 }

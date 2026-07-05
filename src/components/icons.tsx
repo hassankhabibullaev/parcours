@@ -99,6 +99,40 @@ export function PlusIcon({ className }: IconProps) {
   );
 }
 
+/** Two arrows chasing each other (sync). */
+export function SyncIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M19.5 12a7.5 7.5 0 0 1-13.2 4.9" />
+      <path d="M4.5 12a7.5 7.5 0 0 1 13.2-4.9" />
+      <path d="M17.2 3.6l.5 3.5-3.5.5" />
+      <path d="M6.8 20.4l-.5-3.5 3.5-.5" />
+    </svg>
+  );
+}
+
+/** An arrow dropping into a tray (import from another device). */
+export function ImportIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M12 3.5v10" />
+      <path d="m8 9.5 4 4 4-4" />
+      <path d="M4.5 15v3A2.5 2.5 0 0 0 7 20.5h10a2.5 2.5 0 0 0 2.5-2.5v-3" />
+    </svg>
+  );
+}
+
+/** An arrow lifting out of a tray (export to another device). */
+export function ExportIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M12 13.5v-10" />
+      <path d="m8 7.5 4-4 4 4" />
+      <path d="M4.5 15v3A2.5 2.5 0 0 0 7 20.5h10a2.5 2.5 0 0 0 2.5-2.5v-3" />
+    </svg>
+  );
+}
+
 /** A flat muted speaker (sound effects off). */
 export function SpeakerOffIcon({ className }: IconProps) {
   return (

@@ -48,8 +48,15 @@ export async function isLinked(): Promise<boolean> {
 
 /** Point this device at another device's code and merge immediately. */
 export async function linkDevice(code: string): Promise<SyncResult> {
+  const previous = await getKV('syncCode');
   await setKV('syncCode', code);
-  return syncNow();
+  const result = await syncNow();
+  if (!result.ok) {
+    // Failed link must not leave the device half-linked to an unreachable code.
+    if (previous) await setKV('syncCode', previous);
+    else await db.kv.delete('syncCode');
+  }
+  return result;
 }
 
 /** Stop syncing: forget the linked code and the sync-enabled flag. Local data stays. */
@@ -79,34 +86,34 @@ export function syncNow(): Promise<SyncResult> {
 }
 
 async function doSync(): Promise<SyncResult> {
-  const code = await getActiveCode();
-
-  const [savedWords, articleProgress, practiceResults, kvAll, tombstones] = await Promise.all([
-    db.savedWords.toArray(),
-    db.articleProgress.toArray(),
-    db.practiceResults.toArray(),
-    db.kv.toArray(),
-    db.tombstones.toArray(),
-  ]);
-  const kv = kvAll.filter((e) => !LOCAL_KEYS.has(e.key));
-
-  let merged: SyncPayload;
+  // Never reject: a thrown error here used to leave the UI stuck on "Syncing…".
   try {
+    const code = await getActiveCode();
+
+    const [savedWords, articleProgress, practiceResults, kvAll, tombstones] = await Promise.all([
+      db.savedWords.toArray(),
+      db.articleProgress.toArray(),
+      db.practiceResults.toArray(),
+      db.kv.toArray(),
+      db.tombstones.toArray(),
+    ]);
+    const kv = kvAll.filter((e) => !LOCAL_KEYS.has(e.key));
+
     const res = await fetch(`/api/sync/${encodeURIComponent(code)}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ savedWords, articleProgress, practiceResults, kv, tombstones }),
     });
     if (!res.ok) throw new Error(`sync failed (${res.status})`);
-    merged = (await res.json()) as SyncPayload;
-  } catch (err) {
-    return { ok: false, words: savedWords.length, error: (err as Error).message };
-  }
+    const merged = (await res.json()) as SyncPayload;
 
-  await applyMerged(merged);
-  await setKV('lastSyncAt', String(Date.now()));
-  lastAuto = Date.now();
-  return { ok: true, words: merged.savedWords.length };
+    await applyMerged(merged);
+    await setKV('lastSyncAt', String(Date.now()));
+    lastAuto = Date.now();
+    return { ok: true, words: merged.savedWords.length };
+  } catch (err) {
+    return { ok: false, words: 0, error: (err as Error).message };
+  }
 }
 
 async function applyMerged(merged: SyncPayload): Promise<void> {
@@ -125,7 +132,11 @@ async function applyMerged(merged: SyncPayload): Promise<void> {
       await db.practiceResults.bulkPut(merged.practiceResults as never);
       const kvRows = (merged.kv as { key: string }[]).filter((e) => !LOCAL_KEYS.has(e.key));
       await db.kv.bulkPut(kvRows as never);
-      await db.tombstones.bulkPut(merged.tombstones);
+      // Older server versions returned tombstones without `key` (the primary
+      // key here) — bulkPut then threw and aborted the whole apply. Rebuild it.
+      await db.tombstones.bulkPut(
+        merged.tombstones.map((t) => ({ ...t, key: t.key ?? `${t.table}:${t.recordId}` })),
+      );
     },
   );
 }
