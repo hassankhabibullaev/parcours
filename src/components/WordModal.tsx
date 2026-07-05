@@ -3,6 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../lib/db';
 import { lookup, type LookupResult } from '../lib/dictionary';
 import { canSpeak, speakFrench } from '../lib/speech';
+import { errorBuzz, successChime } from '../lib/sound';
 import { saveWord } from '../lib/vocab';
 import { SpeakerIcon } from './icons';
 
@@ -32,7 +33,10 @@ export default function WordModal({ request, onClose }: WordModalProps) {
     lookup(term).then((r) => {
       if (cancelled) return;
       setResult(r);
-      if (!r.translation && !r.definition) setFailed(true);
+      if (!r.translation && !r.definition) {
+        setFailed(true);
+        errorBuzz();
+      }
     });
     return () => {
       cancelled = true;
@@ -74,6 +78,7 @@ export default function WordModal({ request, onClose }: WordModalProps) {
       sentence,
       articleId,
     });
+    successChime();
     onClose();
   }
 

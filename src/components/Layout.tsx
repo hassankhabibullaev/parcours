@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { NavLink, Outlet, Link } from 'react-router-dom';
 import { DeskIcon, NewspaperIcon, LexiconIcon, ConjugationIcon } from './icons';
 import { autoSync } from '../lib/sync';
+import { uiClick, wordTap } from '../lib/sound';
 
 const TABS = [
   { to: '/', label: 'Home', icon: DeskIcon, end: true },
@@ -19,6 +20,21 @@ export default function Layout() {
     };
     document.addEventListener('visibilitychange', onVisible);
     return () => document.removeEventListener('visibilitychange', onVisible);
+  }, []);
+
+  // One click sound for every button/link, delegated so no component has to
+  // remember it. Article word tokens (.w) get the softer look-up tap instead;
+  // accent keys and match tiles are excluded — they play their own sounds.
+  useEffect(() => {
+    const onClick = (e: Event) => {
+      const el = (e.target as Element | null)?.closest?.('button, a');
+      if (!el) return;
+      if (el.classList.contains('accent-key') || el.classList.contains('match-tile')) return;
+      if (el.classList.contains('w')) wordTap();
+      else uiClick();
+    };
+    document.addEventListener('click', onClick, true);
+    return () => document.removeEventListener('click', onClick, true);
   }, []);
 
   return (

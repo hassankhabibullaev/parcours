@@ -3,6 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../lib/db';
 import { getOrCreateDeviceCode, normalizeCode } from '../lib/deviceCode';
 import { linkDevice, syncNow, unlink } from '../lib/sync';
+import { errorBuzz, successChime } from '../lib/sound';
 import { ExportIcon, ImportIcon } from './icons';
 
 type View = 'menu' | 'import' | 'export';
@@ -42,6 +43,13 @@ export default function SyncModal({ onClose }: SyncModalProps) {
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
 
+  /** Outcome statuses come with the app's shared success/error sounds. */
+  function report(next: Status) {
+    if (next.kind === 'ok') successChime();
+    else if (next.kind === 'error') errorBuzz();
+    setStatus(next);
+  }
+
   function show(next: View) {
     setStatus({ kind: 'idle' });
     setCopied(false);
@@ -50,7 +58,7 @@ export default function SyncModal({ onClose }: SyncModalProps) {
     if (next === 'export') {
       setStatus({ kind: 'busy', message: 'Publishing this device’s progress…' });
       syncNow().then((r) =>
-        setStatus(
+        report(
           r.ok
             ? { kind: 'ok', message: 'Ready — enter this code on your other device.' }
             : { kind: 'error', message: r.error ?? 'Could not reach the sync service.' },
@@ -62,16 +70,16 @@ export default function SyncModal({ onClose }: SyncModalProps) {
   async function runImport() {
     const code = normalizeCode(codeInput);
     if (!code) {
-      setStatus({ kind: 'error', message: 'Codes look like plume-gazette-marge-42.' });
+      report({ kind: 'error', message: 'Codes look like plume-gazette-marge-42.' });
       return;
     }
     if (code === deviceCode) {
-      setStatus({ kind: 'error', message: 'That’s this device’s own code.' });
+      report({ kind: 'error', message: 'That’s this device’s own code.' });
       return;
     }
     setStatus({ kind: 'busy', message: 'Importing…' });
     const r = await linkDevice(code);
-    setStatus(
+    report(
       r.ok
         ? { kind: 'ok', message: `Done — ${r.words} words merged. Devices stay in sync from now on.` }
         : { kind: 'error', message: r.error ?? 'Could not reach the sync service.' },

@@ -1,9 +1,10 @@
 /**
- * Sound effects for the practice drills (conjugation + vocabulary) —
- * synthesized with the Web Audio API (no assets, works offline), fail-soft
- * everywhere. The on/off preference is a device-local UI setting, so it lives
- * in localStorage rather than the synced Dexie store. The key predates the
- * vocabulary drills adopting SFX; it stays so the stored preference survives.
+ * App-wide sound effects — synthesized with the Web Audio API (no assets,
+ * works offline), fail-soft everywhere. Layout delegates one click sound to
+ * every button/link (uiClick) and word look-up (wordTap); the drills add the
+ * typing, success and error sounds. The on/off preference is a device-local
+ * UI setting, so it lives in localStorage rather than the synced Dexie store.
+ * The key predates the app-wide adoption; it stays so the preference survives.
  */
 
 const STORAGE_KEY = 'conjugation-sfx';
@@ -29,10 +30,17 @@ export function setSfxEnabled(on: boolean): void {
   } catch {
     /* ignore */
   }
+  // The toggle itself is a user gesture — the right moment to unlock audio.
+  if (on) unlock();
 }
 
 function ensure(): AudioContext | null {
   if (!enabled) return null;
+  if (ctx && ctx.state === 'closed') {
+    ctx = null;
+    out = null;
+    unlockBufferPlayed = false;
+  }
   if (!ctx) {
     const AC =
       window.AudioContext ??
@@ -43,13 +51,86 @@ function ensure(): AudioContext | null {
     out.gain.value = 0.8;
     out.connect(ctx.destination);
   }
-  // Autoplay policy: contexts start suspended until a user gesture; every SFX
-  // here is triggered by (or right after) one, so resuming is enough.
-  if (ctx.state === 'suspended') void ctx.resume();
+  // Anything but running needs a resume — iOS also parks the context in a
+  // non-standard « interrupted » state when the (home-screen) app is
+  // backgrounded or the screen locks.
+  if (ctx.state !== 'running') void ctx.resume();
   return ctx;
 }
 
+/*
+ * iOS unlock. WebKit only lets an AudioContext start when resume() runs
+ * inside a genuine user gesture, and a home-screen launch always begins with
+ * a locked audio session — but the first sound here is often the typewriter
+ * reveal, fired from a timer, not a gesture. So every tap (re)unlocks the
+ * context; the listeners stay attached because an interruption (background,
+ * screen lock) re-suspends it. The one-sample buffer on first unlock fully
+ * opens the session on older WebKit, which needs a source started in-gesture.
+ */
+let unlockBufferPlayed = false;
+
+function unlock(): void {
+  if (!enabled) return;
+  const c = ensure();
+  if (!c || unlockBufferPlayed) return;
+  try {
+    const src = c.createBufferSource();
+    src.buffer = c.createBuffer(1, 1, c.sampleRate);
+    src.connect(c.destination);
+    src.start(0);
+    unlockBufferPlayed = true;
+  } catch {
+    /* fail-soft like every other sound */
+  }
+}
+
+for (const type of ['pointerdown', 'touchend', 'click'] as const) {
+  window.addEventListener(type, unlock, { capture: true, passive: true });
+}
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && ctx && ctx.state !== 'running') void ctx.resume();
+});
+
 const midi = (n: number): number => 440 * 2 ** ((n - 69) / 12);
+
+/** Soft UI tick — the one click sound for every button and link in the app.
+    (Word tokens get wordTap; accent keys and match tiles keep their own.) */
+export function uiClick(): void {
+  const c = ensure();
+  if (!c || !out) return;
+  const t = c.currentTime;
+  const o = c.createOscillator();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(1350, t);
+  o.frequency.exponentialRampToValueAtTime(950, t + 0.035);
+  const g = c.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(0.16, t + 0.004);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.07);
+  o.connect(g);
+  g.connect(out);
+  o.start(t);
+  o.stop(t + 0.08);
+}
+
+/** Muted paper tap — every word look-up (article tokens, phrase selections). */
+export function wordTap(): void {
+  const c = ensure();
+  if (!c || !out) return;
+  const t = c.currentTime;
+  const o = c.createOscillator();
+  o.type = 'triangle';
+  o.frequency.setValueAtTime(620, t);
+  o.frequency.exponentialRampToValueAtTime(430, t + 0.05);
+  const g = c.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(0.15, t + 0.005);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
+  o.connect(g);
+  g.connect(out);
+  o.start(t);
+  o.stop(t + 0.1);
+}
 
 /** Typewriter clack — a short burst of band-passed noise. */
 export function keyClick(): void {

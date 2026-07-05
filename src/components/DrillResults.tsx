@@ -18,7 +18,8 @@ interface DrillResultsProps {
   score: number;
   total: number;
   items: ReviewItem[];
-  onRetry: () => void;
+  /** Omit to hide Retry — the back link then becomes the single accent action. */
+  onRetry?: () => void;
   backTo?: string;
   backLabel?: string;
   /** What one review item is called: « form » for conjugation, « word » here. */
@@ -99,10 +100,12 @@ export default function DrillResults({
       )}
 
       <div className="drill-actions">
-        <button className="btn btn--accent" onClick={onRetry}>
-          Retry
-        </button>
-        <Link className="btn btn--ghost" to={backTo}>
+        {onRetry && (
+          <button className="btn btn--accent" onClick={onRetry}>
+            Retry
+          </button>
+        )}
+        <Link className={onRetry ? 'btn btn--ghost' : 'btn btn--accent btn--full'} to={backTo}>
           {backLabel}
         </Link>
       </div>

@@ -4,6 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { articles, type Article, type CefrLevel } from '../data/content';
 import { db } from '../lib/db';
 import { setArticleRead } from '../lib/articleProgress';
+import { successChime } from '../lib/sound';
 import { CheckCircleIcon, UndoIcon } from '../components/icons';
 
 type Filter = 'all' | CefrLevel | 'read';
@@ -62,6 +63,7 @@ export default function ReadingPage() {
     if (isRead(article.id)) {
       setArticleRead(article.id, false);
     } else {
+      successChime();
       setArticleRead(article.id, true);
       setSinking(false);
       setJustRead(article.id);

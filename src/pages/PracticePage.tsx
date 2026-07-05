@@ -280,10 +280,7 @@ export default function PracticePage() {
               <button
                 type="button"
                 className="vocab-reveal"
-                onClick={() => {
-                  setRevealed(true);
-                  keyClick();
-                }}
+                onClick={() => setRevealed(true)}
               >
                 Show translation
               </button>

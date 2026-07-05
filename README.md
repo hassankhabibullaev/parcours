@@ -135,7 +135,7 @@ read/unread toggle (marking read replays the stamp + sink send-off). The list al
 opens scrolled to the top. `pages/ArticlePage.tsx` renders an article as tappable word
 tokens (tap → `WordModal` lookup/save), a drop cap, live highlighting of saved lemmas,
 scroll-progress tracking, and a typewriter reveal of the headline (the conjugation
-drill's animation, silent). Progress writes go through `lib/articleProgress.ts`.
+drill's animation, key clicks included). Progress writes go through `lib/articleProgress.ts`.
 Lemmatization is `lib/lemmatize.ts` over the generated `data/lemmas.json`; dictionary
 lookups are online (`lib/dictionary.ts`, cached after first use).
 
@@ -148,7 +148,9 @@ conjugation drill's design language.
 **Conjugation** — `pages/ConjugationPage.tsx` picks a tense (or the mixed drill);
 `pages/ConjugationDrillPage.tsx` runs a typing session (10 exercises × 3 prompts) whose
 randomization lives in `lib/conjugation.ts`. Typing only; per-tense colors from
-`lib/tenseThemes.ts`.
+`lib/tenseThemes.ts`. Each row is one line (tense chip · pronoun · input); a fully
+correct exercise auto-advances after a short pause (inputs read-only, button disabled),
+and the results page offers only the full-width way back — no Retry.
 
 **Sync (`lib/sync.ts` + `functions/api/sync/[code].ts`)** — opt-in, code-based. Each
 device generates a memorable code (`word-word-word-NN`, `lib/deviceCode.ts`); the
@@ -176,6 +178,14 @@ all page content, below modals at 60). Read library cards are washed toward
 `--burgundy` via `color-mix`. Conjugation and Vocabulary drills share one drill
 language (stage cards, in-input feedback, HUD pills, results card) themed by
 `--tc`/`--tc-wash`/`--stripe`; all animations respect `prefers-reduced-motion`.
+
+Zoom is disabled app-wide (viewport meta + `touch-action` + wheel/key guards in
+`main.tsx`). `Layout` delegates one click sound to every button/link (`lib/sound.ts`
+`uiClick`; word tokens `.w` get the softer `wordTap`); elements that play their own
+sounds opt out by class (`accent-key`, `match-tile`). `sound.ts` also owns the iOS
+audio unlock: persistent gesture listeners resume the AudioContext (WebKit re-suspends
+it as `interrupted` whenever the home-screen app is backgrounded) — don't make the
+unlock a one-shot.
 
 ## Conventions (don't re-litigate silently)
 

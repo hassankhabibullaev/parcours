@@ -26,6 +26,11 @@ import SoundPill from '../components/SoundPill';
 const BLANK = () => Array(PROMPTS_PER_EXERCISE).fill('') as string[];
 const ACCENT_KEYS = ['à', 'é', 'è', 'ê', 'î', 'û', 'ç'];
 
+/** Auto-advance delay after a fully correct exercise; longer when an accent
+    correction is on screen so the learner can actually read it. */
+const ADVANCE_MS = 900;
+const ADVANCE_ACCENTS_MS = 1700;
+
 /** A blank missed on its first grading — kept for the end-of-round review. */
 interface Miss {
   verb: string;
@@ -40,7 +45,7 @@ export default function ConjugationDrillPage() {
   const mode: TenseKey | 'mixed' | undefined =
     tense === 'mixed' ? 'mixed' : TENSES.find((t) => t.key === tense)?.key;
 
-  const [session, setSession] = useState<Exercise[]>(() => (mode ? buildSession(mode) : []));
+  const [session] = useState<Exercise[]>(() => (mode ? buildSession(mode) : []));
   const [exIndex, setExIndex] = useState(0);
   const [values, setValues] = useState<string[]>(BLANK());
   const [grades, setGrades] = useState<AnswerGrade[] | null>(null);
@@ -80,6 +85,15 @@ export default function ConjugationDrillPage() {
     return () => window.clearInterval(timer);
   }, [exercise, finished]);
 
+  /* A fully correct exercise advances on its own after a short pause; inputs
+     are already read-only by then and the action button renders disabled. */
+  useEffect(() => {
+    if (finished || grades === null || grades.some((g) => g === 'wrong')) return;
+    const delay = grades.some((g) => g === 'accents') ? ADVANCE_ACCENTS_MS : ADVANCE_MS;
+    const timer = window.setTimeout(() => next(), delay);
+    return () => window.clearTimeout(timer);
+  }, [grades, finished]);
+
   if (!mode) return <Navigate to="/conjugation" replace />;
 
   const title = mode === 'mixed' ? 'Mixed drill' : tenseLabel(mode);
@@ -101,19 +115,6 @@ export default function ConjugationDrillPage() {
           '--stripe': `linear-gradient(90deg, ${TENSE_THEMES[mode].color}, ${TENSE_THEMES[mode].color})`,
         }
   ) as CSSProperties;
-
-  function start() {
-    setSession(buildSession(mode!));
-    setExIndex(0);
-    setValues(BLANK());
-    setGrades(null);
-    setScore(0);
-    setMissed([]);
-    setFinished(false);
-    setTyped('');
-    setRendering(true);
-    setFocusedIdx(null);
-  }
 
   function check() {
     const ex = exercise;
@@ -172,8 +173,9 @@ export default function ConjugationDrillPage() {
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (grades && !hasWrong) next();
-    else if (!rendering && allFilled) check();
+    // All-correct exercises advance on their own timer — ignore submits then.
+    if (grades && !hasWrong) return;
+    if (!rendering && allFilled) check();
   }
 
   /** Enter walks to the next empty editable field first; submits when all filled. */
@@ -227,7 +229,6 @@ export default function ConjugationDrillPage() {
               correct: m.correct,
               color: TENSE_THEMES[m.tense].color,
             }))}
-            onRetry={start}
             backTo="/conjugation"
             backLabel="Back to conjugation"
           />
@@ -277,14 +278,12 @@ export default function ConjugationDrillPage() {
                   key={i}
                   style={{ '--tc': theme.color, '--tc-wash': theme.wash } as CSSProperties}
                 >
-                  <div className="conj-row__lead">
-                    <span className="conj-row__pronoun">
-                      {pronounDisplay(p.pronoun, p.tense, p.answers[0])}
-                    </span>
-                    {mode === 'mixed' && (
-                      <span className="conj-row__tense">{tenseLabel(p.tense)}</span>
-                    )}
-                  </div>
+                  {mode === 'mixed' && (
+                    <span className="conj-row__tense">{tenseLabel(p.tense)}</span>
+                  )}
+                  <span className="conj-row__pronoun">
+                    {pronounDisplay(p.pronoun, p.tense, p.answers[0])}
+                  </span>
                   <div className="conj-field">
                     <input
                       ref={(el) => {
@@ -363,8 +362,8 @@ export default function ConjugationDrillPage() {
                 {hasWrong ? 'Check again' : 'Check'} <span className="kbd-hint">⏎</span>
               </button>
             ) : (
-              <button key="next" className="btn btn--accent" type="submit" autoFocus>
-                {isLast ? 'Finish' : 'Next →'} <span className="kbd-hint">⏎</span>
+              <button key="next" className="btn btn--accent" type="button" disabled>
+                {isLast ? 'Finish' : 'Next →'}
               </button>
             )}
           </div>

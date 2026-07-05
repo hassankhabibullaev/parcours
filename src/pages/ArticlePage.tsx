@@ -5,6 +5,7 @@ import { getArticle } from '../data/content';
 import { db } from '../lib/db';
 import { upsertArticleProgress } from '../lib/articleProgress';
 import { buildParagraphs, lemmaOf, type Token } from '../lib/lemmatize';
+import { keyClick, successChime, wordTap } from '../lib/sound';
 import WordModal, { type LookupRequest } from '../components/WordModal';
 
 function currentScrollPosition(): number {
@@ -57,8 +58,8 @@ export default function ArticlePage() {
   const [lookup, setLookup] = useState<LookupRequest | null>(null);
 
   // Typewriter reveal of the headline — the conjugation drill's verb animation,
-  // minus the key clicks (reading is the quiet room of the app). A hidden ghost
-  // of the full title reserves the final layout, so nothing shifts while it types.
+  // key clicks included. A hidden ghost of the full title reserves the final
+  // layout, so nothing shifts while it types.
   const [typed, setTyped] = useState('');
   const [rendering, setRendering] = useState(true);
   useEffect(() => {
@@ -75,6 +76,7 @@ export default function ArticlePage() {
     const timer = window.setInterval(() => {
       i += 1;
       setTyped(word.slice(0, i));
+      keyClick();
       if (i >= word.length) {
         window.clearInterval(timer);
         setRendering(false);
@@ -127,6 +129,7 @@ export default function ArticlePage() {
     if (!sel || sel.isCollapsed) return;
     const phrase = sel.toString().replace(/\s+/g, ' ').trim();
     if (phrase.length < 2 || !phrase.includes(' ')) return;
+    wordTap();
     setLookup({
       display: phrase,
       term: phrase.toLowerCase(),
@@ -236,6 +239,7 @@ export default function ArticlePage() {
             if (isRead) {
               await upsertArticleProgress(article.id, { read: 0 });
             } else {
+              successChime();
               await upsertArticleProgress(article.id, { read: 1 });
               navigate('/reading', { state: { justRead: article.id } });
             }

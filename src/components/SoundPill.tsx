@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { keyClick, setSfxEnabled, sfxEnabled } from '../lib/sound';
+import { setSfxEnabled, sfxEnabled, uiClick } from '../lib/sound';
 import { SpeakerIcon, SpeakerOffIcon } from './icons';
 
 /** The speaker HUD pill toggling drill sound effects (persisted in localStorage). */
@@ -10,7 +10,7 @@ export default function SoundPill() {
     const next = !on;
     setSfxEnabled(next);
     setOn(next);
-    if (next) keyClick();
+    if (next) uiClick();
   }
 
   return (

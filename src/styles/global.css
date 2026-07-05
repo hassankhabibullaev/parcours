@@ -36,6 +36,8 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  /* pan only — no pinch-zoom, no double-tap zoom */
+  touch-action: pan-x pan-y;
 }
 
 body {
@@ -1156,6 +1158,10 @@ a {
   justify-content: flex-start;
 }
 
+.drill-actions .btn--full {
+  flex: 1;
+}
+
 /* ——— Match ——— */
 
 .match-board {
@@ -1249,7 +1255,7 @@ a {
 }
 
 .feedback--accents {
-  color: var(--level-c1);
+  color: var(--level-a1);
 }
 
 .feedback--wrong {
@@ -1727,43 +1733,47 @@ a {
   margin: 16px 0 2px;
 }
 
+/* Tense chip, pronoun and input share one line at matching visual weight.
+   Both labels sit in fixed-width columns sized to their widest possible
+   value (« que nous », « Conditionnel présent ») so the input keeps one
+   static size across exercises, pronouns and tenses. */
 .conj-row {
-  display: grid;
-  grid-template-columns: 132px 1fr;
-  gap: 12px;
-  align-items: center;
-}
-
-.conj-row__lead {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-  text-align: right;
+  align-items: center;
+  gap: 10px;
 }
 
 .conj-row__pronoun {
-  font-size: 18px;
+  flex-shrink: 0;
+  width: 76px;
+  text-align: right;
+  font-size: 19px;
   font-style: italic;
   font-weight: 600;
   line-height: 1.15;
+  white-space: nowrap;
 }
 
 .conj-row__tense {
-  display: inline-block;
-  padding: 2px 8px;
+  flex-shrink: 0;
+  width: 158px;
+  text-align: center;
+  padding: 3px 10px;
   border: 1px solid var(--tc);
-  border-radius: 6px;
+  border-radius: 7px;
   background: var(--tc-wash);
   color: var(--tc);
-  font-size: 12px;
+  font-size: 15px;
   font-style: italic;
   font-weight: 600;
   line-height: 1.3;
+  white-space: nowrap;
 }
 
 .conj-field {
   position: relative;
+  flex: 1;
+  min-width: 0;
 }
 
 .conj-input {
@@ -1792,9 +1802,9 @@ a {
 }
 
 .conj-input--accents {
-  border-color: var(--level-c1);
-  background: rgba(160, 90, 31, 0.07);
-  color: var(--level-c1);
+  border-color: var(--level-a1);
+  background: rgba(62, 122, 69, 0.07);
+  color: var(--level-a1);
 }
 
 .conj-input--wrong {
@@ -1804,9 +1814,18 @@ a {
   animation: input-shake 0.3s ease;
 }
 
+/* Graded fields keep their verdict color even while focused (the first wrong
+   field is auto-focused, so this is the state the learner actually sees). */
 .conj-input--correct:focus,
-.conj-input--accents:focus,
+.conj-input--accents:focus {
+  border-color: var(--level-a1);
+  background: rgba(62, 122, 69, 0.07);
+  box-shadow: 0 0 0 3px rgba(33, 29, 22, 0.05);
+}
+
 .conj-input--wrong:focus {
+  border-color: var(--accent);
+  background: var(--accent-wash);
   box-shadow: 0 0 0 3px rgba(33, 29, 22, 0.05);
 }
 
@@ -1834,35 +1853,37 @@ a {
 }
 
 .conj-field__icon--accents {
-  background: var(--level-c1);
+  background: var(--level-a1);
 }
 
 .conj-field__icon--wrong {
   background: var(--accent);
 }
 
+/* Notched onto the input's top-left edge, right above the typed text, so the
+   expected answer reads as part of that field at a glance. */
 .conj-field__tag {
   position: absolute;
-  right: 0;
-  bottom: calc(100% + 4px);
+  left: 10px;
+  bottom: calc(100% - 11px);
   z-index: 2;
-  max-width: 100%;
-  padding: 1px 8px;
+  max-width: calc(100% - 20px);
+  padding: 1px 9px;
   background: var(--paper-raised);
   border: 1px solid var(--accent);
   border-radius: 7px;
   color: var(--accent-deep);
-  font-size: 13px;
+  font-size: 14px;
   font-style: italic;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.35;
   animation: tag-in 0.25s ease backwards;
   pointer-events: none;
 }
 
 .conj-field__tag--soft {
-  border-color: var(--level-c1);
-  color: var(--level-c1);
+  border-color: var(--level-a1);
+  color: var(--level-a1);
 }
 
 /* ——— Conjugation · accent keys ——— */
@@ -2127,21 +2148,23 @@ a {
   }
 }
 
-/* Keep the two-column row on phones (stacking costs vertical space the
-   no-scroll layout can't afford) — just narrow the pronoun lead. */
+/* Keep the one-line row on phones (stacking costs vertical space the
+   no-scroll layout can't afford) — tighten the labels so the input keeps
+   room even under « Conditionnel présent · elles ». */
 @media (max-width: 560px) {
   .conj-row {
-    grid-template-columns: 96px 1fr;
     gap: 8px;
   }
 
   .conj-row__pronoun {
-    font-size: 16px;
+    width: 68px;
+    font-size: 17px;
   }
 
   .conj-row__tense {
-    padding: 1px 6px;
-    font-size: 10.5px;
+    width: 130px;
+    padding: 2px 7px;
+    font-size: 12.5px;
   }
 
   .conj-verb__inf {
