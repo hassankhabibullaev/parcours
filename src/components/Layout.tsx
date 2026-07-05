@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import { NavLink, Outlet, Link } from 'react-router-dom';
 import { DeskIcon, NewspaperIcon, LexiconIcon, ConjugationIcon } from './icons';
+import { autoSync } from '../lib/sync';
 
 const TABS = [
   { to: '/', label: 'Home', icon: DeskIcon, end: true },
@@ -9,6 +11,16 @@ const TABS = [
 ];
 
 export default function Layout() {
+  // Background sync on load and whenever the app is refocused (no-op until linked).
+  useEffect(() => {
+    autoSync();
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') autoSync();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, []);
+
   return (
     <>
       <header className="masthead">

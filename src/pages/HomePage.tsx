@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../lib/db';
-import { getOrCreateDeviceCode } from '../lib/deviceCode';
 import { getArticle } from '../data/content';
+import SyncCard from '../components/SyncCard';
 
 export default function HomePage() {
   const wordsSaved = useLiveQuery(() => db.savedWords.count(), []) ?? 0;
@@ -16,11 +15,6 @@ export default function HomePage() {
     [],
   );
   const lastArticle = lastOpened ? getArticle(lastOpened.articleId) : undefined;
-
-  const [deviceCode, setDeviceCode] = useState<string | null>(null);
-  useEffect(() => {
-    getOrCreateDeviceCode().then(setDeviceCode);
-  }, []);
 
   return (
     <>
@@ -72,17 +66,8 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="section-label">Your desk code</div>
-      <div className="card">
-        <p style={{ margin: 0, color: 'var(--ink-soft)', fontSize: 14 }}>
-          Progress is stored on this device and works fully offline. Enter this code on
-          another device to link them and share your progress.
-        </p>
-        <strong className="desk-code">{deviceCode ?? '· · ·'}</strong>
-        <p style={{ margin: 0, color: 'var(--ink-faint)', fontFamily: 'var(--sans)', fontSize: 12 }}>
-          Device linking arrives in a later edition.
-        </p>
-      </div>
+      <div className="section-label">Sync across devices</div>
+      <SyncCard />
     </>
   );
 }

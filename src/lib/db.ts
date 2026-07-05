@@ -64,6 +64,17 @@ export interface LookupCacheEntry {
   updatedAt: number;
 }
 
+/**
+ * A record of a deletion, so sync can propagate it (a plain delete would just
+ * be re-created from another device). `key` is `${table}:${recordId}`.
+ */
+export interface Tombstone {
+  key: string;
+  table: string;
+  recordId: string;
+  deletedAt: number;
+}
+
 // The IndexedDB name predates the rename to Parcours; changing it would
 // silently orphan existing local progress, so it stays.
 export const db = new Dexie('redaction') as Dexie & {
@@ -72,6 +83,7 @@ export const db = new Dexie('redaction') as Dexie & {
   practiceResults: EntityTable<PracticeResult, 'id'>;
   kv: EntityTable<KVEntry, 'key'>;
   lookupCache: EntityTable<LookupCacheEntry, 'term'>;
+  tombstones: EntityTable<Tombstone, 'key'>;
 };
 
 db.version(1).stores({
@@ -84,6 +96,23 @@ db.version(1).stores({
 db.version(2).stores({
   lookupCache: 'term',
 });
+
+db.version(3).stores({
+  tombstones: 'key',
+});
+
+/** Delete a saved word and leave a tombstone so the deletion syncs across devices. */
+export async function deleteSavedWord(id: string): Promise<void> {
+  await db.transaction('rw', db.savedWords, db.tombstones, async () => {
+    await db.savedWords.delete(id);
+    await db.tombstones.put({
+      key: `savedWords:${id}`,
+      table: 'savedWords',
+      recordId: id,
+      deletedAt: Date.now(),
+    });
+  });
+}
 
 export async function getKV(key: string): Promise<string | null> {
   const entry = await db.kv.get(key);

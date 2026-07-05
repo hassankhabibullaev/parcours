@@ -245,7 +245,7 @@ a {
 .level-badge--C1 { background: var(--level-c1); }
 .level-badge--C2 { background: var(--level-c2); }
 
-/* ——— Device code ——— */
+/* ——— Device code & sync ——— */
 
 .desk-code {
   display: block;
@@ -258,6 +258,61 @@ a {
   font-size: 20px;
   font-weight: 700;
   letter-spacing: 0.04em;
+}
+
+.desk-code--btn {
+  position: relative;
+  width: 100%;
+  cursor: pointer;
+  color: var(--ink);
+  transition: border-color 0.15s;
+}
+
+.desk-code--btn:hover {
+  border-color: var(--accent);
+}
+
+.desk-code__copy {
+  display: block;
+  margin-top: 5px;
+  color: var(--ink-faint);
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.sync-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.sync-actions .btn {
+  flex: 1;
+}
+
+.sync-status {
+  margin: 8px 0 0;
+  font-family: var(--sans);
+  font-size: 12.5px;
+}
+
+.sync-link {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--rule);
+}
+
+.sync-link .text-input {
+  flex: 1;
+}
+
+.sync-link .btn {
+  flex-shrink: 0;
 }
 
 /* ——— Bottom tab bar ——— */

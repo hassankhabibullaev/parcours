@@ -1,7 +1,7 @@
 import { useState, type CSSProperties, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db, type SavedWord } from '../lib/db';
+import { db, deleteSavedWord, type SavedWord } from '../lib/db';
 import { lookup } from '../lib/dictionary';
 import { searchDictionary } from '../lib/dictionarySearch';
 import { saveWord } from '../lib/vocab';
@@ -116,7 +116,7 @@ export default function VocabularyPage() {
 
   function remove(w: SavedWord) {
     if (window.confirm(`Remove “${w.lemma}” from your lexicon?`)) {
-      db.savedWords.delete(w.id);
+      deleteSavedWord(w.id);
     }
   }
 

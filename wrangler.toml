@@ -1,0 +1,10 @@
+# Cloudflare Pages configuration. `wrangler pages deploy` reads this to attach
+# the KV binding used by the sync function (functions/api/sync/[code].ts).
+name = "parcours"
+compatibility_date = "2024-11-01"
+pages_build_output_dir = "dist"
+
+# Shared progress store, keyed by a device/sync code. See functions/api/sync.
+[[kv_namespaces]]
+binding = "SYNC_KV"
+id = "ce1011fea54e4c508448fe1d069d0fd7"
