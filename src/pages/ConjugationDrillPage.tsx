@@ -12,6 +12,7 @@ import {
   buildSession,
   pronounDisplay,
   tenseLabel,
+  tenseAbbr,
   PROMPTS_PER_EXERCISE,
   type Exercise,
 } from '../lib/conjugation';
@@ -279,11 +280,18 @@ export default function ConjugationDrillPage() {
                   style={{ '--tc': theme.color, '--tc-wash': theme.wash } as CSSProperties}
                 >
                   {mode === 'mixed' && (
-                    <span className="conj-row__tense">{tenseLabel(p.tense)}</span>
+                    <span className="conj-row__tense">{tenseAbbr(p.tense)}</span>
                   )}
-                  <span className="conj-row__pronoun">
-                    {pronounDisplay(p.pronoun, p.tense, p.answers[0])}
-                  </span>
+                  {(() => {
+                    const pd = pronounDisplay(p.pronoun, p.tense, p.answers[0]);
+                    return (
+                      <span
+                        className={`conj-row__pronoun${pd.length > 5 ? ' conj-row__pronoun--sm' : ''}`}
+                      >
+                        {pd}
+                      </span>
+                    );
+                  })()}
                   <div className="conj-field">
                     <input
                       ref={(el) => {

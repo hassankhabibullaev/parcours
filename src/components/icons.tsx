@@ -99,6 +99,34 @@ export function PlusIcon({ className }: IconProps) {
   );
 }
 
+/** A pencil (edit a saved translation). */
+export function EditIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M15.5 5.5 18.5 8.5 8.5 18.5 5 19.5 6 16 15.5 5.5Z" />
+      <path d="M14 7 17 10" />
+    </svg>
+  );
+}
+
+/** A bare check (confirm an edit). */
+export function CheckIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="m5 12.5 4.5 4.5L19 6.5" />
+    </svg>
+  );
+}
+
+/** An X (cancel an edit). */
+export function CloseIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M6 6l12 12M18 6 6 18" />
+    </svg>
+  );
+}
+
 /** Two arrows chasing each other (sync). */
 export function SyncIcon({ className }: IconProps) {
   return (

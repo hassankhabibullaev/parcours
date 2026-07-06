@@ -1,6 +1,6 @@
 import lemmaTable from '../data/lemmas.json';
 import { articles, verbMeanings, verbList } from '../data/content';
-import { lemmaOf, tokenize } from './lemmatize';
+import { lemmaOf, tokenize, onLexiconReady } from './lemmatize';
 import { foldAccents } from './practice';
 
 export interface DictEntry {
@@ -21,6 +21,12 @@ export interface DictEntry {
  * on the first search (~30k corpus tokens, one-time).
  */
 let index: Map<string, Set<string>> | null = null;
+
+// Corpus tokens are indexed through lemmaOf, so a better lexicon means a better
+// index — drop the cached one when the full lexicon finishes loading.
+onLexiconReady(() => {
+  index = null;
+});
 
 function addForm(map: Map<string, Set<string>>, lemma: string, form: string) {
   let forms = map.get(lemma);

@@ -1088,6 +1088,26 @@ a {
   white-space: nowrap;
 }
 
+/* Inline editor for the first-line translation (only that gloss is editable). */
+.word-row__edit {
+  display: block;
+  width: 100%;
+  margin-top: 2px;
+  padding: 3px 8px;
+  background: #fffdf7;
+  border: 1.5px solid var(--accent);
+  border-radius: 7px;
+  font: inherit;
+  font-size: 13.5px;
+  line-height: 1.35;
+  color: var(--ink);
+}
+
+.word-row__edit:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-wash);
+}
+
 .word-row__icons {
   display: flex;
   gap: 2px;
@@ -1734,9 +1754,10 @@ a {
 }
 
 /* Tense chip, pronoun and input share one line at matching visual weight.
-   Both labels sit in fixed-width columns sized to their widest possible
-   value (« que nous », « Conditionnel présent ») so the input keeps one
-   static size across exercises, pronouns and tenses. */
+   Both labels sit in fixed-width columns so the input keeps one static size
+   across exercises. The columns are sized for the common short pronouns and
+   the abbreviated tense names; the few long subjunctive pronouns (« q. nous »)
+   drop a font size (--sm) rather than widening the whole column. */
 .conj-row {
   display: flex;
   align-items: center;
@@ -1745,7 +1766,7 @@ a {
 
 .conj-row__pronoun {
   flex-shrink: 0;
-  width: 76px;
+  width: 60px;
   text-align: right;
   font-size: 19px;
   font-style: italic;
@@ -1754,11 +1775,17 @@ a {
   white-space: nowrap;
 }
 
+/* Long subjunctive forms (« q. nous », « qu'elles ») — shrink to fit the
+   narrow column instead of stretching it for every short pronoun. */
+.conj-row__pronoun--sm {
+  font-size: 14.5px;
+}
+
 .conj-row__tense {
   flex-shrink: 0;
-  width: 158px;
+  width: 116px;
   text-align: center;
-  padding: 3px 10px;
+  padding: 3px 8px;
   border: 1px solid var(--tc);
   border-radius: 7px;
   background: var(--tc-wash);
@@ -1778,7 +1805,10 @@ a {
 
 .conj-input {
   width: 100%;
-  padding: 10px 42px 10px 13px;
+  /* Comfortable, symmetric padding while typing — the wide right gutter only
+     appears once a verdict icon is on the field (see below), so the typed
+     answer can run nearly the full width. */
+  padding: 10px 14px;
   background: var(--paper-raised);
   border: 1.5px solid var(--rule-strong);
   border-radius: 10px;
@@ -1786,6 +1816,14 @@ a {
   font-size: 17px;
   color: var(--ink);
   transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+
+/* Graded fields carry a ✓/✕ badge on the right edge — reserve room for it so
+   it never sits on top of the answer. */
+.conj-input--correct,
+.conj-input--accents,
+.conj-input--wrong {
+  padding-right: 40px;
 }
 
 .conj-input:focus {
@@ -1926,10 +1964,21 @@ a {
   transition: transform 0.15s, background 0.15s, border-color 0.15s;
 }
 
-.accent-key:not(:disabled):hover {
+/* Hover only where a real pointer exists — on touch the :hover state sticks
+   after the tap, leaving these one-shot buttons looking permanently active. */
+@media (hover: hover) {
+  .accent-key:not(:disabled):hover {
+    background: var(--accent-wash);
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+}
+
+/* Momentary press feedback that can't stick (only holds while the key is down). */
+.accent-key:not(:disabled):active {
   background: var(--accent-wash);
   border-color: var(--accent);
-  transform: translateY(-1px);
+  transform: translateY(0);
 }
 
 .accent-key:disabled {
@@ -2157,13 +2206,17 @@ a {
   }
 
   .conj-row__pronoun {
-    width: 68px;
+    width: 52px;
     font-size: 17px;
   }
 
+  .conj-row__pronoun--sm {
+    font-size: 13px;
+  }
+
   .conj-row__tense {
-    width: 130px;
-    padding: 2px 7px;
+    width: 104px;
+    padding: 2px 6px;
     font-size: 12.5px;
   }
 

@@ -60,14 +60,19 @@ export const verbs = rawVerbs.verbs as Record<string, Record<TenseKey, Conjugati
 export const verbMeanings = rawVerbs.meanings;
 export const verbList = Object.keys(verbs);
 
-export const TENSES: { key: TenseKey; label: string; labelEn: string }[] = [
-  { key: 'present', label: 'Présent', labelEn: 'Present' },
-  { key: 'imparfait', label: 'Imparfait', labelEn: 'Imperfect' },
-  { key: 'passeCompose', label: 'Passé composé', labelEn: 'Perfect' },
-  { key: 'plusQueParfait', label: 'Plus-que-parfait', labelEn: 'Pluperfect' },
-  { key: 'futur', label: 'Futur simple', labelEn: 'Future' },
-  { key: 'futurAnterieur', label: 'Futur antérieur', labelEn: 'Future perfect' },
-  { key: 'conditionnel', label: 'Conditionnel présent', labelEn: 'Conditional' },
-  { key: 'conditionnelPasse', label: 'Conditionnel passé', labelEn: 'Past conditional' },
-  { key: 'subjonctif', label: 'Subjonctif', labelEn: 'Subjunctive' },
+/**
+ * `label` is the full name (tense picker, drill header, results review);
+ * `abbr` is a standard, compact form for the tight mixed-drill row chip so the
+ * tense column can stay narrow and leave more room for the answer input.
+ */
+export const TENSES: { key: TenseKey; label: string; abbr: string; labelEn: string }[] = [
+  { key: 'present', label: 'Présent', abbr: 'Présent', labelEn: 'Present' },
+  { key: 'imparfait', label: 'Imparfait', abbr: 'Imparfait', labelEn: 'Imperfect' },
+  { key: 'passeCompose', label: 'Passé composé', abbr: 'Passé comp.', labelEn: 'Perfect' },
+  { key: 'plusQueParfait', label: 'Plus-que-parfait', abbr: 'P.-q.-parf.', labelEn: 'Pluperfect' },
+  { key: 'futur', label: 'Futur simple', abbr: 'Futur', labelEn: 'Future' },
+  { key: 'futurAnterieur', label: 'Futur antérieur', abbr: 'Futur ant.', labelEn: 'Future perfect' },
+  { key: 'conditionnel', label: 'Conditionnel présent', abbr: 'Cond. prés.', labelEn: 'Conditional' },
+  { key: 'conditionnelPasse', label: 'Conditionnel passé', abbr: 'Cond. passé', labelEn: 'Past conditional' },
+  { key: 'subjonctif', label: 'Subjonctif', abbr: 'Subjonctif', labelEn: 'Subjunctive' },
 ];

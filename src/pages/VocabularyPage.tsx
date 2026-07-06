@@ -1,4 +1,4 @@
-import { useState, type CSSProperties, type ReactNode } from 'react';
+import { useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, deleteSavedWord, type SavedWord } from '../lib/db';
@@ -11,6 +11,9 @@ import { LEARNT_STREAK } from '../lib/practice';
 import { VOCAB_THEMES, type VocabMode } from '../lib/vocabThemes';
 import {
   CheckCircleIcon,
+  CheckIcon,
+  CloseIcon,
+  EditIcon,
   PlusIcon,
   SpeakerIcon,
   TrashIcon,
@@ -84,6 +87,13 @@ export default function VocabularyPage() {
   const [query, setQuery] = useState('');
   const [addingLemma, setAddingLemma] = useState<string | null>(null);
 
+  // Inline editing of a word's first-line translation. `editingRef` mirrors
+  // `editingId` synchronously so a blur fired by unmount can't double-commit
+  // (or resurrect a just-cancelled edit).
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [draft, setDraft] = useState('');
+  const editingRef = useRef<string | null>(null);
+
   if (!words) return null;
 
   const learning = words.filter((w) => !w.learned);
@@ -122,54 +132,136 @@ export default function VocabularyPage() {
     }
   }
 
+  function startEdit(w: SavedWord) {
+    editingRef.current = w.id;
+    setEditingId(w.id);
+    setDraft(w.translation ?? '');
+  }
+
+  /** Commit the drafted translation (only the first-line gloss is editable). */
+  function commitEdit(w: SavedWord) {
+    if (editingRef.current !== w.id) return; // already closed by cancel/save
+    editingRef.current = null;
+    const next = draft.trim();
+    if (next !== (w.translation ?? '')) {
+      db.savedWords.update(w.id, { translation: next, updatedAt: Date.now() });
+    }
+    setEditingId(null);
+  }
+
+  function cancelEdit() {
+    editingRef.current = null;
+    setEditingId(null);
+  }
+
   function wordRow(w: SavedWord) {
+    const editing = editingId === w.id;
     return (
       <div key={w.id} className={`word-row${w.learned ? ' word-row--learned' : ''}`}>
         <div className="word-row__main">
           <span className="word-row__word">{w.lemma}</span>
-          <span className="word-row__translation">{w.translation || '—'}</span>
+          {editing ? (
+            <input
+              className="word-row__edit"
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  commitEdit(w);
+                } else if (e.key === 'Escape') {
+                  e.preventDefault();
+                  cancelEdit();
+                }
+              }}
+              onBlur={() => commitEdit(w)}
+              autoFocus
+              placeholder="Translation"
+              aria-label={`Edit translation of ${w.lemma}`}
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+            />
+          ) : (
+            <span className="word-row__translation">{w.translation || '—'}</span>
+          )}
         </div>
-        {!w.learned && (
-          <span
-            className="word-dots"
-            title={`${Math.min(w.streak ?? 0, LEARNT_STREAK)}/${LEARNT_STREAK} correct in a row`}
-          >
-            {Array.from({ length: LEARNT_STREAK }, (_, i) => (
-              <span
-                key={i}
-                className={`word-dot${i < (w.streak ?? 0) ? ' word-dot--on' : ''}`}
-              />
-            ))}
-          </span>
-        )}
-        <div className="word-row__icons">
-          {canSpeak() && (
+        {editing ? (
+          <div className="word-row__icons">
+            {/* preventDefault keeps the input focused so its onClick (not the
+                input's blur) decides the outcome — critical for Cancel. */}
+            <button
+              className="icon-btn icon-btn--learned"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => commitEdit(w)}
+              aria-label="Save translation"
+              title="Save"
+            >
+              <CheckIcon />
+            </button>
             <button
               className="icon-btn"
-              onClick={() => speakFrench(w.lemma)}
-              aria-label={`Listen to ${w.lemma}`}
-              title="Listen"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={cancelEdit}
+              aria-label="Cancel edit"
+              title="Cancel"
             >
-              <SpeakerIcon />
+              <CloseIcon />
             </button>
-          )}
-          <button
-            className={`icon-btn${w.learned ? ' icon-btn--learned' : ''}`}
-            onClick={() => toggleLearned(w)}
-            aria-label={w.learned ? `Move ${w.lemma} back to learning` : `Mark ${w.lemma} learnt`}
-            title={w.learned ? 'Back to learning' : 'Mark learnt'}
-          >
-            {w.learned ? <UndoIcon /> : <CheckCircleIcon />}
-          </button>
-          <button
-            className="icon-btn icon-btn--danger"
-            onClick={() => remove(w)}
-            aria-label={`Remove ${w.lemma}`}
-            title="Remove"
-          >
-            <TrashIcon />
-          </button>
-        </div>
+          </div>
+        ) : (
+          <>
+            {!w.learned && (
+              <span
+                className="word-dots"
+                title={`${Math.min(w.streak ?? 0, LEARNT_STREAK)}/${LEARNT_STREAK} correct in a row`}
+              >
+                {Array.from({ length: LEARNT_STREAK }, (_, i) => (
+                  <span
+                    key={i}
+                    className={`word-dot${i < (w.streak ?? 0) ? ' word-dot--on' : ''}`}
+                  />
+                ))}
+              </span>
+            )}
+            <div className="word-row__icons">
+              {canSpeak() && (
+                <button
+                  className="icon-btn"
+                  onClick={() => speakFrench(w.lemma)}
+                  aria-label={`Listen to ${w.lemma}`}
+                  title="Listen"
+                >
+                  <SpeakerIcon />
+                </button>
+              )}
+              <button
+                className="icon-btn"
+                onClick={() => startEdit(w)}
+                aria-label={`Edit translation of ${w.lemma}`}
+                title="Edit translation"
+              >
+                <EditIcon />
+              </button>
+              <button
+                className={`icon-btn${w.learned ? ' icon-btn--learned' : ''}`}
+                onClick={() => toggleLearned(w)}
+                aria-label={w.learned ? `Move ${w.lemma} back to learning` : `Mark ${w.lemma} learnt`}
+                title={w.learned ? 'Back to learning' : 'Mark learnt'}
+              >
+                {w.learned ? <UndoIcon /> : <CheckCircleIcon />}
+              </button>
+              <button
+                className="icon-btn icon-btn--danger"
+                onClick={() => remove(w)}
+                aria-label={`Remove ${w.lemma}`}
+                title="Remove"
+              >
+                <TrashIcon />
+              </button>
+            </div>
+          </>
+        )}
       </div>
     );
   }

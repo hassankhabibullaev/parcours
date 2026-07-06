@@ -49,7 +49,7 @@ itself builds fine on current Node.
 ```
 articles_corpus.json        source data: 100 articles (root, never modified)
 conjugation_verbs.json      source data: 100 verbs × 9 tenses (root, never modified)
-scripts/build-lemmas.py     regenerates src/data/lemmas.json (spaCy; run only if the corpus changes)
+scripts/build-lemmas.py     regenerates the lemma tables from the Lefff lexicon (see Lemmatization)
 index.html · vite.config.ts meta/PWA tags · PWA manifest, name, icons, theme
 wrangler.toml               Cloudflare Pages config + KV binding for sync
 functions/api/sync/[code].ts server-side sync merge (last-write-wins) over KV
@@ -61,7 +61,8 @@ src/
   styles/global.css         the entire design system
   data/
     content.ts              typed exports of both datasets + TENSES metadata
-    lemmas.json             GENERATED form→lemma table — do not hand-edit
+    lemmas.json             GENERATED bundled lemma core (drilled-verb forms) — do not hand-edit
+public/lemmas-fr.txt        GENERATED full form→lemma lexicon (~350k, lazy-loaded) — do not hand-edit
   lib/                      the logic layer (see below)
   components/               Layout, icons, modals, drill chrome, SyncModal
   pages/                    one file per route
@@ -136,8 +137,8 @@ opens scrolled to the top. `pages/ArticlePage.tsx` renders an article as tappabl
 tokens (tap → `WordModal` lookup/save), a drop cap, live highlighting of saved lemmas,
 scroll-progress tracking, and a typewriter reveal of the headline (the conjugation
 drill's animation, key clicks included). Progress writes go through `lib/articleProgress.ts`.
-Lemmatization is `lib/lemmatize.ts` over the generated `data/lemmas.json`; dictionary
-lookups are online (`lib/dictionary.ts`, cached after first use).
+Lemmatization is `lib/lemmatize.ts` (see below); dictionary lookups are online
+(`lib/dictionary.ts`, cached after first use).
 
 **Vocabulary** — `pages/VocabularyPage.tsx` shows the lexicon (auto-managed **Still
 Learning** / **Learnt** groups driven by `streak`) plus an offline dictionary search
@@ -151,6 +152,23 @@ randomization lives in `lib/conjugation.ts`. Typing only; per-tense colors from
 `lib/tenseThemes.ts`. Each row is one line (tense chip · pronoun · input); a fully
 correct exercise auto-advances after a short pause (inputs read-only, button disabled),
 and the results page offers only the full-width way back — no Retry.
+
+**Lemmatization (`lib/lemmatize.ts` + `scripts/build-lemmas.py`)** — surface form →
+dictionary lemma, used to save/highlight words while reading and to seed the offline
+dictionary search. `lemmaOf()` is a synchronous `Map` lookup (falls back to the word
+itself, so it never invents a word). It is seeded by a small BUNDLED core
+(`data/lemmas.json`, the drilled-verb forms — instant on first paint) and augmented by
+the FULL lexicon, `public/lemmas-fr.txt` (~350k `form⇥lemma` lines derived from the
+**Lefff**, *Lexique des Formes Fléchies du Français*, LGPL-LR). `loadLexicon()` fetches
+that file once (kicked off in `main.tsx`), caches it in Cache Storage (`parcours-lexicon-v1`
+— device-local, never synced, offline after first load), and notifies subscribers
+(`onLexiconReady`) so the article view and dictionary index refresh. When a form has
+several candidate lemmas the build prefers a verb infinitive then the shortest, which is
+right for the common cases (`est`→être, `irai`→aller, `abandonnée`→abandonner) but can't
+disambiguate true homographs (`livre`)  — the small residual error. Regenerate both
+tables with `python3 scripts/build-lemmas.py` (downloads the Lefff to `scripts/.cache/`);
+this replaced the old spaCy corpus-snapshot table, which was corpus-bounded and baked in
+the small model's mistakes.
 
 **Sync (`lib/sync.ts` + `functions/api/sync/[code].ts`)** — opt-in, code-based. Each
 device generates a memorable code (`word-word-word-NN`, `lib/deviceCode.ts`); the
@@ -191,7 +209,8 @@ unlock a one-shot.
 
 1. Root JSON data files are the user's originals — never modify them.
 2. No topic filters/tags — out of scope.
-3. Dictionary and lemmatizer may use the network; offline-first isn't required for them.
+3. The dictionary (word lookups) is online; the lemmatizer fetches its lexicon once, then
+   works offline from Cache Storage.
 4. Vocabulary is exactly three drills; the lexicon is displayed by lemma; the only
    manual-add path is the offline dictionary search.
 5. Conjugation is typing only.

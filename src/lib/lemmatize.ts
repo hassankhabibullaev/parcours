@@ -1,6 +1,14 @@
-import lemmaTable from '../data/lemmas.json';
+import coreTable from '../data/lemmas.json';
 
-const LEMMAS = lemmaTable as Record<string, string>;
+/**
+ * Surface-form → lemma lookup. Seeded synchronously with a small BUNDLED core
+ * (every conjugated form of the drilled verbs) so common verbs work on first
+ * paint, then augmented by the FULL Lefff-derived lexicon (~350k forms) that
+ * `loadLexicon()` fetches once and caches. A form we've never seen lemmatises
+ * to itself, which is already correct for adverbs, base nouns and adjectives —
+ * so the fallback never invents a word.
+ */
+const LEMMAS = new Map<string, string>(Object.entries(coreTable as Record<string, string>));
 
 /**
  * Elision prefixes that get split off before lookup: l'étoile → l' + étoile.
@@ -26,7 +34,77 @@ const ELISIONS: Record<string, string> = {
 export function lemmaOf(word: string): string {
   const w = word.toLowerCase().replace(/’/g, "'").replace(/'$/, '');
   if (w in ELISIONS) return ELISIONS[w];
-  return LEMMAS[w] ?? w;
+  return LEMMAS.get(w) ?? w;
+}
+
+/* ——— Full lexicon: lazy-loaded, cached, offline ——— */
+
+const LEXICON_PATH = `${import.meta.env.BASE_URL}lemmas-fr.txt`;
+const LEXICON_CACHE = 'parcours-lexicon-v1';
+
+let ready = false;
+let loading: Promise<void> | null = null;
+const readyCallbacks = new Set<() => void>();
+
+export function isLexiconReady(): boolean {
+  return ready;
+}
+
+/** Subscribe to full-lexicon readiness (fires once). Returns an unsubscribe. */
+export function onLexiconReady(cb: () => void): () => void {
+  if (ready) {
+    cb();
+    return () => {};
+  }
+  readyCallbacks.add(cb);
+  return () => readyCallbacks.delete(cb);
+}
+
+async function fetchLexicon(): Promise<string | null> {
+  try {
+    if (typeof caches !== 'undefined') {
+      // Cache Storage keeps it available offline after the first online load,
+      // and out of the synced Dexie store (this is device-local, never synced).
+      const cache = await caches.open(LEXICON_CACHE);
+      const hit = await cache.match(LEXICON_PATH);
+      if (hit) return hit.text();
+      const res = await fetch(LEXICON_PATH);
+      if (!res.ok) return null;
+      await cache.put(LEXICON_PATH, res.clone());
+      return res.text();
+    }
+    const res = await fetch(LEXICON_PATH);
+    return res.ok ? res.text() : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Load and merge the full lexicon. Safe to call repeatedly; retries a failed
+    (e.g. offline) load on the next call. */
+export function loadLexicon(): Promise<void> {
+  if (ready) return Promise.resolve();
+  if (!loading) {
+    loading = (async () => {
+      const text = await fetchLexicon();
+      if (text === null) {
+        loading = null; // let a later call (e.g. once online) try again
+        return;
+      }
+      for (const line of text.split('\n')) {
+        const tab = line.indexOf('\t');
+        if (tab > 0) LEMMAS.set(line.slice(0, tab), line.slice(tab + 1));
+      }
+      ready = true;
+      readyCallbacks.forEach((cb) => cb());
+      readyCallbacks.clear();
+    })();
+  }
+  return loading;
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('online', () => void loadLexicon());
 }
 
 export interface Token {

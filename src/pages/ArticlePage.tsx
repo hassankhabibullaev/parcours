@@ -4,7 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { getArticle } from '../data/content';
 import { db } from '../lib/db';
 import { upsertArticleProgress } from '../lib/articleProgress';
-import { buildParagraphs, lemmaOf, type Token } from '../lib/lemmatize';
+import { buildParagraphs, lemmaOf, isLexiconReady, onLexiconReady, type Token } from '../lib/lemmatize';
 import { keyClick, successChime, wordTap } from '../lib/sound';
 import WordModal, { type LookupRequest } from '../components/WordModal';
 
@@ -56,6 +56,11 @@ export default function ArticlePage() {
   );
 
   const [lookup, setLookup] = useState<LookupRequest | null>(null);
+
+  // Re-render once the full lexicon loads so highlighting and tap-lemmas pick
+  // up its better base forms (tokens themselves don't change).
+  const [, setLexReady] = useState(isLexiconReady());
+  useEffect(() => onLexiconReady(() => setLexReady(true)), []);
 
   // Typewriter reveal of the headline — the conjugation drill's verb animation,
   // key clicks included. A hidden ghost of the full title reserves the final

@@ -138,16 +138,26 @@ export function buildSession(mode: TenseKey | 'mixed'): Exercise[] {
 
 const VOWEL_START = /^[aâàeéèêëiîïoôöuûüh]/i;
 
-/** « je » elides before a vowel; the subjunctive is prompted with « que ». */
+/**
+ * « je » elides before a vowel; the subjunctive is prompted with « que ».
+ * « que nous / que vous » are contracted to « q. nous / q. vous » so the
+ * pronoun column stays narrow (every other subjunctive form already elides).
+ */
 export function pronounDisplay(pronoun: string, tense: TenseKey, answer: string): string {
   const elided = pronoun === 'je' && VOWEL_START.test(answer);
   const base = elided ? "j'" : pronoun;
   if (tense !== 'subjonctif') return base;
   if (elided) return "que j'";
   if (['il', 'elle', 'on', 'ils', 'elles'].includes(pronoun)) return `qu'${pronoun}`;
+  if (pronoun === 'nous' || pronoun === 'vous') return `q. ${pronoun}`;
   return `que ${pronoun}`;
 }
 
 export function tenseLabel(key: TenseKey): string {
   return TENSES.find((t) => t.key === key)?.label ?? key;
+}
+
+/** Compact tense name for the tight mixed-drill row chip. */
+export function tenseAbbr(key: TenseKey): string {
+  return TENSES.find((t) => t.key === key)?.abbr ?? key;
 }
