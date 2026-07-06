@@ -53,6 +53,7 @@ scripts/build-lemmas.py     regenerates the lemma tables from the Lefff lexicon 
 index.html · vite.config.ts meta/PWA tags · PWA manifest, name, icons, theme
 wrangler.toml               Cloudflare Pages config + KV binding for sync
 functions/api/sync/[code].ts server-side sync merge (last-write-wins) over KV
+functions/api/tts.ts        same-origin pronunciation proxy (see Pronunciation)
 public/icons/               app icons ("P" seal, cream on red #B3362A); art is inset with
                             safe-area padding so OS corner masks never clip the frame, and
                             the browser icons carry baked-in rounded corners
@@ -204,6 +205,17 @@ sounds opt out by class (`accent-key`, `match-tile`). `sound.ts` also owns the i
 audio unlock: persistent gesture listeners resume the AudioContext (WebKit re-suspends
 it as `interrupted` whenever the home-screen app is backgrounded) — don't make the
 unlock a one-shot.
+
+**Pronunciation (`speech.ts` + `functions/api/tts.ts`)** — the word-pronounce button
+plays Google Translate's natural French voice, but through our OWN same-origin proxy
+(`/api/tts`), never Google's URL directly. WebKit refuses cross-origin TTS media in iOS
+Safari and the Home-Screen PWA, so the direct request errored — and the old fallback to
+`speechSynthesis` fired inside that async error handler, outside the tap gesture, which
+iOS blocks too, so nothing spoke at all. A same-origin clip plays from the same reusable
+gesture-unlocked `<audio>` element the code already keeps. Offline (or in `npm run dev`,
+where Pages Functions don't run) it falls back to `speechSynthesis` synchronously inside
+the click, with fr-FR voices warmed at load so the first utterance isn't the robotic
+default.
 
 ## Conventions (don't re-litigate silently)
 
