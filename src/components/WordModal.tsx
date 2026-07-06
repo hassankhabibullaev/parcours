@@ -3,6 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../lib/db';
 import { lookup, type LookupResult } from '../lib/dictionary';
 import { canSpeak, speakFrench } from '../lib/speech';
+import { useAutoSpeak } from '../lib/useAutoSpeak';
 import { errorBuzz, successChime } from '../lib/sound';
 import { saveWord } from '../lib/vocab';
 import { SpeakerIcon } from './icons';
@@ -50,6 +51,11 @@ export default function WordModal({ request, onClose }: WordModalProps) {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
+
+  // Pronounce the term automatically when the modal opens (and again for each
+  // newly tapped word, since this instance is reused). The tap that opened the
+  // modal has already primed the audio element, so playback is allowed on iOS.
+  useAutoSpeak(term);
 
   const alreadySaved = useLiveQuery(
     () => db.savedWords.where('lemma').equals(term).first(),

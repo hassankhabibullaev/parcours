@@ -160,5 +160,10 @@ export function speakFrench(text: string) {
     speakWithSynthesis(text);
   };
   el.onerror = fallBack;
-  el.play().catch(fallBack);
+  el.play().catch((err: DOMException) => {
+    // Swapping `src` (or a rapid second call) aborts this pending play — that's
+    // us interrupting, not a real failure, so don't drop to the robotic voice.
+    // Genuine load/permission/network errors still fall back.
+    if (err?.name !== 'AbortError') fallBack();
+  });
 }

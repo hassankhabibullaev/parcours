@@ -18,7 +18,8 @@ import {
 } from '../lib/conjugation';
 import { gradeAnswer, recordRound, type AnswerGrade } from '../lib/practice';
 import { MIXED_STRIPE, TENSE_THEMES } from '../lib/tenseThemes';
-import { errorBuzz, keyClick, successChime } from '../lib/sound';
+import { errorBuzz, keyClick, sfxEnabled, successChime } from '../lib/sound';
+import { useAutoSpeak } from '../lib/useAutoSpeak';
 import DrillHeader from '../components/DrillHeader';
 import DrillTopline from '../components/DrillTopline';
 import DrillResults from '../components/DrillResults';
@@ -85,6 +86,11 @@ export default function ConjugationDrillPage() {
     }, 50);
     return () => window.clearInterval(timer);
   }, [exercise, finished]);
+
+  /* Pronounce the infinitive once it finishes typing (the conjugated answers
+     stay hidden, so this doesn't give the drill away). The drill's speaker pill
+     mutes it along with the other drill sounds. */
+  useAutoSpeak(exercise?.verb, !rendering && !finished && sfxEnabled());
 
   /* A fully correct exercise advances on its own after a short pause; inputs
      are already read-only by then and the action button renders disabled. */

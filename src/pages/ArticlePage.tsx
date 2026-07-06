@@ -6,6 +6,7 @@ import { db } from '../lib/db';
 import { upsertArticleProgress } from '../lib/articleProgress';
 import { buildParagraphs, lemmaOf, isLexiconReady, onLexiconReady, type Token } from '../lib/lemmatize';
 import { keyClick, successChime, wordTap } from '../lib/sound';
+import { useAutoSpeak } from '../lib/useAutoSpeak';
 import WordModal, { type LookupRequest } from '../components/WordModal';
 
 function currentScrollPosition(): number {
@@ -89,6 +90,9 @@ export default function ArticlePage() {
     }, 30);
     return () => window.clearInterval(timer);
   }, [article]);
+
+  // Read the headline aloud once it has finished typing itself out.
+  useAutoSpeak(article?.title, !rendering);
 
   // Record the visit and restore the saved scroll position once.
   const restoredRef = useRef(false);
