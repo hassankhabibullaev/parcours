@@ -6,6 +6,7 @@ import { canSpeak, speakFrench } from '../lib/speech';
 import { useAutoSpeak } from '../lib/useAutoSpeak';
 import { errorBuzz, confirmTock } from '../lib/sound';
 import { saveWord } from '../lib/vocab';
+import { useAuthGate } from './AuthGate';
 import { SpeakerIcon } from './icons';
 
 export interface LookupRequest {
@@ -24,6 +25,7 @@ interface WordModalProps {
 
 export default function WordModal({ request, onClose }: WordModalProps) {
   const { display, term, sentence, articleId } = request;
+  const { requireAuth } = useAuthGate();
 
   const [result, setResult] = useState<LookupResult | null>(null);
   const [failed, setFailed] = useState(false);
@@ -76,6 +78,12 @@ export default function WordModal({ request, onClose }: WordModalProps) {
 
   async function handleSave() {
     if (!result) return;
+    // Saving builds a personal vocabulary — guests are prompted to sign in. Close
+    // this lookup first so the sign-in prompt isn't stacked on top of it.
+    if (!requireAuth('vocab')) {
+      onClose();
+      return;
+    }
     await saveWord({
       lemma: term,
       display,

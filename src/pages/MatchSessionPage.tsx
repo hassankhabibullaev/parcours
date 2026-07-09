@@ -4,6 +4,8 @@ import type { SavedWord } from '../lib/db';
 import { drawPracticeWords, recordRound, recordWordResult } from '../lib/practice';
 import { vocabThemeVars } from '../lib/vocabThemes';
 import { successChime } from '../lib/sound';
+import { useAuth } from '../components/AuthProvider';
+import { GuestNotice } from '../components/AuthGate';
 import DrillHeader from '../components/DrillHeader';
 import DrillTopline from '../components/DrillTopline';
 import DrillResults from '../components/DrillResults';
@@ -51,6 +53,7 @@ function splitRounds(words: SavedWord[]): SavedWord[][] {
 }
 
 export default function MatchSessionPage({ kind }: { kind: MatchSessionKind }) {
+  const { user } = useAuth();
   const session = SESSIONS[kind];
   const themeVars = vocabThemeVars(kind);
 
@@ -93,6 +96,15 @@ export default function MatchSessionPage({ kind }: { kind: MatchSessionKind }) {
       cancelled = true;
     };
   }, [kind]);
+
+  if (!user) {
+    return (
+      <>
+        <DrillHeader title={session.title} backTo="/practice?tab=vocabulary" backLabel="Practice" />
+        <GuestNotice message="Log in or create a free account to save words and practise them here." />
+      </>
+    );
+  }
 
   if (!words) return <DrillHeader title={session.title} backTo="/practice?tab=vocabulary" backLabel="Practice" />;
 

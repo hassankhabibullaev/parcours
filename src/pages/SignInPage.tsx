@@ -1,16 +1,29 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../components/AuthProvider';
 import { AuthError, isValidPassword, isValidUsername } from '../lib/auth';
 
 type Mode = 'login' | 'signup';
 
 /**
- * Full-screen sign-in gate (no nav). Two modes: Log in (username + password) and
+ * Full-screen sign-in page (no nav). Two modes: Log in (username + password) and
  * Sign up (name + username + password). Credentials are verified by the account
- * backend, so a taken username or wrong password is reported inline.
+ * backend, so a taken username or wrong password is reported inline. Reachable by
+ * choice — a guest can always dismiss it and keep browsing. On success (or if an
+ * already-signed-in user lands here) it returns to wherever they came from.
  */
 export default function SignInPage() {
-  const { logIn, signUp } = useAuth();
+  const { user, logIn, signUp } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as { from?: string } | null)?.from ?? '/';
+
+  // Leave the sign-in page as soon as there's a session: either the submit just
+  // established one, or the learner was already signed in and navigated here.
+  useEffect(() => {
+    if (user) navigate(from, { replace: true });
+  }, [user, from, navigate]);
+
   const [mode, setMode] = useState<Mode>('login');
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
@@ -157,6 +170,14 @@ export default function SignInPage() {
               </button>
             </p>
           )}
+
+          <button
+            type="button"
+            className="auth-link auth-guest"
+            onClick={() => navigate(from, { replace: true })}
+          >
+            Continue browsing without an account
+          </button>
         </div>
       </div>
     </div>

@@ -13,6 +13,8 @@ import {
 } from '../lib/lemmatize';
 import { keyClick, confirmTock } from '../lib/sound';
 import { useAutoSpeak } from '../lib/useAutoSpeak';
+import { useAuth } from '../components/AuthProvider';
+import { useAuthGate } from '../components/AuthGate';
 import WordModal, { type LookupRequest } from '../components/WordModal';
 
 function currentScrollPosition(): number {
@@ -45,6 +47,8 @@ function groupTokens(tokens: Token[]): Token[][] {
 export default function ArticlePage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { requireAuth } = useAuthGate();
   const article = getArticle(Number(id));
 
   const paragraphs = useMemo(
@@ -104,6 +108,15 @@ export default function ArticlePage() {
   const restoredRef = useRef(false);
   useEffect(() => {
     if (!article) return;
+    // Guests read freely but leave no trace: nothing is written and there is no
+    // saved position to restore, so just open at the top.
+    if (!user) {
+      if (!restoredRef.current) {
+        restoredRef.current = true;
+        window.scrollTo(0, 0);
+      }
+      return;
+    }
     db.articleProgress.get(article.id).then((p) => {
       upsertArticleProgress(article.id, {});
       if (!restoredRef.current) {
@@ -116,11 +129,11 @@ export default function ArticlePage() {
         }
       }
     });
-  }, [article]);
+  }, [article, user]);
 
-  // Remember how far the learner scrolled (throttled + on leave).
+  // Remember how far the learner scrolled (throttled + on leave) — signed-in only.
   useEffect(() => {
-    if (!article) return;
+    if (!article || !user) return;
     let timer: number | null = null;
     const save = () => upsertArticleProgress(article.id, { position: currentScrollPosition() });
     const onScroll = () => {
@@ -136,7 +149,7 @@ export default function ArticlePage() {
       if (timer !== null) window.clearTimeout(timer);
       save();
     };
-  }, [article]);
+  }, [article, user]);
 
   if (!article) {
     return (
@@ -243,6 +256,8 @@ export default function ArticlePage() {
             if (isRead) {
               await upsertArticleProgress(article.id, { read: 0 });
             } else {
+              // Marking read is personal progress — guests are prompted to sign in.
+              if (!requireAuth('read')) return;
               confirmTock();
               await upsertArticleProgress(article.id, { read: 1 });
               navigate('/reading', { state: { justRead: article.id } });

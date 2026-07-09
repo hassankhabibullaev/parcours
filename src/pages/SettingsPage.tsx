@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../lib/db';
 import { useAuth } from '../components/AuthProvider';
@@ -6,6 +7,7 @@ import { setSfxEnabled, sfxEnabled } from '../lib/sound';
 
 export default function SettingsPage() {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const words = useLiveQuery(() => db.savedWords.toArray(), []) ?? [];
   const progress = useLiveQuery(() => db.articleProgress.toArray(), []) ?? [];
@@ -32,7 +34,7 @@ export default function SettingsPage() {
 
   async function handleLogOut() {
     if (loggingOut) return;
-    if (!window.confirm('Log out? Your progress is saved to your email and returns when you sign back in.')) {
+    if (!window.confirm('Log out? Your progress is saved to your account and returns when you sign back in.')) {
       return;
     }
     setLoggingOut(true);
@@ -45,16 +47,29 @@ export default function SettingsPage() {
       <p className="page-subheading">Your account and progress.</p>
 
       <div className="section-label">Account</div>
-      <div className="card account-card">
-        <div className="account-row">
-          <span className="account-row__label">Name</span>
-          <span className="account-row__value">{user?.name || '—'}</span>
+      {user ? (
+        <div className="card account-card">
+          <div className="account-row">
+            <span className="account-row__label">Name</span>
+            <span className="account-row__value">{user.name || '—'}</span>
+          </div>
+          <div className="account-row">
+            <span className="account-row__label">Username</span>
+            <span className="account-row__value">{user.username || '—'}</span>
+          </div>
         </div>
-        <div className="account-row">
-          <span className="account-row__label">Username</span>
-          <span className="account-row__value">{user?.username || '—'}</span>
+      ) : (
+        <div className="card">
+          <p style={{ margin: '0 0 4px', fontWeight: 700 }}>You’re browsing as a guest</p>
+          <p style={{ margin: '0 0 12px', color: 'var(--ink-soft)', fontSize: 14 }}>
+            Reading and conjugation practice are open to everyone. Log in or create a free account
+            to save words, track what you’ve read, and sync across devices.
+          </p>
+          <button className="btn btn--accent" onClick={() => navigate('/signin')}>
+            Log in or sign up
+          </button>
         </div>
-      </div>
+      )}
 
       <div className="section-label">Progress</div>
       <div className="settings-stats">
@@ -84,13 +99,15 @@ export default function SettingsPage() {
         </button>
       </div>
 
-      <button
-        className="btn btn--ghost settings-logout"
-        onClick={handleLogOut}
-        disabled={loggingOut}
-      >
-        {loggingOut ? 'Logging out…' : 'Log Out'}
-      </button>
+      {user && (
+        <button
+          className="btn btn--ghost settings-logout"
+          onClick={handleLogOut}
+          disabled={loggingOut}
+        >
+          {loggingOut ? 'Logging out…' : 'Log Out'}
+        </button>
+      )}
     </>
   );
 }

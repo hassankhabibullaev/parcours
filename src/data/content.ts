@@ -59,8 +59,6 @@ export type TenseKey =
 /** Eight slots: je, tu, il, elle, nous, vous, ils, elles. */
 export type ConjugationRow = string[];
 
-export const PRONOUNS = ['je', 'tu', 'il', 'elle', 'nous', 'vous', 'ils', 'elles'] as const;
-
 interface RawVerbData {
   verbs: Record<string, Record<string, ConjugationRow>>;
   meanings: Record<string, string>;

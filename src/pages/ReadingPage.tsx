@@ -1,10 +1,11 @@
 import { useEffect, useLayoutEffect, useState, type MouseEvent } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { articles, type Article, type CefrLevel } from '../data/content';
 import { db } from '../lib/db';
 import { setArticleRead } from '../lib/articleProgress';
 import { confirmTock } from '../lib/sound';
+import { useAuthGate } from '../components/AuthGate';
 import { CheckCircleIcon, UndoIcon } from '../components/icons';
 
 type Tab = 'unread' | 'read';
@@ -13,6 +14,7 @@ const LEVELS = [...new Set(articles.map((a) => a.cefr_level))].sort() as CefrLev
 const levelColor = (level: CefrLevel) => `var(--level-${level.toLowerCase()})`;
 
 export default function ReadingPage() {
+  const { requireAuth } = useAuthGate();
   const [tab, setTab] = useState<Tab>('unread');
   // Active CEFR level filter, or 'all'. Tapping a level chip narrows the list.
   const [level, setLevel] = useState<CefrLevel | 'all'>('all');
@@ -25,13 +27,19 @@ export default function ReadingPage() {
   // then sinks away and settles into the read group. Triggered either by
   // navigation state (from the article view) or by the inline toggle.
   const location = useLocation();
+  const navigate = useNavigate();
   const [justRead, setJustRead] = useState<number | null>(
     () => (location.state as { justRead?: number } | null)?.justRead ?? null,
   );
   const [sinking, setSinking] = useState(false);
   useEffect(() => {
     if (justRead === null) return;
-    window.history.replaceState({}, ''); // don't replay on back/refresh
+    // Clear the one-shot justRead flag so a refresh/back doesn't replay the
+    // send-off animation — but do it THROUGH React Router. A raw
+    // window.history.replaceState wipes React Router's navigation bookkeeping
+    // (history.state.idx), which then breaks later back/forward transitions and
+    // leaves pages blank until a hard refresh.
+    navigate(location.pathname + location.search, { replace: true, state: null });
     const sink = window.setTimeout(() => setSinking(true), 1000);
     const settle = window.setTimeout(() => {
       setJustRead(null);
@@ -69,6 +77,8 @@ export default function ReadingPage() {
     if (isRead(article.id)) {
       setArticleRead(article.id, false);
     } else {
+      // Marking read is personal progress — guests are prompted to sign in.
+      if (!requireAuth('read')) return;
       confirmTock();
       setArticleRead(article.id, true);
       setSinking(false);

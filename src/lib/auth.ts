@@ -132,9 +132,14 @@ export async function logIn(username: string, password: string): Promise<User> {
 
 /**
  * Sign out: push any last local changes to the cloud, then wipe the device's
- * local store so the next sign-in (this account or another) starts from a clean
- * slate — no data bleeds between accounts on a shared device, and this account's
- * progress is safe in its bucket, returning on the next sign-in.
+ * local store so the next session (guest, this account, or another) starts from a
+ * clean slate — no data bleeds between accounts on a shared device, and this
+ * account's progress is safe in its bucket, returning on the next sign-in.
+ *
+ * We clear every table rather than `db.delete()` because the app stays mounted
+ * after sign-out (it drops to guest mode, not a sign-in wall): the live queries
+ * on the still-mounted page hold the database open and would block a delete.
+ * Clearing wipes the same data and updates those queries reactively to empty.
  */
 export async function signOut(): Promise<void> {
   try {
@@ -143,6 +148,13 @@ export async function signOut(): Promise<void> {
     /* offline — local wipe still proceeds; the cloud keeps the last sync */
   }
   clearStoredUser();
-  await db.delete();
-  await db.open();
+  await Promise.all([
+    db.savedWords.clear(),
+    db.articleProgress.clear(),
+    db.practiceResults.clear(),
+    db.kv.clear(),
+    db.lookupCache.clear(),
+    db.tombstones.clear(),
+    db.drillStats.clear(),
+  ]);
 }

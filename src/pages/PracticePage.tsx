@@ -10,6 +10,8 @@ import {
 } from '../lib/practice';
 import { vocabThemeVars } from '../lib/vocabThemes';
 import { errorBuzz, keyClick, successChime } from '../lib/sound';
+import { useAuth } from '../components/AuthProvider';
+import { GuestNotice } from '../components/AuthGate';
 import DrillHeader from '../components/DrillHeader';
 import DrillTopline from '../components/DrillTopline';
 import DrillResults from '../components/DrillResults';
@@ -69,6 +71,7 @@ interface Miss {
 }
 
 export default function PracticePage() {
+  const { user } = useAuth();
   const [words, setWords] = useState<SavedWord[] | null>(null);
   const [index, setIndex] = useState(0);
   const [value, setValue] = useState('');
@@ -147,6 +150,15 @@ export default function PracticePage() {
     }, 30);
     return () => window.clearInterval(timer);
   }, [word, finished]);
+
+  if (!user) {
+    return (
+      <>
+        <DrillHeader title="Fill in the Blank" backTo="/practice?tab=vocabulary" backLabel="Practice" />
+        <GuestNotice message="Log in or create a free account to save words and practise them here." />
+      </>
+    );
+  }
 
   if (!words) return <DrillHeader title="Fill in the Blank" backTo="/practice?tab=vocabulary" backLabel="Practice" />;
 

@@ -4,6 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../lib/db';
 import { articles } from '../data/content';
 import { useAuth } from '../components/AuthProvider';
+import { useAuthGate } from '../components/AuthGate';
 import { VOCAB_THEMES } from '../lib/vocabThemes';
 import { MIXED_BLOB } from '../lib/tenseThemes';
 import { LexiconIcon } from '../components/icons';
@@ -21,6 +22,7 @@ const QUICK_LAUNCH = [
 
 export default function HomePage() {
   const { user } = useAuth();
+  const { requireAuth } = useAuthGate();
   const words = useLiveQuery(() => db.savedWords.toArray(), []) ?? [];
   const progress = useLiveQuery(() => db.articleProgress.toArray(), []) ?? [];
 
@@ -86,17 +88,25 @@ export default function HomePage() {
 
       <div className="section-label">Practice</div>
       <div className="drill-grid">
-        {QUICK_LAUNCH.map((q) => (
-          <Link
-            key={q.to}
-            className="drill-card"
-            to={q.to}
-            style={{ '--tc': q.tc, '--tc-blob': q.blob } as CSSProperties}
-          >
-            <span className="drill-card__kicker">{q.kicker}</span>
-            <span className="drill-card__name">{q.name}</span>
-          </Link>
-        ))}
+        {QUICK_LAUNCH.map((q) => {
+          // Conjugation is open to everyone; the vocab drills need saved words,
+          // so a guest tapping one gets the sign-in prompt instead.
+          const gated = q.to.startsWith('/vocabulary');
+          return (
+            <Link
+              key={q.to}
+              className="drill-card"
+              to={q.to}
+              style={{ '--tc': q.tc, '--tc-blob': q.blob } as CSSProperties}
+              onClick={(e) => {
+                if (gated && !requireAuth('practice')) e.preventDefault();
+              }}
+            >
+              <span className="drill-card__kicker">{q.kicker}</span>
+              <span className="drill-card__name">{q.name}</span>
+            </Link>
+          );
+        })}
       </div>
     </>
   );

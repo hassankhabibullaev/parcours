@@ -63,7 +63,7 @@ function devAccountApi(): Plugin {
             }
             const username = (body.username ?? "").trim().toLowerCase();
             const password = body.password ?? "";
-            const name = (body.name ?? "").trim();
+            const name = (body.name ?? "").trim().slice(0, 60);
             if (!/^[a-z0-9._-]{3,32}$/.test(username))
               return send(400, {
                 ok: false,

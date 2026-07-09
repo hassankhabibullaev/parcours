@@ -75,7 +75,29 @@ function normalizeUsername(u: unknown): string {
   return typeof u === 'string' ? u.trim().toLowerCase() : '';
 }
 
+// Coarse per-IP throttle. This endpoint is unauthenticated and runs 100k PBKDF2
+// iterations per call, so without a cap it's both a password-brute-force and a
+// CPU-amplification vector. KV is eventually consistent, so this is a soft limit
+// (a burst can slip a few extra through) — enough for the modest threat model;
+// Cloudflare's edge absorbs volumetric floods. The dev mirror in vite.config.ts
+// deliberately omits this (local, in-memory, single user).
+const RL_MAX_PER_WINDOW = 20;
+const RL_WINDOW_SECONDS = 60;
+
+async function isRateLimited(env: Env, ip: string): Promise<boolean> {
+  const key = `rl:acct:${ip}`;
+  const count = Number((await env.SYNC_KV.get(key)) ?? 0);
+  if (count >= RL_MAX_PER_WINDOW) return true;
+  await env.SYNC_KV.put(key, String(count + 1), { expirationTtl: RL_WINDOW_SECONDS });
+  return false;
+}
+
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
+  const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown';
+  if (await isRateLimited(env, ip)) {
+    return json({ ok: false, error: 'Too many attempts. Please wait a minute and try again.' }, 429);
+  }
+
   let body: { action?: string; username?: string; password?: string; name?: string };
   try {
     body = await request.json();
@@ -86,7 +108,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const action = body.action;
   const username = normalizeUsername(body.username);
   const password = typeof body.password === 'string' ? body.password : '';
-  const name = typeof body.name === 'string' ? body.name.trim() : '';
+  const name = typeof body.name === 'string' ? body.name.trim().slice(0, 60) : '';
 
   if (!/^[a-z0-9._-]{3,32}$/.test(username)) {
     return json(

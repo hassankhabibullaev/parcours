@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import { LEARNT_STREAK } from '../lib/practice';
 import { VOCAB_THEMES, type VocabMode } from '../lib/vocabThemes';
+import { useAuthGate } from './AuthGate';
 
 const DRILLS: { mode: VocabMode; to: string; kicker: string; name: string; hint: string }[] = [
   {
@@ -42,11 +43,22 @@ function drillCardStyle(mode: VocabMode, index: number): CSSProperties {
  * their items struggle-weighted (lib/struggle.ts).
  */
 export default function VocabDrills() {
+  const { requireAuth } = useAuthGate();
   return (
     <>
       <div className="drill-grid">
         {DRILLS.map((d, i) => (
-          <Link key={d.mode} className="drill-card" to={d.to} style={drillCardStyle(d.mode, i)}>
+          <Link
+            key={d.mode}
+            className="drill-card"
+            to={d.to}
+            style={drillCardStyle(d.mode, i)}
+            onClick={(e) => {
+              // Vocabulary drills need saved words — prompt guests instead of
+              // navigating into an unusable drill.
+              if (!requireAuth('practice')) e.preventDefault();
+            }}
+          >
             <span className="drill-card__kicker">{d.kicker}</span>
             <span className="drill-card__name">{d.name}</span>
             <span className="drill-card__hint">{d.hint}</span>

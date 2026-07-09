@@ -7,6 +7,7 @@ import { searchDictionary } from '../lib/dictionarySearch';
 import { saveWord } from '../lib/vocab';
 import { confirmTock } from '../lib/sound';
 import { canSpeak, speakFrench } from '../lib/speech';
+import { useAuthGate } from '../components/AuthGate';
 import { LEARNT_STREAK } from '../lib/practice';
 import {
   CheckCircleIcon,
@@ -22,6 +23,7 @@ import {
 type Tab = 'learning' | 'learned';
 
 export default function VocabularyPage() {
+  const { requireAuth } = useAuthGate();
   const words = useLiveQuery(() => db.savedWords.orderBy('addedAt').reverse().toArray(), []);
 
   const [query, setQuery] = useState('');
@@ -48,6 +50,8 @@ export default function VocabularyPage() {
 
   async function addFromDictionary(lemma: string) {
     if (addingLemma) return;
+    // Building a vocabulary needs an account — prompt guests to sign in.
+    if (!requireAuth('vocab')) return;
     setAddingLemma(lemma);
     try {
       // Translation is fetched online (fail-soft — the word is saved either way).

@@ -1,6 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
-import { useAuth } from './components/AuthProvider';
 import SignInPage from './pages/SignInPage';
 import HomePage from './pages/HomePage';
 import ReadingPage from './pages/ReadingPage';
@@ -13,14 +12,12 @@ import ConjugationDrillPage from './pages/ConjugationDrillPage';
 import SettingsPage from './pages/SettingsPage';
 
 export default function App() {
-  const { user } = useAuth();
-
-  // Signed out → the full-screen sign-in gate (no nav). The session persists in
-  // localStorage, so this only shows on first use or after an explicit log out.
-  if (!user) return <SignInPage />;
-
+  // The app is browsable without an account (see components/AuthGate). Signing in
+  // is a route, not a wall: guests land on the app and only hit the sign-in page
+  // when they choose to, or when a personal-progress action asks them to.
   return (
     <Routes>
+      <Route path="/signin" element={<SignInPage />} />
       <Route element={<Layout />}>
         <Route index element={<HomePage />} />
         <Route path="reading" element={<ReadingPage />} />

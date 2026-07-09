@@ -190,59 +190,6 @@ a {
   border-left: 3px solid var(--accent);
 }
 
-/* ——— Stats ——— */
-
-.stat-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-.stat {
-  background: var(--paper-raised);
-  border: 1px solid var(--rule);
-  border-radius: 10px;
-  padding: 14px 10px 12px;
-  text-align: center;
-}
-
-.stat__value {
-  font-size: 30px;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.stat__label {
-  margin-top: 7px;
-  color: var(--ink-soft);
-  font-family: var(--sans);
-  font-size: 10.5px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.stat__bar {
-  height: 4px;
-  margin-top: 9px;
-  background: var(--paper-sunken);
-  border-radius: 99px;
-  overflow: hidden;
-}
-
-.stat__bar-fill {
-  height: 100%;
-  background: var(--accent);
-  border-radius: 99px;
-  transition: width 0.5s ease;
-}
-
-.stat__foot {
-  margin-top: 6px;
-  color: var(--ink-faint);
-  font-family: var(--sans);
-  font-size: 10px;
-}
-
 /* ——— Buttons ——— */
 
 .btn {
@@ -304,113 +251,7 @@ a {
 .level-badge--C1 { background: var(--level-c1); }
 .level-badge--C2 { background: var(--level-c2); }
 
-/* ——— Device code & sync ——— */
-
-.desk-code {
-  display: block;
-  margin: 10px 0 6px;
-  padding: 12px;
-  background: var(--paper-sunken);
-  border: 1px dashed var(--rule-strong);
-  border-radius: 8px;
-  text-align: center;
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-}
-
-.desk-code--btn {
-  position: relative;
-  width: 100%;
-  cursor: pointer;
-  color: var(--ink);
-  transition: border-color 0.15s;
-}
-
-.desk-code--btn:hover {
-  border-color: var(--accent);
-}
-
-.desk-code__copy {
-  display: block;
-  margin-top: 5px;
-  color: var(--ink-faint);
-  font-family: var(--sans);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.sync-status {
-  margin: 12px 0 0;
-  font-family: var(--sans);
-  font-size: 12.5px;
-}
-
-/* The Home sync section: one status line, one button. */
-.sync-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.sync-row__status {
-  flex: 1;
-  margin: 0;
-  color: var(--ink-soft);
-  font-size: 14px;
-}
-
-.btn__icon {
-  width: 16px;
-  height: 16px;
-}
-
-/* The two directions offered by the sync modal. */
-.sync-option {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  width: 100%;
-  padding: 13px 14px;
-  background: var(--paper);
-  border: 1px solid var(--rule-strong);
-  border-radius: 10px;
-  text-align: left;
-  transition: border-color 0.15s, background 0.15s;
-}
-
-.sync-option + .sync-option {
-  margin-top: 10px;
-}
-
-.sync-option:active {
-  border-color: var(--accent);
-  background: var(--accent-wash);
-}
-
-.sync-option__icon {
-  flex-shrink: 0;
-  width: 22px;
-  height: 22px;
-  margin-top: 2px;
-  color: var(--accent-deep);
-}
-
-.sync-option__title {
-  display: block;
-  font-family: var(--sans);
-  font-size: 15px;
-  font-weight: 700;
-}
-
-.sync-option__hint {
-  display: block;
-  margin-top: 2px;
-  color: var(--ink-soft);
-  font-size: 13px;
-}
+/* ——— Sign-in prompt modal (heading + lede) ——— */
 
 .modal__heading {
   margin: 0 0 4px;
@@ -423,20 +264,6 @@ a {
   color: var(--ink-soft);
   font-size: 14px;
   line-height: 1.5;
-}
-
-.modal__back {
-  display: inline-block;
-  margin-bottom: 10px;
-  color: var(--ink-soft);
-  font-family: var(--sans);
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.modal__footer-btn {
-  width: 100%;
-  margin-top: 14px;
 }
 
 /* ——— Bottom tab bar ——— */
@@ -512,32 +339,6 @@ a {
   border-color: var(--accent);
 }
 
-/* ——— Filter chips ——— */
-
-.chip-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 0 0 16px;
-}
-
-.chip {
-  padding: 6px 14px;
-  border: 1px solid var(--rule-strong);
-  border-radius: 999px;
-  background: var(--paper-raised);
-  color: var(--ink-soft);
-  font-family: var(--sans);
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.chip--active {
-  background: var(--ink);
-  border-color: var(--ink);
-  color: var(--paper-raised);
-}
-
 /* ——— Segmented tabs (Reading, Vocabulary, Practice) ——— */
 
 .seg-tabs {
@@ -590,33 +391,44 @@ a {
   color: var(--paper-raised);
 }
 
-/* Per-level article counts under the Reading tabs (A1: 5, B2: 12). */
+/* Per-level article counts under the Reading tabs (A1: 5, B2: 12). The row must
+   stay on ONE line — the chips size down to fit, and if a viewport is ever too
+   narrow for all of them, the row scrolls sideways rather than wrapping. */
 .level-counts {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  flex-wrap: nowrap;
+  gap: 4px;
   margin: 0 0 18px;
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+  -webkit-overflow-scrolling: touch;
+}
+
+.level-counts::-webkit-scrollbar {
+  display: none; /* WebKit — keep the scroll but hide the bar */
 }
 
 .level-count {
+  flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 11px;
+  gap: 4px;
+  padding: 4px 8px;
   border-radius: 999px;
   border: 1px solid var(--rule-strong);
   background: var(--paper-raised);
   font-family: var(--sans);
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 600;
+  white-space: nowrap;
   color: var(--ink-soft);
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
 .level-count__dot {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: var(--lc, var(--ink-faint));
 }
@@ -700,27 +512,6 @@ a {
     color: var(--accent-deep);
     background: var(--accent-wash);
   }
-}
-
-/* Divider the read pile sits under. */
-.read-divider {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 26px 0 12px;
-  color: color-mix(in srgb, var(--ink-soft) 55%, var(--burgundy));
-  font-family: var(--sans);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.read-divider::before,
-.read-divider::after {
-  content: '';
-  flex: 1;
-  border-top: 1px dashed var(--rule-strong);
 }
 
 .article-card__title {
@@ -1030,6 +821,13 @@ a {
   width: 100%;
 }
 
+/* Two stacked full-width buttons (e.g. the sign-in prompt: primary + dismiss). */
+.modal__actions--stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .modal__saved {
   border-color: var(--level-a1);
   color: var(--level-a1);
@@ -1315,25 +1113,11 @@ a {
   padding-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom) + 12px);
 }
 
-.drill-progress {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 12px;
-  color: var(--ink-soft);
-  font-family: var(--sans);
-  font-size: 13px;
-  font-weight: 600;
-}
-
 .drill-actions {
   display: flex;
   justify-content: center;
   gap: 10px;
   margin-top: 16px;
-}
-
-.drill-actions--left {
-  justify-content: flex-start;
 }
 
 .drill-actions .btn--full {
@@ -1414,30 +1198,11 @@ a {
   }
 }
 
-/* ——— Input drill ——— */
-
-.input-drill__prompt {
-  margin: 0 0 4px;
-  font-size: 22px;
-  font-weight: 700;
-}
-
-.input-drill__hint {
-  margin: 0 0 14px;
-  color: var(--ink-soft);
-  font-size: 14.5px;
-  font-style: italic;
-}
-
 .feedback {
   margin: 12px 0 0;
   font-family: var(--sans);
   font-size: 14.5px;
   font-weight: 600;
-}
-
-.feedback--correct {
-  color: var(--level-a1);
 }
 
 .feedback--accents {
@@ -1448,53 +1213,7 @@ a {
   color: var(--accent-deep);
 }
 
-/* ——— Vocabulary · lexicon groups ———
-   Two auto-managed shelves («Still Learning» / «Learnt»); --gc is the
-   group's accent color, set inline. */
-
-.lex-group {
-  margin-top: 16px;
-}
-
-.lex-group__head {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  padding: 6px 0;
-  color: var(--ink-soft);
-  font-family: var(--sans);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  text-align: left;
-}
-
-.lex-group__count {
-  padding: 1px 9px;
-  border-radius: 999px;
-  background: var(--gc, var(--accent));
-  color: var(--paper-raised);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0;
-}
-
-.lex-group__rule {
-  flex: 1;
-  border-top: 1px solid var(--rule);
-}
-
-.lex-group__chev {
-  color: var(--ink-faint);
-  font-size: 11px;
-  transition: transform 0.2s ease;
-}
-
-.lex-group__chev--closed {
-  transform: rotate(-90deg);
-}
+/* ——— Vocabulary · lexicon empty state ——— */
 
 .lex-group__empty {
   margin: 8px 0 0;
@@ -1759,14 +1478,6 @@ a {
 }
 
 /* ——— Conjugation · drill HUD ——— */
-
-.conj-hud {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 10px;
-}
 
 .hud-pill {
   display: inline-flex;
@@ -2448,8 +2159,7 @@ a {
   .tense-card,
   .drill-card,
   .match-tile,
-  .conj-progress__fill,
-  .stat__bar-fill {
+  .conj-progress__fill {
     transition: none;
   }
 }
@@ -2490,43 +2200,6 @@ a {
   text-transform: uppercase;
 }
 
-.auth-lede {
-  margin: 0 0 18px;
-  text-align: center;
-  color: var(--ink-soft);
-  font-size: 15px;
-  line-height: 1.5;
-}
-
-.auth-modes {
-  display: flex;
-  gap: 4px;
-  padding: 4px;
-  margin-bottom: 4px;
-  border: 1px solid var(--rule);
-  border-radius: 12px;
-  background: var(--paper-raised);
-}
-
-.auth-mode {
-  flex: 1;
-  padding: 9px 0;
-  border: none;
-  border-radius: 9px;
-  background: transparent;
-  color: var(--ink-soft);
-  font-family: var(--sans);
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  cursor: pointer;
-}
-
-.auth-mode--active {
-  background: var(--accent);
-  color: #fff;
-}
-
 .auth-label {
   display: block;
   margin: 14px 0 6px;
@@ -2536,14 +2209,6 @@ a {
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--ink-soft);
-}
-
-.auth-fineprint {
-  margin: 12px 0 0;
-  color: var(--ink-faint);
-  font-family: var(--sans);
-  font-size: 12.5px;
-  line-height: 1.45;
 }
 
 .auth-error {
@@ -2589,6 +2254,13 @@ a {
 
 .auth-link--strong {
   font-weight: 700;
+}
+
+/* "Continue browsing without an account" — the escape hatch back to guest mode. */
+.auth-guest {
+  margin-top: 4px;
+  color: var(--ink-soft);
+  text-decoration-color: var(--rule-strong);
 }
 
 .auth-help {
