@@ -5,7 +5,7 @@ import { db, deleteSavedWord, type SavedWord } from '../lib/db';
 import { lookup } from '../lib/dictionary';
 import { searchDictionary } from '../lib/dictionarySearch';
 import { saveWord } from '../lib/vocab';
-import { successChime } from '../lib/sound';
+import { confirmTock } from '../lib/sound';
 import { canSpeak, speakFrench } from '../lib/speech';
 import { LEARNT_STREAK } from '../lib/practice';
 import {
@@ -53,7 +53,7 @@ export default function VocabularyPage() {
       // Translation is fetched online (fail-soft — the word is saved either way).
       const { translation, definition } = await lookup(lemma);
       await saveWord({ lemma, display: lemma, translation, definition, sentence: '', articleId: null });
-      successChime();
+      confirmTock();
     } finally {
       setAddingLemma(null);
     }

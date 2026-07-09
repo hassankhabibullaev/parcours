@@ -4,7 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { articles, type Article, type CefrLevel } from '../data/content';
 import { db } from '../lib/db';
 import { setArticleRead } from '../lib/articleProgress';
-import { successChime } from '../lib/sound';
+import { confirmTock } from '../lib/sound';
 import { CheckCircleIcon, UndoIcon } from '../components/icons';
 
 type Tab = 'unread' | 'read';
@@ -14,6 +14,8 @@ const levelColor = (level: CefrLevel) => `var(--level-${level.toLowerCase()})`;
 
 export default function ReadingPage() {
   const [tab, setTab] = useState<Tab>('unread');
+  // Active CEFR level filter, or 'all'. Tapping a level chip narrows the list.
+  const [level, setLevel] = useState<CefrLevel | 'all'>('all');
 
   // The list always starts at the top — coming back from a long article (or
   // from "Mark as read") must not inherit the article's scroll offset.
@@ -52,10 +54,13 @@ export default function ReadingPage() {
   const shown = tab === 'unread' ? unread : read;
 
   // Article count per CEFR level within the active tab (A1: 5, B2: 12 …).
-  const levelCounts = LEVELS.map((level) => ({
-    level,
-    n: shown.filter((a) => a.cefr_level === level).length,
+  const levelCounts = LEVELS.map((lvl) => ({
+    level: lvl,
+    n: shown.filter((a) => a.cefr_level === lvl).length,
   }));
+
+  // The visible list = active tab, then narrowed to the chosen level (if any).
+  const visible = level === 'all' ? shown : shown.filter((a) => a.cefr_level === level);
 
   function toggleRead(e: MouseEvent, article: Article) {
     // The button lives inside the card's <Link> — don't open the article.
@@ -64,7 +69,7 @@ export default function ReadingPage() {
     if (isRead(article.id)) {
       setArticleRead(article.id, false);
     } else {
-      successChime();
+      confirmTock();
       setArticleRead(article.id, true);
       setSinking(false);
       setJustRead(article.id);
@@ -127,7 +132,7 @@ export default function ReadingPage() {
           className={`seg-tab${tab === 'unread' ? ' seg-tab--active' : ''}`}
           onClick={() => setTab('unread')}
         >
-          Unread <span className="seg-tab__count">{unread.length}</span>
+          Not read <span className="seg-tab__count">{unread.length}</span>
         </button>
         <button
           role="tab"
@@ -139,23 +144,39 @@ export default function ReadingPage() {
         </button>
       </div>
 
-      <div className="level-counts">
-        {levelCounts.map(({ level, n }) => (
-          <span key={level} className={`level-count${n === 0 ? ' level-count--empty' : ''}`}>
-            <span className="level-count__dot" style={{ ['--lc' as string]: levelColor(level) }} />
-            {level}: <span className="level-count__n">{n}</span>
-          </span>
+      <div className="level-counts" role="group" aria-label="Filter by level">
+        <button
+          type="button"
+          className={`level-count level-count--all${level === 'all' ? ' level-count--active' : ''}`}
+          aria-pressed={level === 'all'}
+          onClick={() => setLevel('all')}
+        >
+          All <span className="level-count__n">{shown.length}</span>
+        </button>
+        {levelCounts.map(({ level: lvl, n }) => (
+          <button
+            key={lvl}
+            type="button"
+            className={`level-count${n === 0 ? ' level-count--empty' : ''}${level === lvl ? ' level-count--active' : ''}`}
+            aria-pressed={level === lvl}
+            onClick={() => setLevel((cur) => (cur === lvl ? 'all' : lvl))}
+          >
+            <span className="level-count__dot" style={{ ['--lc' as string]: levelColor(lvl) }} />
+            {lvl}: <span className="level-count__n">{n}</span>
+          </button>
         ))}
       </div>
 
-      {shown.length > 0 ? (
-        shown.map(renderCard)
+      {visible.length > 0 ? (
+        visible.map(renderCard)
       ) : (
         <div className="card">
           <p style={{ margin: 0 }}>
-            {tab === 'unread'
-              ? 'Every story read — bravo ! Reread a favourite from the Read tab.'
-              : 'No articles marked read yet. Finish one and it lands here.'}
+            {level !== 'all'
+              ? `No ${level} ${tab === 'unread' ? 'unread' : 'read'} articles${tab === 'unread' ? ' — every one at this level is read.' : ' yet.'}`
+              : tab === 'unread'
+                ? 'Every story read — bravo ! Reread a favourite from the Read tab.'
+                : 'No articles marked read yet. Finish one and it lands here.'}
           </p>
         </div>
       )}

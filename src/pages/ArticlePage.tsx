@@ -4,8 +4,14 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { getArticle } from '../data/content';
 import { db } from '../lib/db';
 import { upsertArticleProgress } from '../lib/articleProgress';
-import { buildParagraphs, lemmaOf, isLexiconReady, onLexiconReady, type Token } from '../lib/lemmatize';
-import { keyClick, successChime } from '../lib/sound';
+import {
+  buildParagraphs,
+  lemmatizeTokens,
+  isLexiconReady,
+  onLexiconReady,
+  type Token,
+} from '../lib/lemmatize';
+import { keyClick, confirmTock } from '../lib/sound';
 import { useAutoSpeak } from '../lib/useAutoSpeak';
 import WordModal, { type LookupRequest } from '../components/WordModal';
 
@@ -176,19 +182,22 @@ export default function ArticlePage() {
       <div className="article-body">
         {paragraphs.map((sentences, pi) => (
           <p key={pi}>
-            {sentences.map((sentence, si) => (
+            {sentences.map((sentence, si) => {
+              // Context-aware lemmas for this sentence: a determiner before a
+              // verb/noun homograph reads it as a noun (« le livre » → livre).
+              const lemmas = lemmatizeTokens(sentence.tokens);
+              return (
               <span key={si}>
                 {groupTokens(sentence.tokens).map((group, gi) => (
                   <span key={gi} className={group.length > 1 ? 'nobreak' : undefined}>
                     {group.map((token, ti) => {
                       if (!token.word) return <span key={ti}>{token.text}</span>;
-                      const savedClass = savedLemmas?.has(lemmaOf(token.word))
-                        ? ' w--saved'
-                        : '';
+                      const lemma = lemmas.get(token) ?? token.word;
+                      const savedClass = savedLemmas?.has(lemma) ? ' w--saved' : '';
                       const openLookup = () =>
                         setLookup({
                           display: token.word!,
-                          term: lemmaOf(token.word!),
+                          term: lemma,
                           sentence: sentence.text,
                           articleId: article.id,
                         });
@@ -221,7 +230,8 @@ export default function ArticlePage() {
                   </span>
                 ))}{' '}
               </span>
-            ))}
+              );
+            })}
           </p>
         ))}
       </div>
@@ -233,7 +243,7 @@ export default function ArticlePage() {
             if (isRead) {
               await upsertArticleProgress(article.id, { read: 0 });
             } else {
-              successChime();
+              confirmTock();
               await upsertArticleProgress(article.id, { read: 1 });
               navigate('/reading', { state: { justRead: article.id } });
             }

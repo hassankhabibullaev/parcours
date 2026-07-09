@@ -105,7 +105,10 @@ export default function MatchBoard({ words, onMiss, onComplete }: MatchBoardProp
   }
 
   return (
-    <div className="match-board">
+    // --rows drives the grid: both columns share the same row tracks, so a
+    // translation that wraps to two lines grows its row on BOTH sides and the
+    // two columns stay aligned (see .match-board in global.css).
+    <div className="match-board" style={{ ['--rows' as string]: words.length }}>
       <div className="match-col">
         {left.map((t) => (
           <button

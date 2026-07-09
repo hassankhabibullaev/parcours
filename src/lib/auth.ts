@@ -1,13 +1,13 @@
 /**
- * Lightweight, password-less identity. The email is not verified — it is simply
- * the key that ties a learner's progress to a cloud bucket, so signing in with
- * the same address on any device restores and keeps that progress in sync. No
- * sensitive data is involved (it's reading/vocabulary progress), so this is the
- * same trust model the old device-sync codes used, minus the code-shuffling.
+ * Username + password identity. Credentials are verified by the account backend
+ * (functions/api/account.ts, mirrored for `vite dev` in vite.config.ts): sign-up
+ * refuses a taken username, log-in refuses a wrong password. The threat model is
+ * modest — the data behind an account is non-sensitive learning progress — but
+ * this is a real login, not the old unverified email label.
  *
  * The identity lives in localStorage (the session persists indefinitely until an
- * explicit sign-out); the bucket key is a hash of the email, so the raw address
- * never travels in a URL or reaches the sync server.
+ * explicit sign-out). The sync bucket key is a hash of the username, so the
+ * account progress travels under an opaque code, not the raw name.
  */
 
 import { db, setKV } from './db';
@@ -15,7 +15,7 @@ import { syncNow } from './sync';
 
 export interface User {
   name: string;
-  email: string;
+  username: string;
 }
 
 const USER_KEY = 'parcours-user';
@@ -25,8 +25,8 @@ export function getStoredUser(): User | null {
     const raw = localStorage.getItem(USER_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as Partial<User>;
-    if (!parsed.email) return null;
-    return { name: parsed.name ?? '', email: parsed.email };
+    if (!parsed.username) return null;
+    return { name: parsed.name ?? '', username: parsed.username };
   } catch {
     return null;
   }
@@ -48,38 +48,86 @@ function clearStoredUser(): void {
   }
 }
 
-export function normalizeEmail(email: string): string {
-  return email.trim().toLowerCase();
+export function normalizeUsername(username: string): string {
+  return username.trim().toLowerCase();
 }
 
-export function isValidEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+/** Usernames: 3–32 chars, letters/numbers plus . _ - (matches the backend). */
+export function isValidUsername(username: string): boolean {
+  return /^[a-z0-9._-]{3,32}$/.test(normalizeUsername(username));
+}
+
+export function isValidPassword(password: string): boolean {
+  return password.length >= 6;
 }
 
 /**
- * A stable, opaque sync-bucket key from the email. Hashed so the address never
+ * A stable, opaque sync-bucket key from the username. Hashed so the name never
  * appears in the `/api/sync/:code` URL or the server's KV keys.
  */
-export async function deriveSyncCode(email: string): Promise<string> {
-  const data = new TextEncoder().encode(`parcours:${normalizeEmail(email)}`);
+export async function deriveSyncCode(username: string): Promise<string> {
+  const data = new TextEncoder().encode(`parcours:${normalizeUsername(username)}`);
   const digest = await crypto.subtle.digest('SHA-256', data);
   const hex = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
   return `acct-${hex.slice(0, 32)}`;
 }
 
-/**
- * Sign in: remember the identity locally, point sync at this email's bucket, and
- * pull down whatever progress is already stored there (merged last-write-wins
- * with anything on this device).
- */
-export async function signIn(name: string, email: string): Promise<User> {
-  const user: User = { name: name.trim(), email: normalizeEmail(email) };
+interface AccountResponse {
+  ok?: boolean;
+  name?: string;
+  error?: string;
+}
+
+/** Thrown for a rejected credential so the UI can show the server's message. */
+export class AuthError extends Error {}
+
+async function postAccount(
+  action: 'signup' | 'login',
+  fields: { username: string; password: string; name?: string },
+): Promise<string> {
+  let res: Response;
+  try {
+    res = await fetch('/api/account', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, ...fields, username: normalizeUsername(fields.username) }),
+    });
+  } catch {
+    throw new AuthError('Could not reach the server — check your connection and try again.');
+  }
+  let data: AccountResponse = {};
+  try {
+    data = (await res.json()) as AccountResponse;
+  } catch {
+    /* non-JSON error page */
+  }
+  if (!res.ok || !data.ok) {
+    throw new AuthError(data.error ?? 'Something went wrong. Please try again.');
+  }
+  return data.name ?? normalizeUsername(fields.username);
+}
+
+/** Finish a successful auth: remember the identity, point sync at the bucket, pull. */
+async function establishSession(name: string, username: string): Promise<User> {
+  const user: User = { name: name.trim() || normalizeUsername(username), username: normalizeUsername(username) };
   storeUser(user);
-  await setKV('syncCode', await deriveSyncCode(user.email));
+  await setKV('syncCode', await deriveSyncCode(user.username));
   // Name rides along in the synced store so other devices show it too.
   await setKV('accountName', user.name);
   await syncNow();
   return user;
+}
+
+/** Create a new account, then sign in. */
+export async function signUp(name: string, username: string, password: string): Promise<User> {
+  const resolvedName = await postAccount('signup', { username, password, name });
+  return establishSession(name || resolvedName, username);
+}
+
+/** Verify credentials for an existing account, then sign in. */
+export async function logIn(username: string, password: string): Promise<User> {
+  const name = await postAccount('login', { username, password });
+  return establishSession(name, username);
 }
 
 /**

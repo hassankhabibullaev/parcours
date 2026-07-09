@@ -23,11 +23,23 @@ interface RawArticle {
   content: string;
 }
 
-export const articles: Article[] = (articlesJson as RawArticle[]).map((a) => ({
-  ...a,
-  cefr_level: a.cefr_level as CefrLevel,
-  readingMinutes: Math.max(1, Math.round(a.word_count / 150)),
-}));
+/** CEFR order for sorting; anything unexpected sorts last. */
+const LEVEL_ORDER: Record<string, number> = { A1: 0, A2: 1, B1: 2, B2: 3, C1: 4, C2: 5 };
+
+// The corpus JSON was grown in increments, so its articles are interleaved by
+// level (a block of A1s, then A2s, … then more A1s from the next batch). Order
+// them by CEFR level (then id) once here so every consumer that iterates
+// `articles` — the reading list above all — walks A1→A2→B1→B2 cleanly.
+export const articles: Article[] = (articlesJson as RawArticle[])
+  .map((a) => ({
+    ...a,
+    cefr_level: a.cefr_level as CefrLevel,
+    readingMinutes: Math.max(1, Math.round(a.word_count / 150)),
+  }))
+  .sort(
+    (a, b) =>
+      (LEVEL_ORDER[a.cefr_level] ?? 99) - (LEVEL_ORDER[b.cefr_level] ?? 99) || a.id - b.id,
+  );
 
 export function getArticle(id: number): Article | undefined {
   return articles.find((a) => a.id === id);

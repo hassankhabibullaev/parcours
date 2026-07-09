@@ -1,14 +1,16 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
 import {
   getStoredUser,
-  signIn as authSignIn,
+  signUp as authSignUp,
+  logIn as authLogIn,
   signOut as authSignOut,
   type User,
 } from '../lib/auth';
 
 interface AuthValue {
   user: User | null;
-  signIn: (name: string, email: string) => Promise<void>;
+  signUp: (name: string, username: string, password: string) => Promise<void>;
+  logIn: (username: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -23,9 +25,12 @@ export function useAuth(): AuthValue {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(() => getStoredUser());
 
-  async function signIn(name: string, email: string): Promise<void> {
-    const signedIn = await authSignIn(name, email);
-    setUser(signedIn);
+  async function signUp(name: string, username: string, password: string): Promise<void> {
+    setUser(await authSignUp(name, username, password));
+  }
+
+  async function logIn(username: string, password: string): Promise<void> {
+    setUser(await authLogIn(username, password));
   }
 
   async function signOut(): Promise<void> {
@@ -35,5 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await authSignOut();
   }
 
-  return <AuthContext.Provider value={{ user, signIn, signOut }}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, signUp, logIn, signOut }}>{children}</AuthContext.Provider>
+  );
 }

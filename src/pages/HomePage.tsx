@@ -38,7 +38,6 @@ export default function HomePage() {
   return (
     <>
       <h2 className="page-heading">{firstName ? `Bonjour, ${firstName}` : 'Bonjour'}</h2>
-      <p className="page-subheading">Your French, one edition at a time.</p>
 
       <div className="section-label">Read next</div>
       {nextArticle ? (

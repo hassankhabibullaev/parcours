@@ -90,12 +90,14 @@ export default function Layout() {
             key={to}
             to={to}
             end={end}
+            aria-label={label}
             className={({ isActive }) =>
-              `tabbar__item${isActive ? ' tabbar__item--active' : ''}`
+              `tabbar__item${to === '/' ? ' tabbar__item--home' : ''}${isActive ? ' tabbar__item--active' : ''}`
             }
           >
             <Icon />
-            {label}
+            {/* Home is the raised centre badge — icon only, no text label. */}
+            {to !== '/' && label}
           </NavLink>
         ))}
       </nav>

@@ -4,7 +4,7 @@ import { db } from '../lib/db';
 import { lookup, type LookupResult } from '../lib/dictionary';
 import { canSpeak, speakFrench } from '../lib/speech';
 import { useAutoSpeak } from '../lib/useAutoSpeak';
-import { errorBuzz, successChime } from '../lib/sound';
+import { errorBuzz, confirmTock } from '../lib/sound';
 import { saveWord } from '../lib/vocab';
 import { SpeakerIcon } from './icons';
 
@@ -84,7 +84,7 @@ export default function WordModal({ request, onClose }: WordModalProps) {
       sentence,
       articleId,
     });
-    successChime();
+    confirmTock();
     onClose();
   }
 

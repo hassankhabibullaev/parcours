@@ -82,25 +82,54 @@ def parse_lefff(mlex: Path) -> dict[str, dict[str, bool]]:
     return lemmas_of
 
 
-def build_full_lexicon(lemmas_of: dict[str, dict[str, bool]]) -> dict[str, str]:
-    """Pick one lemma per surface form. Prefer a verb infinitive — this maps the
-    ultra-common function words the right way (« est »→être, « a »→avoir,
-    « suis »→être, « irai »→aller) and connects participles to their verb
-    (« abandonnée »→abandonner); ties break on the shortest lemma. A form with
-    no non-identity candidate is omitted and lemmatises to itself at runtime,
-    which is already correct for adverbs, base nouns and adjectives."""
+def build_full_lexicon(
+    lemmas_of: dict[str, dict[str, bool]],
+) -> tuple[dict[str, str], dict[str, str]]:
+    """Pick one lemma per surface form, plus a noun override for homographs.
+
+    The PRIMARY table prefers a verb infinitive — this maps the ultra-common
+    function words the right way (« est »→être, « a »→avoir, « suis »→être,
+    « irai »→aller) and connects participles to their verb (« abandonnée »→
+    abandonner); ties break on the shortest lemma. A form with no non-identity
+    candidate is omitted and lemmatises to itself at runtime, which is already
+    correct for adverbs, base nouns and adjectives.
+
+    The verb preference is right when the form is actually used as a verb, but
+    wrong for the noun/adjective reading of a verb/noun HOMOGRAPH (« le livre »
+    the book, not livrer). For those forms we also record the best non-verb
+    lemma; the runtime picks it when local context (a preceding determiner) says
+    the word is a noun. Only recorded when the form has both a verb reading and a
+    distinct non-verb reading, so it stays a targeted override, not a second
+    guess for every word."""
     table: dict[str, str] = {}
+    homograph_noun: dict[str, str] = {}
     for form, cands in lemmas_of.items():
         others = [l for l in cands if l != form]
         if not others:
             continue
-        table[form] = min(others, key=lambda l: (0 if cands[l] else 1, len(l), l))
-    return table
+        primary = min(others, key=lambda l: (0 if cands[l] else 1, len(l), l))
+        table[form] = primary
+
+        # A verb/noun homograph: a verb reading (the primary) alongside a
+        # distinct non-verb reading. Prefer the form itself when it's one of the
+        # non-verb lemmas — that's meaning-safe (« cours »→cours, « porte »→
+        # porte), never flipping to an unrelated shorter noun (« cours »→cour);
+        # otherwise take the shortest, which reduces a plural to its singular
+        # (« livres »→livre). Skip when it would equal the primary.
+        if not cands[primary]:
+            continue  # primary is already a noun/adj — no verb bias to correct
+        nonverbs = [l for l in cands if not cands[l]]
+        if not nonverbs:
+            continue
+        noun = form if form in nonverbs else min(nonverbs, key=lambda l: (len(l), l))
+        if noun != primary:
+            homograph_noun[form] = noun
+    return table, homograph_noun
 
 
 def main() -> None:
     lemmas_of = parse_lefff(lefff_path())
-    full = build_full_lexicon(lemmas_of)
+    full, homograph_noun = build_full_lexicon(lemmas_of)
 
     # The bundled core is a slice of the full table (drilled-verb forms only) so
     # the two never disagree — it just makes common verbs lemmatise instantly,
@@ -113,12 +142,18 @@ def main() -> None:
         + "\n"
     )
 
+    # Each line is "form<TAB>lemma"; a verb/noun homograph adds a third column,
+    # "form<TAB>verblemma<TAB>nounlemma", read by the context-aware runtime.
     full_out = ROOT / "public" / "lemmas-fr.txt"
-    lines = [f"{form}\t{lemma}" for form, lemma in sorted(full.items())]
+    lines = []
+    for form, lemma in sorted(full.items()):
+        noun = homograph_noun.get(form)
+        lines.append(f"{form}\t{lemma}\t{noun}" if noun else f"{form}\t{lemma}")
     full_out.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
     print(f"core (bundled):  {len(core):>7,} entries → {core_out.relative_to(ROOT)}")
     print(f"full (lazy):     {len(full):>7,} entries → {full_out.relative_to(ROOT)}")
+    print(f"  homographs:    {len(homograph_noun):>7,} with a noun override")
     print(f"full size:       {full_out.stat().st_size / 1024:.0f} KB raw")
 
 

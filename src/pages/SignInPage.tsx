@@ -1,19 +1,33 @@
 import { useState, type FormEvent } from 'react';
 import { useAuth } from '../components/AuthProvider';
-import { isValidEmail } from '../lib/auth';
+import { AuthError, isValidPassword, isValidUsername } from '../lib/auth';
+
+type Mode = 'login' | 'signup';
 
 /**
- * Full-screen sign-in gate (no nav). Name + email only — the email is the key
- * that restores and syncs progress; there is no password and no verification.
+ * Full-screen sign-in gate (no nav). Two modes: Log in (username + password) and
+ * Sign up (name + username + password). Credentials are verified by the account
+ * backend, so a taken username or wrong password is reported inline.
  */
 export default function SignInPage() {
-  const { signIn } = useAuth();
+  const { logIn, signUp } = useAuth();
+  const [mode, setMode] = useState<Mode>('login');
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showForgot, setShowForgot] = useState(false);
 
-  const canSubmit = name.trim().length > 0 && isValidEmail(email);
+  const nameOk = mode === 'login' || name.trim().length > 0;
+  const canSubmit = nameOk && isValidUsername(username) && isValidPassword(password);
+
+  function switchMode(next: Mode) {
+    if (next === mode) return;
+    setMode(next);
+    setError(null);
+    setShowForgot(false);
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -21,9 +35,14 @@ export default function SignInPage() {
     setBusy(true);
     setError(null);
     try {
-      await signIn(name, email);
-    } catch {
-      setError('Could not sign in — check your connection and try again.');
+      if (mode === 'signup') await signUp(name, username, password);
+      else await logIn(username, password);
+    } catch (err) {
+      setError(
+        err instanceof AuthError
+          ? err.message
+          : 'Something went wrong. Please try again.',
+      );
       setBusy(false);
     }
   }
@@ -35,52 +54,110 @@ export default function SignInPage() {
           <img className="auth-brand__logo" src="/icons/icon-192.png" alt="" />
           <span className="auth-brand__word">Parcours</span>
         </div>
-        <p className="auth-lede">
-          Learn French, one edition at a time. Sign in to save your progress and pick it up on any
-          device.
-        </p>
 
         <form onSubmit={handleSubmit}>
-          <label className="auth-label" htmlFor="auth-name">
-            Your name
-          </label>
-          <input
-            id="auth-name"
-            className="text-input"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Camille"
-            autoComplete="name"
-            autoCapitalize="words"
-          />
+          {mode === 'signup' && (
+            <>
+              <label className="auth-label" htmlFor="auth-name">
+                Your name
+              </label>
+              <input
+                id="auth-name"
+                className="text-input"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                autoComplete="name"
+                autoCapitalize="words"
+              />
+            </>
+          )}
 
-          <label className="auth-label" htmlFor="auth-email">
-            Email
+          <label className="auth-label" htmlFor="auth-username">
+            Username
           </label>
           <input
-            id="auth-email"
+            id="auth-username"
             className="text-input"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="camille@example.com"
-            autoComplete="email"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            autoComplete="username"
             autoCapitalize="none"
             autoCorrect="off"
             spellCheck={false}
-            inputMode="email"
           />
 
-          <p className="auth-fineprint">
-            Your email just labels your progress — no password, no verification.
-          </p>
+          <label className="auth-label" htmlFor="auth-password">
+            Password
+          </label>
+          <input
+            id="auth-password"
+            className="text-input"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+          />
 
           {error && <p className="auth-error">{error}</p>}
 
-          <button className="btn btn--accent auth-submit" type="submit" disabled={!canSubmit || busy}>
-            {busy ? 'Signing in…' : 'Continue'}
+          <button
+            className="btn btn--accent auth-submit"
+            type="submit"
+            disabled={!canSubmit || busy}
+          >
+            {busy
+              ? mode === 'signup'
+                ? 'Creating account…'
+                : 'Logging in…'
+              : mode === 'signup'
+                ? 'Create account'
+                : 'Log in'}
           </button>
         </form>
+
+        <div className="auth-alt">
+          {mode === 'login' ? (
+            <>
+              <p className="auth-switch">
+                Don’t have an account?{' '}
+                <button
+                  type="button"
+                  className="auth-link auth-link--strong"
+                  onClick={() => switchMode('signup')}
+                >
+                  Register
+                </button>
+              </p>
+              <button
+                type="button"
+                className="auth-link"
+                onClick={() => setShowForgot((v) => !v)}
+              >
+                Forgot password?
+              </button>
+              {showForgot && (
+                <p className="auth-help">
+                  Contact the author at{' '}
+                  <a href="https://t.me/khassanboi" target="_blank" rel="noreferrer">
+                    t.me/khassanboi
+                  </a>{' '}
+                  and provide your username.
+                </p>
+              )}
+            </>
+          ) : (
+            <p className="auth-switch">
+              Already have an account?{' '}
+              <button
+                type="button"
+                className="auth-link auth-link--strong"
+                onClick={() => switchMode('login')}
+              >
+                Log in
+              </button>
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

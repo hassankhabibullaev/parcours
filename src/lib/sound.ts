@@ -156,6 +156,52 @@ export function wordTap(): void {
   o.stop(t + 0.1);
 }
 
+/**
+ * Soft stamp — a neutral acknowledgement that an action was saved (word added
+ * to the lexicon, article marked read). Deliberately NOT the celebratory
+ * successChime: this confirms the *operation* completed; it does not reward the
+ * learner for succeeding at something. A short wooden "thock" with a brief
+ * noise tick on the attack — it echoes the rubber-stamp motif of mark-as-read.
+ */
+export function confirmTock(): void {
+  const c = ensure();
+  if (!c || !out) return;
+  const t = c.currentTime;
+  // Low damped body.
+  const o = c.createOscillator();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(300, t);
+  o.frequency.exponentialRampToValueAtTime(185, t + 0.08);
+  const g = c.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(0.26, t + 0.006);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.15);
+  o.connect(g);
+  g.connect(out);
+  o.start(t);
+  o.stop(t + 0.17);
+  // Brief band-passed noise tick — the "stamp" attack.
+  const len = Math.floor(c.sampleRate * 0.03);
+  const buf = c.createBuffer(1, len, c.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (len * 0.2));
+  const src = c.createBufferSource();
+  src.buffer = buf;
+  const bp = c.createBiquadFilter();
+  bp.type = 'bandpass';
+  bp.frequency.value = 2100;
+  bp.Q.value = 1.2;
+  const ng = c.createGain();
+  ng.gain.setValueAtTime(0.0001, t);
+  ng.gain.exponentialRampToValueAtTime(0.11, t + 0.003);
+  ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
+  src.connect(bp);
+  bp.connect(ng);
+  ng.connect(out);
+  src.start(t);
+  src.stop(t + 0.06);
+}
+
 /** Typewriter clack — a short burst of band-passed noise. */
 export function keyClick(): void {
   const c = ensure();

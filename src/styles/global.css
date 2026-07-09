@@ -485,6 +485,33 @@ a {
   color: var(--accent-deep);
 }
 
+/* Home is the centre tab and the app's home base — give its icon a subtle
+   raised accent badge so it reads as primary without shouting. It carries no
+   text label, so centre the badge within the tab item (the other tabs are
+   icon-over-label); a small lift keeps the primary "pop". */
+.tabbar__item--home {
+  justify-content: center;
+}
+
+.tabbar__item--home svg {
+  box-sizing: content-box;
+  width: 22px;
+  height: 22px;
+  padding: 7px;
+  margin-top: -6px;
+  border-radius: 999px;
+  color: var(--accent-deep);
+  background: color-mix(in srgb, var(--accent) 12%, var(--paper-raised));
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.tabbar__item--home.tabbar__item--active svg {
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
 /* ——— Filter chips ——— */
 
 .chip-row {
@@ -583,6 +610,8 @@ a {
   font-size: 12.5px;
   font-weight: 600;
   color: var(--ink-soft);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
 .level-count__dot {
@@ -599,6 +628,18 @@ a {
 
 .level-count--empty {
   opacity: 0.5;
+}
+
+/* Selected filter chip: filled, so the active level reads at a glance. */
+.level-count--active {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper-raised);
+  opacity: 1;
+}
+
+.level-count--active .level-count__n {
+  color: var(--paper-raised);
 }
 
 /* ——— Article library ——— */
@@ -1301,20 +1342,28 @@ a {
 
 /* ——— Match ——— */
 
+/* One shared grid rather than two independent columns: the two `.match-col`
+   dissolve into it (display: contents) and lay out down one column then the
+   next (auto-flow: column) across `--rows` shared row tracks. Because a row
+   track spans both columns, a two-line translation grows its row on BOTH
+   sides, so left and right stay row-aligned regardless of text length. */
 .match-board {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  align-items: start;
+  grid-template-rows: repeat(var(--rows, 5), auto);
+  grid-auto-flow: column;
+  gap: 8px 10px;
+  align-items: stretch;
 }
 
 .match-col {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: contents;
 }
 
 .match-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 13px 10px;
   background: var(--paper-raised);
   border: 1px solid var(--rule-strong);
@@ -2442,11 +2491,40 @@ a {
 }
 
 .auth-lede {
-  margin: 0 0 22px;
+  margin: 0 0 18px;
   text-align: center;
   color: var(--ink-soft);
   font-size: 15px;
   line-height: 1.5;
+}
+
+.auth-modes {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 4px;
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  background: var(--paper-raised);
+}
+
+.auth-mode {
+  flex: 1;
+  padding: 9px 0;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--ink-soft);
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+}
+
+.auth-mode--active {
+  background: var(--accent);
+  color: #fff;
 }
 
 .auth-label {
@@ -2478,6 +2556,56 @@ a {
 .auth-submit {
   width: 100%;
   margin-top: 18px;
+}
+
+/* Below-the-form links: switch to Register / Log in, and Forgot password. */
+.auth-alt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.auth-switch {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+
+.auth-link {
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--accent-deep);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.auth-link--strong {
+  font-weight: 700;
+}
+
+.auth-help {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  background: var(--paper-raised);
+  font-family: var(--sans);
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+.auth-help a {
+  color: var(--accent-deep);
+  font-weight: 600;
 }
 
 /* ——— Home vocabulary shortcut ——— */
@@ -2554,7 +2682,7 @@ a {
 
 .settings-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
   margin-bottom: 4px;
 }

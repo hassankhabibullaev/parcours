@@ -1,24 +1,8 @@
 import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../lib/db';
-import { articles } from '../data/content';
 import { useAuth } from '../components/AuthProvider';
 import { setSfxEnabled, sfxEnabled } from '../lib/sound';
-
-const dayKey = (t: number) => new Date(t).toDateString();
-
-/** Consecutive days with a finished round, counting back from today. */
-function practiceStreak(finishedAts: number[]): number {
-  const days = new Set(finishedAts.map(dayKey));
-  const cursor = new Date();
-  if (!days.has(dayKey(cursor.getTime()))) cursor.setDate(cursor.getDate() - 1);
-  let streak = 0;
-  while (days.has(dayKey(cursor.getTime()))) {
-    streak += 1;
-    cursor.setDate(cursor.getDate() - 1);
-  }
-  return streak;
-}
 
 export default function SettingsPage() {
   const { user, signOut } = useAuth();
@@ -32,14 +16,12 @@ export default function SettingsPage() {
 
   const read = progress.filter((p) => p.read === 1).length;
   const learnt = words.filter((w) => w.learned === 1).length;
-  const streak = practiceStreak(rounds.map((r) => r.finishedAt));
 
   const stats: { label: string; value: string | number }[] = [
-    { label: 'Articles read', value: `${read} / ${articles.length}` },
+    { label: 'Articles read', value: read },
     { label: 'Words saved', value: words.length },
     { label: 'Words learnt', value: learnt },
     { label: 'Practice rounds', value: rounds.length },
-    { label: 'Day streak', value: streak },
   ];
 
   function toggleSound() {
@@ -69,8 +51,8 @@ export default function SettingsPage() {
           <span className="account-row__value">{user?.name || '—'}</span>
         </div>
         <div className="account-row">
-          <span className="account-row__label">Email</span>
-          <span className="account-row__value">{user?.email || '—'}</span>
+          <span className="account-row__label">Username</span>
+          <span className="account-row__value">{user?.username || '—'}</span>
         </div>
       </div>
 
