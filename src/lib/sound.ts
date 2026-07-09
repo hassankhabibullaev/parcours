@@ -34,8 +34,16 @@ export function setSfxEnabled(on: boolean): void {
   if (on) unlock();
 }
 
-function ensure(): AudioContext | null {
-  if (!enabled) return null;
+/**
+ * The one shared AudioContext for the whole app — SFX *and* pronunciation
+ * (speech.ts plays Google's TTS clips through it, which is what keeps iOS from
+ * promoting playback into a Now Playing / Dynamic Island media session). NOT
+ * gated by the SFX on/off toggle: muting sound effects must not silence a
+ * deliberate word pronunciation. Resumes the context if the OS parked it —
+ * iOS drops it into the non-standard « interrupted » state whenever the
+ * home-screen app is backgrounded or the screen locks.
+ */
+export function getAudioContext(): AudioContext | null {
   if (ctx && ctx.state === 'closed') {
     ctx = null;
     out = null;
@@ -51,11 +59,14 @@ function ensure(): AudioContext | null {
     out.gain.value = 0.8;
     out.connect(ctx.destination);
   }
-  // Anything but running needs a resume — iOS also parks the context in a
-  // non-standard « interrupted » state when the (home-screen) app is
-  // backgrounded or the screen locks.
   if (ctx.state !== 'running') void ctx.resume();
   return ctx;
+}
+
+/** SFX entry point — silent while sound effects are muted. */
+function ensure(): AudioContext | null {
+  if (!enabled) return null;
+  return getAudioContext();
 }
 
 /*
@@ -70,8 +81,10 @@ function ensure(): AudioContext | null {
 let unlockBufferPlayed = false;
 
 function unlock(): void {
-  if (!enabled) return;
-  const c = ensure();
+  // Unconditional (not gated by `enabled`): pronunciation plays through this
+  // same context even when sound effects are muted, so the gesture must open
+  // the audio session either way.
+  const c = getAudioContext();
   if (!c || unlockBufferPlayed) return;
   try {
     const src = c.createBufferSource();
@@ -87,9 +100,20 @@ function unlock(): void {
 for (const type of ['pointerdown', 'touchend', 'click'] as const) {
   window.addEventListener(type, unlock, { capture: true, passive: true });
 }
+
+// Reactivate the session whenever the app comes back to the foreground. iOS
+// leaves the context « interrupted » after a background/lock and (unlike SFX,
+// which resume on the next tap) an auto-played pronunciation has no gesture to
+// ride, so a full app restart used to be the only recovery. visibilitychange
+// covers backgrounding; focus/pageshow cover tab switches and bfcache restores.
+function resumeContext(): void {
+  if (ctx && ctx.state !== 'running') void ctx.resume();
+}
 document.addEventListener('visibilitychange', () => {
-  if (!document.hidden && ctx && ctx.state !== 'running') void ctx.resume();
+  if (!document.hidden) resumeContext();
 });
+window.addEventListener('focus', resumeContext);
+window.addEventListener('pageshow', resumeContext);
 
 const midi = (n: number): number => 440 * 2 ** ((n - 69) / 12);
 

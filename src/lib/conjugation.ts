@@ -1,5 +1,6 @@
 import { TENSES, verbList, verbMeanings, verbs, type TenseKey } from '../data/content';
 import { shuffle } from './practice';
+import { drawWeighted } from './struggle';
 
 export const SESSION_SIZE = 10;
 export const PROMPTS_PER_EXERCISE = 3;
@@ -110,8 +111,18 @@ function drawTenses(deck: TenseKey[], count: number): { picked: TenseKey[]; deck
   return { picked, deck: rest };
 }
 
-export function buildSession(mode: TenseKey | 'mixed'): Exercise[] {
-  const sessionVerbs = shuffle(verbList).slice(0, SESSION_SIZE);
+/** Pick this session's verbs, struggle-weighted (the same draw the vocabulary
+    drills use for words) — verbs answered wrong more often come up more. */
+export function selectDrillVerbs(count = SESSION_SIZE): Promise<string[]> {
+  return drawWeighted('verb', verbList, (v) => v, count);
+}
+
+/**
+ * Build a session from a caller-chosen set of verbs. The verbs are selected
+ * upstream (struggle-weighted, see lib/struggle.ts + selectDrillVerbs) rather
+ * than uniformly at random, so the verbs a learner struggles with come up more.
+ */
+export function buildSession(mode: TenseKey | 'mixed', sessionVerbs: string[]): Exercise[] {
   const usage = new Map(PRONOUN_DEFS.map((p) => [p.label, 0]));
   let deck: TenseKey[] = [];
 

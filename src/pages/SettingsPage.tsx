@@ -1,0 +1,114 @@
+import { useState } from 'react';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { db } from '../lib/db';
+import { articles } from '../data/content';
+import { useAuth } from '../components/AuthProvider';
+import { setSfxEnabled, sfxEnabled } from '../lib/sound';
+
+const dayKey = (t: number) => new Date(t).toDateString();
+
+/** Consecutive days with a finished round, counting back from today. */
+function practiceStreak(finishedAts: number[]): number {
+  const days = new Set(finishedAts.map(dayKey));
+  const cursor = new Date();
+  if (!days.has(dayKey(cursor.getTime()))) cursor.setDate(cursor.getDate() - 1);
+  let streak = 0;
+  while (days.has(dayKey(cursor.getTime()))) {
+    streak += 1;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return streak;
+}
+
+export default function SettingsPage() {
+  const { user, signOut } = useAuth();
+
+  const words = useLiveQuery(() => db.savedWords.toArray(), []) ?? [];
+  const progress = useLiveQuery(() => db.articleProgress.toArray(), []) ?? [];
+  const rounds = useLiveQuery(() => db.practiceResults.toArray(), []) ?? [];
+
+  const [sound, setSound] = useState(sfxEnabled);
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const read = progress.filter((p) => p.read === 1).length;
+  const learnt = words.filter((w) => w.learned === 1).length;
+  const streak = practiceStreak(rounds.map((r) => r.finishedAt));
+
+  const stats: { label: string; value: string | number }[] = [
+    { label: 'Articles read', value: `${read} / ${articles.length}` },
+    { label: 'Words saved', value: words.length },
+    { label: 'Words learnt', value: learnt },
+    { label: 'Practice rounds', value: rounds.length },
+    { label: 'Day streak', value: streak },
+  ];
+
+  function toggleSound() {
+    const next = !sound;
+    setSfxEnabled(next);
+    setSound(next);
+  }
+
+  async function handleLogOut() {
+    if (loggingOut) return;
+    if (!window.confirm('Log out? Your progress is saved to your email and returns when you sign back in.')) {
+      return;
+    }
+    setLoggingOut(true);
+    await signOut();
+  }
+
+  return (
+    <>
+      <h2 className="page-heading">Settings</h2>
+      <p className="page-subheading">Your account and progress.</p>
+
+      <div className="section-label">Account</div>
+      <div className="card account-card">
+        <div className="account-row">
+          <span className="account-row__label">Name</span>
+          <span className="account-row__value">{user?.name || '—'}</span>
+        </div>
+        <div className="account-row">
+          <span className="account-row__label">Email</span>
+          <span className="account-row__value">{user?.email || '—'}</span>
+        </div>
+      </div>
+
+      <div className="section-label">Progress</div>
+      <div className="settings-stats">
+        {stats.map((s) => (
+          <div className="settings-stat" key={s.label}>
+            <span className="settings-stat__value">{s.value}</span>
+            <span className="settings-stat__label">{s.label}</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="section-label">Preferences</div>
+      <div className="card">
+        <button
+          type="button"
+          className="setting-toggle"
+          onClick={toggleSound}
+          aria-pressed={sound}
+        >
+          <span>
+            <span className="setting-toggle__title">Sound effects</span>
+            <span className="setting-toggle__hint">Clicks, chimes and typing sounds</span>
+          </span>
+          <span className={`switch${sound ? ' switch--on' : ''}`} aria-hidden>
+            <span className="switch__knob" />
+          </span>
+        </button>
+      </div>
+
+      <button
+        className="btn btn--ghost settings-logout"
+        onClick={handleLogOut}
+        disabled={loggingOut}
+      >
+        {loggingOut ? 'Logging out…' : 'Log Out'}
+      </button>
+    </>
+  );
+}

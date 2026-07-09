@@ -148,13 +148,13 @@ export default function PracticePage() {
     return () => window.clearInterval(timer);
   }, [word, finished]);
 
-  if (!words) return <DrillHeader title="Practice" />;
+  if (!words) return <DrillHeader title="Fill in the Blank" backTo="/practice?tab=vocabulary" backLabel="Practice" />;
 
   const total = words.length;
   if (total === 0) {
     return (
       <>
-        <DrillHeader title="Practice" />
+        <DrillHeader title="Fill in the Blank" backTo="/practice?tab=vocabulary" backLabel="Practice" />
         <div className="card">
           <p style={{ margin: '0 0 12px' }}>
             Nothing to practise yet — save words while you read, or add them from the dictionary
@@ -171,7 +171,7 @@ export default function PracticePage() {
   if (finished) {
     return (
       <>
-        <DrillHeader title="Practice" />
+        <DrillHeader title="Fill in the Blank" backTo="/practice?tab=vocabulary" backLabel="Practice" />
         <div style={themeVars}>
           <DrillResults
             score={score}
@@ -245,7 +245,7 @@ export default function PracticePage() {
 
   return (
     <div className="conj-drill" style={themeVars}>
-      <DrillTopline backTo="/vocabulary" backLabel="Vocabulary" title="Practice">
+      <DrillTopline backTo="/practice?tab=vocabulary" backLabel="Practice" title="Fill in the Blank">
         <span className="hud-pill hud-pill--live" key={`score-${score}`}>
           ✓ <strong>{score}</strong>
         </span>

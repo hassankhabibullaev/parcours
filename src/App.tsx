@@ -1,15 +1,24 @@
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
+import { useAuth } from './components/AuthProvider';
+import SignInPage from './pages/SignInPage';
 import HomePage from './pages/HomePage';
 import ReadingPage from './pages/ReadingPage';
 import ArticlePage from './pages/ArticlePage';
 import VocabularyPage from './pages/VocabularyPage';
 import MatchSessionPage from './pages/MatchSessionPage';
 import PracticePage from './pages/PracticePage';
-import ConjugationPage from './pages/ConjugationPage';
+import PracticeHubPage from './pages/PracticeHubPage';
 import ConjugationDrillPage from './pages/ConjugationDrillPage';
+import SettingsPage from './pages/SettingsPage';
 
 export default function App() {
+  const { user } = useAuth();
+
+  // Signed out → the full-screen sign-in gate (no nav). The session persists in
+  // localStorage, so this only shows on first use or after an explicit log out.
+  if (!user) return <SignInPage />;
+
   return (
     <Routes>
       <Route element={<Layout />}>
@@ -20,8 +29,11 @@ export default function App() {
         <Route path="vocabulary/learn" element={<MatchSessionPage kind="learn" />} />
         <Route path="vocabulary/practice" element={<PracticePage />} />
         <Route path="vocabulary/remember" element={<MatchSessionPage kind="remember" />} />
-        <Route path="conjugation" element={<ConjugationPage />} />
+        <Route path="practice" element={<PracticeHubPage />} />
+        <Route path="conjugation" element={<Navigate to="/practice?tab=conjugation" replace />} />
         <Route path="conjugation/:tense" element={<ConjugationDrillPage />} />
+        <Route path="settings" element={<SettingsPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
   );

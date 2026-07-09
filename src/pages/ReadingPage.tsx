@@ -7,11 +7,13 @@ import { setArticleRead } from '../lib/articleProgress';
 import { successChime } from '../lib/sound';
 import { CheckCircleIcon, UndoIcon } from '../components/icons';
 
-type Filter = 'all' | CefrLevel | 'read';
+type Tab = 'unread' | 'read';
+
+const LEVELS = [...new Set(articles.map((a) => a.cefr_level))].sort() as CefrLevel[];
+const levelColor = (level: CefrLevel) => `var(--level-${level.toLowerCase()})`;
 
 export default function ReadingPage() {
-  const levels = [...new Set(articles.map((a) => a.cefr_level))].sort();
-  const [filter, setFilter] = useState<Filter>('all');
+  const [tab, setTab] = useState<Tab>('unread');
 
   // The list always starts at the top — coming back from a long article (or
   // from "Mark as read") must not inherit the article's scroll offset.
@@ -43,18 +45,17 @@ export default function ReadingPage() {
   const progressById = new Map(progress.map((p) => [p.articleId, p]));
   const isRead = (id: number) => progressById.get(id)?.read === 1;
 
-  const shown =
-    filter === 'all'
-      ? articles
-      : filter === 'read'
-        ? articles.filter((a) => isRead(a.id))
-        : articles.filter((a) => a.cefr_level === filter);
-
-  // Unread up top, read below a divider (corpus order within each group). The
-  // just-read article counts as unread until its send-off animation ends.
+  // The just-read article counts as unread until its send-off animation ends.
   const isSettledRead = (id: number) => isRead(id) && id !== justRead;
-  const unread = shown.filter((a) => !isSettledRead(a.id));
-  const read = shown.filter((a) => isSettledRead(a.id));
+  const unread = articles.filter((a) => !isSettledRead(a.id));
+  const read = articles.filter((a) => isSettledRead(a.id));
+  const shown = tab === 'unread' ? unread : read;
+
+  // Article count per CEFR level within the active tab (A1: 5, B2: 12 …).
+  const levelCounts = LEVELS.map((level) => ({
+    level,
+    n: shown.filter((a) => a.cefr_level === level).length,
+  }));
 
   function toggleRead(e: MouseEvent, article: Article) {
     // The button lives inside the card's <Link> — don't open the article.
@@ -119,37 +120,45 @@ export default function ReadingPage() {
       <h2 className="page-heading">Reading</h2>
       <p className="page-subheading">Stories for every level — tap any word to look it up.</p>
 
-      <div className="chip-row">
+      <div className="seg-tabs" role="tablist" aria-label="Reading list">
         <button
-          className={`chip${filter === 'all' ? ' chip--active' : ''}`}
-          onClick={() => setFilter('all')}
+          role="tab"
+          aria-selected={tab === 'unread'}
+          className={`seg-tab${tab === 'unread' ? ' seg-tab--active' : ''}`}
+          onClick={() => setTab('unread')}
         >
-          All
+          Unread <span className="seg-tab__count">{unread.length}</span>
         </button>
-        {levels.map((l) => (
-          <button
-            key={l}
-            className={`chip${filter === l ? ' chip--active' : ''}`}
-            onClick={() => setFilter(l)}
-          >
-            {l}
-          </button>
-        ))}
         <button
-          className={`chip${filter === 'read' ? ' chip--active' : ''}`}
-          onClick={() => setFilter('read')}
+          role="tab"
+          aria-selected={tab === 'read'}
+          className={`seg-tab${tab === 'read' ? ' seg-tab--active' : ''}`}
+          onClick={() => setTab('read')}
         >
-          Read
+          Read <span className="seg-tab__count">{read.length}</span>
         </button>
       </div>
 
-      {unread.map(renderCard)}
+      <div className="level-counts">
+        {levelCounts.map(({ level, n }) => (
+          <span key={level} className={`level-count${n === 0 ? ' level-count--empty' : ''}`}>
+            <span className="level-count__dot" style={{ ['--lc' as string]: levelColor(level) }} />
+            {level}: <span className="level-count__n">{n}</span>
+          </span>
+        ))}
+      </div>
 
-      {read.length > 0 && unread.length > 0 && (
-        <div className="read-divider">Already read</div>
+      {shown.length > 0 ? (
+        shown.map(renderCard)
+      ) : (
+        <div className="card">
+          <p style={{ margin: 0 }}>
+            {tab === 'unread'
+              ? 'Every story read — bravo ! Reread a favourite from the Read tab.'
+              : 'No articles marked read yet. Finish one and it lands here.'}
+          </p>
+        </div>
       )}
-
-      {read.map(renderCard)}
     </>
   );
 }

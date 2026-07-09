@@ -12,17 +12,17 @@ function cardStyle(key: TenseKey, index: number): CSSProperties {
   } as CSSProperties;
 }
 
-export default function ConjugationPage() {
+/**
+ * The conjugation tense picker (Mixed drill + the nine tenses by family),
+ * rendered inside the Practice hub's Conjugation tab. Each card launches the
+ * typing drill at /conjugation/:tense.
+ */
+export default function ConjugationPicker() {
   const meta = new Map(TENSES.map((t) => [t.key, t]));
   let cardIndex = 0;
 
   return (
     <>
-      <h2 className="page-heading">Conjugation</h2>
-      <p className="page-subheading">
-        Nine tenses to master — accent slips are forgiven.
-      </p>
-
       <div className="tense-family" style={{ '--tc': MIXED_STRIPE } as CSSProperties}>
         Tous les temps · All tenses
       </div>

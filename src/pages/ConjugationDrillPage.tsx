@@ -10,6 +10,7 @@ import { Navigate, useParams } from 'react-router-dom';
 import { TENSES, type TenseKey } from '../data/content';
 import {
   buildSession,
+  selectDrillVerbs,
   pronounDisplay,
   tenseLabel,
   tenseAbbr,
@@ -17,6 +18,7 @@ import {
   type Exercise,
 } from '../lib/conjugation';
 import { gradeAnswer, recordRound, type AnswerGrade } from '../lib/practice';
+import { recordDrillResult } from '../lib/struggle';
 import { MIXED_STRIPE, TENSE_THEMES } from '../lib/tenseThemes';
 import { errorBuzz, keyClick, sfxEnabled, successChime } from '../lib/sound';
 import { useAutoSpeak } from '../lib/useAutoSpeak';
@@ -27,6 +29,8 @@ import SoundPill from '../components/SoundPill';
 
 const BLANK = () => Array(PROMPTS_PER_EXERCISE).fill('') as string[];
 const ACCENT_KEYS = ['à', 'é', 'è', 'ê', 'î', 'û', 'ç'];
+/** Back target: the Conjugation tab of the Practice hub. */
+const CONJ_BACK = '/practice?tab=conjugation';
 
 /** Auto-advance delay after a fully correct exercise; longer when an accent
     correction is on screen so the learner can actually read it. */
@@ -47,7 +51,8 @@ export default function ConjugationDrillPage() {
   const mode: TenseKey | 'mixed' | undefined =
     tense === 'mixed' ? 'mixed' : TENSES.find((t) => t.key === tense)?.key;
 
-  const [session] = useState<Exercise[]>(() => (mode ? buildSession(mode) : []));
+  const [session, setSession] = useState<Exercise[]>([]);
+  const [loading, setLoading] = useState(true);
   const [exIndex, setExIndex] = useState(0);
   const [values, setValues] = useState<string[]>(BLANK());
   const [grades, setGrades] = useState<AnswerGrade[] | null>(null);
@@ -60,6 +65,23 @@ export default function ConjugationDrillPage() {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const exercise: Exercise | undefined = session[exIndex];
+
+  /* Draw this session's verbs struggle-weighted, then build the exercises.
+     Async because the weighting reads per-verb stats from IndexedDB; the
+     cancelled flag keeps StrictMode's double-run from swapping the deck. */
+  useEffect(() => {
+    if (!mode) return;
+    let cancelled = false;
+    setLoading(true);
+    selectDrillVerbs().then((verbs) => {
+      if (cancelled) return;
+      setSession(buildSession(mode, verbs));
+      setLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [mode]);
 
   /* Typewriter reveal of the verb; Check stays disabled until it finishes. */
   useEffect(() => {
@@ -101,9 +123,13 @@ export default function ConjugationDrillPage() {
     return () => window.clearTimeout(timer);
   }, [grades, finished]);
 
-  if (!mode) return <Navigate to="/conjugation" replace />;
+  if (!mode) return <Navigate to="/practice?tab=conjugation" replace />;
 
   const title = mode === 'mixed' ? 'Mixed drill' : tenseLabel(mode);
+
+  if (loading) {
+    return <DrillHeader title={title} backTo={CONJ_BACK} backLabel="Practice" />;
+  }
   const total = session.length * PROMPTS_PER_EXERCISE;
   const allFilled = values.every((v) => v.trim() !== '');
   /** Wrong answers block Next: the learner retypes them until all pass. */
@@ -153,6 +179,9 @@ export default function ConjugationDrillPage() {
       });
       setScore(sc);
       if (newlyMissed.length) setMissed((m) => [...m, ...newlyMissed]);
+      // Feed the struggle-weighted verb draw: a verb counts as "got it" only
+      // when every prompt for it was right first try.
+      void recordDrillResult('verb', ex.verb, newlyMissed.length === 0);
     }
     setGrades(gs);
     const stillWrong = gs.findIndex((g) => g === 'wrong');
@@ -219,7 +248,7 @@ export default function ConjugationDrillPage() {
   if (finished) {
     return (
       <>
-        <DrillHeader title={title} backTo="/conjugation" backLabel="Conjugation" />
+        <DrillHeader title={title} backTo={CONJ_BACK} backLabel="Practice" />
         <div style={themeVars}>
           <DrillResults
             score={score}
@@ -236,8 +265,8 @@ export default function ConjugationDrillPage() {
               correct: m.correct,
               color: TENSE_THEMES[m.tense].color,
             }))}
-            backTo="/conjugation"
-            backLabel="Back to conjugation"
+            backTo={CONJ_BACK}
+            backLabel="Back to practice"
           />
         </div>
       </>
@@ -248,7 +277,7 @@ export default function ConjugationDrillPage() {
 
   return (
     <div className="conj-drill" style={themeVars}>
-      <DrillTopline backTo="/conjugation" backLabel="Conjugation" title={title}>
+      <DrillTopline backTo={CONJ_BACK} backLabel="Practice" title={title}>
         <span className="hud-pill hud-pill--live" key={`score-${score}`}>
           ✓ <strong>{score}</strong>
         </span>

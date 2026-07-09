@@ -71,11 +71,31 @@ a {
 /* ——— Masthead ——— */
 
 .masthead {
+  position: sticky;
+  top: 0;
+  z-index: 30;
   padding: calc(env(safe-area-inset-top) + 14px) 16px 10px;
   text-align: center;
   border-bottom: 1px solid var(--rule-strong);
   box-shadow: 0 3px 0 -2px var(--rule);
   background: var(--paper);
+  transition: transform 0.28s ease, opacity 0.28s ease;
+  will-change: transform;
+}
+
+/* Hide-on-scroll: the masthead slides up out of the safe area and fades as the
+   reader scrolls down, then drops back in on any upward scroll. Toggled from
+   Layout by scroll direction. */
+.masthead--hidden {
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .masthead {
+    transition: none;
+  }
 }
 
 .masthead__title {
@@ -432,7 +452,7 @@ a {
   display: flex;
   justify-content: center;
   gap: 4px;
-  padding: 6px 8px calc(env(safe-area-inset-bottom) + 6px);
+  padding: 6px 8px calc(env(safe-area-inset-bottom) + 2px);
   background: var(--paper-raised);
   border-top: 1px solid var(--rule-strong);
   box-shadow: 0 -3px 0 -2px var(--rule);
@@ -444,20 +464,21 @@ a {
   align-items: center;
   gap: 3px;
   flex: 1;
-  max-width: 96px;
+  min-width: 0;
+  max-width: 84px;
   padding: 5px 0 3px;
   border-radius: 8px;
   color: var(--ink-soft);
   font-family: var(--sans);
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 600;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.01em;
   text-decoration: none;
 }
 
 .tabbar__item svg {
-  width: 22px;
-  height: 22px;
+  width: 21px;
+  height: 21px;
 }
 
 .tabbar__item--active {
@@ -488,6 +509,96 @@ a {
   background: var(--ink);
   border-color: var(--ink);
   color: var(--paper-raised);
+}
+
+/* ——— Segmented tabs (Reading, Vocabulary, Practice) ——— */
+
+.seg-tabs {
+  display: flex;
+  gap: 4px;
+  margin: 0 0 18px;
+  padding: 4px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 12px;
+  background: var(--paper-sunken);
+}
+
+.seg-tab {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 9px 8px;
+  border-radius: 9px;
+  color: var(--ink-soft);
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  transition: background 0.16s ease, color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.seg-tab--active {
+  background: var(--paper-raised);
+  color: var(--accent-deep);
+  box-shadow: 0 1px 2px rgba(33, 29, 22, 0.12);
+}
+
+/* Count pill riding along in a tab label (« Unread 34 »). */
+.seg-tab__count {
+  min-width: 20px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--paper-sunken);
+  color: var(--ink-soft);
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.seg-tab--active .seg-tab__count {
+  background: var(--accent);
+  color: var(--paper-raised);
+}
+
+/* Per-level article counts under the Reading tabs (A1: 5, B2: 12). */
+.level-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 18px;
+}
+
+.level-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--rule-strong);
+  background: var(--paper-raised);
+  font-family: var(--sans);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.level-count__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--lc, var(--ink-faint));
+}
+
+.level-count__n {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.level-count--empty {
+  opacity: 0.5;
 }
 
 /* ——— Article library ——— */
@@ -742,6 +853,12 @@ a {
   margin-top: 18px;
   font-size: 18.5px;
   line-height: 1.78;
+  /* Reading looks a word up by tapping it: one word per tap. Native selection
+     (long-press drag across words, sentence double-tap) is disabled so the
+     learner can't grab a phrase — every word is an atomic tappable token. */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .article-body p {
@@ -2284,6 +2401,248 @@ a {
   .match-tile,
   .conj-progress__fill,
   .stat__bar-fill {
+    transition: none;
+  }
+}
+
+/* ——— Sign-in gate ——— */
+
+.auth-screen {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(env(safe-area-inset-top) + 24px) 18px calc(env(safe-area-inset-bottom) + 24px);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 380px;
+}
+
+.auth-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.auth-brand__logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+}
+
+.auth-brand__word {
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.auth-lede {
+  margin: 0 0 22px;
+  text-align: center;
+  color: var(--ink-soft);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.auth-label {
+  display: block;
+  margin: 14px 0 6px;
+  font-family: var(--sans);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.auth-fineprint {
+  margin: 12px 0 0;
+  color: var(--ink-faint);
+  font-family: var(--sans);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.auth-error {
+  margin: 12px 0 0;
+  color: var(--accent-deep);
+  font-family: var(--sans);
+  font-size: 13px;
+}
+
+.auth-submit {
+  width: 100%;
+  margin-top: 18px;
+}
+
+/* ——— Home vocabulary shortcut ——— */
+
+.home-vocab {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.home-vocab__icon {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  color: var(--accent-deep);
+}
+
+.home-vocab__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.home-vocab__count {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.home-vocab__sub {
+  color: var(--ink-soft);
+  font-family: var(--sans);
+  font-size: 13px;
+}
+
+.home-vocab__chev {
+  flex: none;
+  color: var(--ink-faint);
+  font-size: 20px;
+}
+
+/* ——— Settings ——— */
+
+.account-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.account-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.account-row__label {
+  font-family: var(--sans);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.account-row__value {
+  font-size: 16px;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.settings-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.settings-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 10px;
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  background: var(--paper-raised);
+  text-align: center;
+}
+
+.settings-stat__value {
+  font-size: 22px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.settings-stat__label {
+  font-family: var(--sans);
+  font-size: 11.5px;
+  color: var(--ink-soft);
+}
+
+.setting-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+  text-align: left;
+}
+
+.setting-toggle__title {
+  display: block;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.setting-toggle__hint {
+  display: block;
+  margin-top: 2px;
+  color: var(--ink-soft);
+  font-family: var(--sans);
+  font-size: 12.5px;
+}
+
+.switch {
+  flex: none;
+  width: 46px;
+  height: 28px;
+  border-radius: 999px;
+  background: var(--rule-strong);
+  padding: 3px;
+  transition: background 0.18s ease;
+}
+
+.switch--on {
+  background: var(--level-a1);
+}
+
+.switch__knob {
+  display: block;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--paper-raised);
+  box-shadow: 0 1px 2px rgba(33, 29, 22, 0.3);
+  transition: transform 0.18s ease;
+}
+
+.switch--on .switch__knob {
+  transform: translateX(18px);
+}
+
+.settings-logout {
+  width: 100%;
+  margin-top: 22px;
+  color: var(--accent-deep);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--rule-strong));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .switch,
+  .switch__knob {
     transition: none;
   }
 }

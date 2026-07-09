@@ -15,12 +15,12 @@ const MIN_WORDS = 20;
 
 const SESSIONS = {
   learn: {
-    title: 'Learn',
+    title: 'Word Match',
     mode: 'learn',
     learned: 0,
     // 20 words → 5 boards of 4 pairs.
     target: 20,
-    gate: 'Learn opens once you have 20 words in your learning pile',
+    gate: 'Word Match opens once you have 20 words in your learning pile',
     gateHint: 'Save words while you read, or add them from the dictionary search.',
   },
   remember: {
@@ -94,12 +94,12 @@ export default function MatchSessionPage({ kind }: { kind: MatchSessionKind }) {
     };
   }, [kind]);
 
-  if (!words) return <DrillHeader title={session.title} />;
+  if (!words) return <DrillHeader title={session.title} backTo="/practice?tab=vocabulary" backLabel="Practice" />;
 
   if (words.length < MIN_WORDS) {
     return (
       <>
-        <DrillHeader title={session.title} />
+        <DrillHeader title={session.title} backTo="/practice?tab=vocabulary" backLabel="Practice" />
         <div className="card">
           <p style={{ margin: '0 0 6px' }}>
             {session.gate} — you have {words.length} so far.
@@ -117,7 +117,7 @@ export default function MatchSessionPage({ kind }: { kind: MatchSessionKind }) {
     const missedWords = words.filter((w) => missedIds.has(w.id));
     return (
       <>
-        <DrillHeader title={session.title} />
+        <DrillHeader title={session.title} backTo="/practice?tab=vocabulary" backLabel="Practice" />
         <div style={themeVars}>
           <DrillResults
             score={words.length - missedWords.length}
@@ -149,7 +149,7 @@ export default function MatchSessionPage({ kind }: { kind: MatchSessionKind }) {
 
   return (
     <div className="conj-drill" style={themeVars}>
-      <DrillTopline backTo="/vocabulary" backLabel="Vocabulary" title={session.title}>
+      <DrillTopline backTo="/practice?tab=vocabulary" backLabel="Practice" title={session.title}>
         <span className="hud-pill hud-pill--live" key={`miss-${misses}`}>
           ✕ <strong>{misses}</strong>
         </span>

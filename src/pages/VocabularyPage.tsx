@@ -1,4 +1,4 @@
-import { useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, deleteSavedWord, type SavedWord } from '../lib/db';
@@ -8,7 +8,6 @@ import { saveWord } from '../lib/vocab';
 import { successChime } from '../lib/sound';
 import { canSpeak, speakFrench } from '../lib/speech';
 import { LEARNT_STREAK } from '../lib/practice';
-import { VOCAB_THEMES, type VocabMode } from '../lib/vocabThemes';
 import {
   CheckCircleIcon,
   CheckIcon,
@@ -20,72 +19,14 @@ import {
   UndoIcon,
 } from '../components/icons';
 
-const DRILLS: { mode: VocabMode; to: string; kicker: string; name: string; hint: string }[] = [
-  {
-    mode: 'learn',
-    to: '/vocabulary/learn',
-    kicker: 'Match · new',
-    name: 'Learn',
-    hint: 'Pair fresh words with their meanings',
-  },
-  {
-    mode: 'practice',
-    to: '/vocabulary/practice',
-    kicker: 'Type · recall',
-    name: 'Practice',
-    hint: 'Fill the blank, or translate',
-  },
-  {
-    mode: 'remember',
-    to: '/vocabulary/remember',
-    kicker: 'Match · review',
-    name: 'Remember?',
-    hint: 'Still know what you’ve learnt?',
-  },
-];
-
-function drillCardStyle(mode: VocabMode, index: number): CSSProperties {
-  const t = VOCAB_THEMES[mode];
-  return {
-    '--tc': t.color,
-    '--tc-blob': `linear-gradient(135deg, ${t.blob} 0%, transparent 70%)`,
-    animationDelay: `${index * 45}ms`,
-  } as CSSProperties;
-}
-
-/** Collapsible lexicon group («Still Learning (42)») with a colored count. */
-function LexGroup({
-  title,
-  count,
-  color,
-  empty,
-  children,
-}: {
-  title: string;
-  count: number;
-  color: string;
-  empty: string;
-  children: ReactNode;
-}) {
-  const [open, setOpen] = useState(true);
-  return (
-    <section className="lex-group" style={{ '--gc': color } as CSSProperties}>
-      <button className="lex-group__head" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
-        <span>{title}</span>
-        <span className="lex-group__count">{count}</span>
-        <span className="lex-group__rule" />
-        <span className={`lex-group__chev${open ? '' : ' lex-group__chev--closed'}`}>▾</span>
-      </button>
-      {open && (count === 0 ? <p className="lex-group__empty">{empty}</p> : children)}
-    </section>
-  );
-}
+type Tab = 'learning' | 'learned';
 
 export default function VocabularyPage() {
   const words = useLiveQuery(() => db.savedWords.orderBy('addedAt').reverse().toArray(), []);
 
   const [query, setQuery] = useState('');
   const [addingLemma, setAddingLemma] = useState<string | null>(null);
+  const [tab, setTab] = useState<Tab>('learning');
 
   // Inline editing of a word's first-line translation. `editingRef` mirrors
   // `editingId` synchronously so a blur fired by unmount can't double-commit
@@ -102,6 +43,8 @@ export default function VocabularyPage() {
 
   const trimmed = query.trim();
   const results = trimmed ? searchDictionary(trimmed) : [];
+
+  const shown = tab === 'learning' ? learning : learnt;
 
   async function addFromDictionary(lemma: string) {
     if (addingLemma) return;
@@ -270,30 +213,14 @@ export default function VocabularyPage() {
     <>
       <h2 className="page-heading">Vocabulary</h2>
       <p className="page-subheading">
-        Your growing word collection — drill it in three ways.
+        Your growing word collection — tap words as you read, or search below.
       </p>
-
-      <div className="section-label">Practice</div>
-      <div className="drill-grid">
-        {DRILLS.map((d, i) => (
-          <Link key={d.mode} className="drill-card" to={d.to} style={drillCardStyle(d.mode, i)}>
-            <span className="drill-card__kicker">{d.kicker}</span>
-            <span className="drill-card__name">{d.name}</span>
-            <span className="drill-card__hint">{d.hint}</span>
-          </Link>
-        ))}
-      </div>
-      <p className="drill-note">
-        Words graduate after {LEARNT_STREAK} correct answers in a row — a miss sends them back.
-      </p>
-
-      <div className="section-label">Lexicon</div>
 
       <input
         className="text-input lexicon-search"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search the dictionary…"
+        placeholder="Search the dictionary to add a word…"
         autoCapitalize="none"
         autoCorrect="off"
         spellCheck={false}
@@ -340,22 +267,34 @@ export default function VocabularyPage() {
         </div>
       ) : (
         <>
-          <LexGroup
-            title="Still Learning"
-            count={learning.length}
-            color="var(--accent)"
-            empty="Nothing in rotation — save words while you read."
-          >
-            {learning.map(wordRow)}
-          </LexGroup>
-          <LexGroup
-            title="Learnt"
-            count={learnt.length}
-            color="var(--level-a1)"
-            empty={`Words move here after ${LEARNT_STREAK} correct answers in a row.`}
-          >
-            {learnt.map(wordRow)}
-          </LexGroup>
+          <div className="seg-tabs" role="tablist" aria-label="Lexicon">
+            <button
+              role="tab"
+              aria-selected={tab === 'learning'}
+              className={`seg-tab${tab === 'learning' ? ' seg-tab--active' : ''}`}
+              onClick={() => setTab('learning')}
+            >
+              Learning <span className="seg-tab__count">{learning.length}</span>
+            </button>
+            <button
+              role="tab"
+              aria-selected={tab === 'learned'}
+              className={`seg-tab${tab === 'learned' ? ' seg-tab--active' : ''}`}
+              onClick={() => setTab('learned')}
+            >
+              Learned <span className="seg-tab__count">{learnt.length}</span>
+            </button>
+          </div>
+
+          {shown.length > 0 ? (
+            shown.map(wordRow)
+          ) : (
+            <p className="lex-group__empty">
+              {tab === 'learning'
+                ? 'Nothing in rotation — save words while you read.'
+                : `Words move here after ${LEARNT_STREAK} correct answers in a row.`}
+            </p>
+          )}
         </>
       )}
     </>

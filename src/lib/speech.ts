@@ -1,24 +1,28 @@
 /**
  * Pronunciation. Online, words are spoken by Google Translate's French voice
- * (natural, female) — but fetched through our OWN same-origin proxy
- * (`/api/tts`, a Pages Function), NOT the endpoint directly. That indirection is
- * the whole fix for iOS: WebKit refuses cross-origin TTS media in Safari and the
- * Home-Screen PWA, so the direct request errored and the app fell silent. Worse,
- * the old fallback to speechSynthesis ran inside that async error handler —
- * outside the tap gesture — which iOS also blocks, so nothing spoke at all.
- * Same-origin audio plays from the unlocked element with no CORS/referrer dance.
+ * (natural, female), fetched through our OWN same-origin proxy (`/api/tts`, a
+ * Pages Function) — Google refuses a direct cross-origin request.
  *
- * Offline (or if the proxy fails) we fall back to speechSynthesis, preferring the
- * most natural female fr-FR voice installed on the device. The offline branch is
- * taken synchronously inside the click, so iOS still speaks. Voices are warmed at
- * load so the first utterance isn't the robotic default, and speechSynthesis is
- * primed on real gestures too, so even a rare async fallback can still speak.
+ * The clip is decoded and played through the app's shared Web Audio
+ * AudioContext (see sound.ts), NOT an <audio>/<video> element. That is the fix
+ * for two iOS problems at once:
+ *   1. A media element that plays audible sound registers a Now Playing session,
+ *      which hijacks the phone's media controls and pops the Dynamic Island.
+ *      Web Audio makes no such session, so pronunciation stays silent to the OS.
+ *   2. The AudioContext already has robust iOS handling — a gesture-based unlock
+ *      and a foreground/route-change resume — so playback no longer dies after
+ *      the app is backgrounded (which used to need a full restart to recover).
+ * Once the context is unlocked, a buffer can start from any async callback, so
+ * fetch-then-decode-then-play works even for auto-pronounced words (no gesture).
  *
- * iOS unlock: WebKit only lets a media element play audio that loads *after* the
- * tap once the element has been primed inside a genuine user gesture. So we keep
- * ONE reusable element, prime it on real gestures (a silent clip, just like
- * sound.ts primes the AudioContext), and swap its `src` for every word.
+ * Offline (or if the proxy fails, e.g. `npm run dev` where Pages Functions don't
+ * run) we fall back to speechSynthesis, preferring the most natural female fr-FR
+ * voice on the device. Voices are warmed at load so the first utterance isn't the
+ * robotic default, and speechSynthesis is primed on a real gesture so even a rare
+ * async fallback can still speak on iOS.
  */
+
+import { getAudioContext } from './sound';
 
 /** Known natural-sounding female French voices, best first. */
 const VOICE_PREFERENCE = [
@@ -56,7 +60,10 @@ function pickFrenchVoice(): SpeechSynthesisVoice | null {
 }
 
 export function canSpeak(): boolean {
-  return 'speechSynthesis' in window || typeof Audio !== 'undefined';
+  const hasWebAudio =
+    typeof window !== 'undefined' &&
+    ('AudioContext' in window || 'webkitAudioContext' in window);
+  return hasWebAudio || 'speechSynthesis' in window;
 }
 
 // Warm the voice list. getVoices() is empty until the engine loads the voices,
@@ -80,90 +87,79 @@ function speakWithSynthesis(text: string) {
   speechSynthesis.speak(utterance);
 }
 
-/* ——— iOS-safe playback of the online (Google) voice ——— */
+/* ——— iOS-safe playback of the online (Google) voice via Web Audio ——— */
 
-/** A 200-sample silent WAV — priming the reusable element with this inside a
-    real gesture is what opens the audio session on iOS standalone. */
-const SILENT_WAV =
-  'data:audio/wav;base64,UklGRuwAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YcgAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA==';
-
-let player: HTMLAudioElement | null = null;
-let unlocked = false;
 let ttsPrimed = false;
 
-function getPlayer(): HTMLAudioElement | null {
-  if (typeof Audio === 'undefined') return null;
-  if (!player) {
-    player = new Audio();
-    player.preload = 'auto';
-    // Keep iOS from promoting playback into its fullscreen media UI. The proxy
-    // is same-origin, so no crossOrigin dance is needed.
-    player.setAttribute('playsinline', '');
-  }
-  return player;
-}
-
-/** Prime the reusable element on a real gesture so later remote playback is
-    allowed. The clip is silent, so playing it unmuted makes no sound but opens
-    the audio session. Idempotent — once opened, iOS keeps the element unlocked. */
-function unlockPlayback(): void {
-  const el = getPlayer();
-  if (el && !unlocked) {
-    unlocked = true;
-    try {
-      el.src = SILENT_WAV;
-      el.play().catch((err: DOMException) => {
-        // A real pronunciation swaps src and aborts this silent play — fine, the
-        // gesture already opened the session. Only a genuine block warrants retry.
-        if (err?.name !== 'AbortError') unlocked = false;
-      });
-    } catch {
-      unlocked = false;
-    }
-  }
-  // Prime speechSynthesis inside the gesture too. A volume-0 utterance is
-  // inaudible but opens the speech session, so a later async fallback (proxy
-  // error mid-session) can still speak on iOS instead of failing silently.
-  if (!ttsPrimed && 'speechSynthesis' in window) {
-    ttsPrimed = true;
-    try {
-      const u = new SpeechSynthesisUtterance(' ');
-      u.volume = 0;
-      speechSynthesis.speak(u);
-    } catch {
-      ttsPrimed = false;
-    }
+/** Prime speechSynthesis inside a real gesture: a volume-0 utterance is
+    inaudible but opens the speech session, so a later async fallback (a proxy
+    error mid-session) can still speak on iOS instead of failing silently. The
+    AudioContext itself is unlocked by sound.ts's own gesture listeners. */
+function primeSynthesis(): void {
+  if (ttsPrimed || !('speechSynthesis' in window)) return;
+  ttsPrimed = true;
+  try {
+    const u = new SpeechSynthesisUtterance(' ');
+    u.volume = 0;
+    speechSynthesis.speak(u);
+  } catch {
+    ttsPrimed = false;
   }
 }
 
 if (typeof window !== 'undefined') {
   for (const type of ['pointerdown', 'touchend', 'click'] as const) {
-    window.addEventListener(type, unlockPlayback, { capture: true, passive: true });
+    window.addEventListener(type, primeSynthesis, { capture: true, passive: true });
   }
 }
 
+// The clip currently playing, so a rapid second tap can cut it off cleanly.
+let current: AudioBufferSourceNode | null = null;
+// Decoded clips are tiny and words repeat; keep them so re-taps are instant.
+const clipCache = new Map<string, AudioBuffer>();
+
 export function speakFrench(text: string) {
-  const el = getPlayer();
-  if (!navigator.onLine || !el) {
+  const ctx = getAudioContext();
+  // Offline, or no Web Audio: speak with the device voice synchronously so a
+  // speaker-button tap still voices inside its gesture.
+  if (!navigator.onLine || !ctx) {
     speakWithSynthesis(text);
     return;
   }
-  el.pause();
-  // Same-origin proxy (functions/api/tts.ts) — a direct Google URL here is what
-  // WebKit refused. In dev the Pages Function isn't served, so the element errors
-  // and we fall back to speechSynthesis below.
-  el.src = `/api/tts?tl=fr-FR&q=${encodeURIComponent(text)}`;
-  let fellBack = false;
-  const fallBack = () => {
-    if (fellBack) return;
-    fellBack = true;
+  void playThroughWebAudio(text, ctx);
+}
+
+async function playThroughWebAudio(text: string, ctx: AudioContext): Promise<void> {
+  try {
+    let buffer = clipCache.get(text);
+    if (!buffer) {
+      // Same-origin proxy (functions/api/tts.ts) — a direct Google URL is what
+      // WebKit refuses. In `npm run dev` the Pages Function isn't served, so this
+      // 404s/errors and we fall back to the device voice below.
+      const res = await fetch(`/api/tts?tl=fr-FR&q=${encodeURIComponent(text)}`);
+      if (!res.ok) throw new Error(`tts ${res.status}`);
+      buffer = await ctx.decodeAudioData(await res.arrayBuffer());
+      clipCache.set(text, buffer);
+    }
+    // iOS parks the context « interrupted » on background; make sure it's live.
+    if (ctx.state !== 'running') await ctx.resume();
+    // Cut off any clip still playing (rapid re-taps). Guarded: stopping an
+    // already-finished source must not fall through to the synthesis fallback.
+    try {
+      current?.stop();
+    } catch {
+      /* already stopped */
+    }
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    src.connect(ctx.destination);
+    src.onended = () => {
+      if (current === src) current = null;
+    };
+    current = src;
+    src.start();
+  } catch {
+    // Proxy unreachable / decode failed — fall back to the device voice.
     speakWithSynthesis(text);
-  };
-  el.onerror = fallBack;
-  el.play().catch((err: DOMException) => {
-    // Swapping `src` (or a rapid second call) aborts this pending play — that's
-    // us interrupting, not a real failure, so don't drop to the robotic voice.
-    // Genuine load/permission/network errors still fall back.
-    if (err?.name !== 'AbortError') fallBack();
-  });
+  }
 }

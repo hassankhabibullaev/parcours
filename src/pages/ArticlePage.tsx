@@ -5,7 +5,7 @@ import { getArticle } from '../data/content';
 import { db } from '../lib/db';
 import { upsertArticleProgress } from '../lib/articleProgress';
 import { buildParagraphs, lemmaOf, isLexiconReady, onLexiconReady, type Token } from '../lib/lemmatize';
-import { keyClick, successChime, wordTap } from '../lib/sound';
+import { keyClick, successChime } from '../lib/sound';
 import { useAutoSpeak } from '../lib/useAutoSpeak';
 import WordModal, { type LookupRequest } from '../components/WordModal';
 
@@ -132,21 +132,6 @@ export default function ArticlePage() {
     };
   }, [article]);
 
-  // A text selection (long-press / drag) looks up the whole phrase.
-  function handleSelection() {
-    const sel = window.getSelection();
-    if (!sel || sel.isCollapsed) return;
-    const phrase = sel.toString().replace(/\s+/g, ' ').trim();
-    if (phrase.length < 2 || !phrase.includes(' ')) return;
-    wordTap();
-    setLookup({
-      display: phrase,
-      term: phrase.toLowerCase(),
-      sentence: '',
-      articleId: article?.id ?? null,
-    });
-  }
-
   if (!article) {
     return (
       <>
@@ -188,7 +173,7 @@ export default function ArticlePage() {
         {isRead && <span className="read-stamp"> · Read ✓</span>}
       </p>
 
-      <div className="article-body" onPointerUp={handleSelection}>
+      <div className="article-body">
         {paragraphs.map((sentences, pi) => (
           <p key={pi}>
             {sentences.map((sentence, si) => (

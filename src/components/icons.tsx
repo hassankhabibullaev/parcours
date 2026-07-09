@@ -45,15 +45,25 @@ export function LexiconIcon({ className }: IconProps) {
   );
 }
 
-/** A conjugation table — pronoun column + verb forms (conjugation). */
-export function ConjugationIcon({ className }: IconProps) {
+/** A target / bullseye (practice — take aim at what needs work). */
+export function PracticeIcon({ className }: IconProps) {
   return (
     <svg {...base} className={className}>
-      <rect x="4" y="4.5" width="16" height="15" rx="1.6" />
-      <path d="M4 9.5h16" />
-      <path d="M10.5 9.5v10" />
-      <path d="M6.7 13h1.6M6.7 16h1.6" />
-      <path d="M13 13h4.3M13 16h4.3" />
+      <circle cx="12" cy="12" r="8.5" />
+      <circle cx="12" cy="12" r="4.5" />
+      <circle cx="12" cy="12" r="0.9" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+/** Sliders (settings). */
+export function SettingsIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M4 7.5h8M16.5 7.5H20" />
+      <circle cx="14.5" cy="7.5" r="2.2" />
+      <path d="M4 16.5h3.5M12 16.5h8" />
+      <circle cx="9.5" cy="16.5" r="2.2" />
     </svg>
   );
 }
@@ -123,40 +133,6 @@ export function CloseIcon({ className }: IconProps) {
   return (
     <svg {...base} className={className}>
       <path d="M6 6l12 12M18 6 6 18" />
-    </svg>
-  );
-}
-
-/** Two arrows chasing each other (sync). */
-export function SyncIcon({ className }: IconProps) {
-  return (
-    <svg {...base} className={className}>
-      <path d="M19.5 12a7.5 7.5 0 0 1-13.2 4.9" />
-      <path d="M4.5 12a7.5 7.5 0 0 1 13.2-4.9" />
-      <path d="M17.2 3.6l.5 3.5-3.5.5" />
-      <path d="M6.8 20.4l-.5-3.5 3.5-.5" />
-    </svg>
-  );
-}
-
-/** An arrow dropping into a tray (import from another device). */
-export function ImportIcon({ className }: IconProps) {
-  return (
-    <svg {...base} className={className}>
-      <path d="M12 3.5v10" />
-      <path d="m8 9.5 4 4 4-4" />
-      <path d="M4.5 15v3A2.5 2.5 0 0 0 7 20.5h10a2.5 2.5 0 0 0 2.5-2.5v-3" />
-    </svg>
-  );
-}
-
-/** An arrow lifting out of a tray (export to another device). */
-export function ExportIcon({ className }: IconProps) {
-  return (
-    <svg {...base} className={className}>
-      <path d="M12 13.5v-10" />
-      <path d="m8 7.5 4-4 4 4" />
-      <path d="M4.5 15v3A2.5 2.5 0 0 0 7 20.5h10a2.5 2.5 0 0 0 2.5-2.5v-3" />
     </svg>
   );
 }

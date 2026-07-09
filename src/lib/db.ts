@@ -75,6 +75,25 @@ export interface Tombstone {
   deletedAt: number;
 }
 
+/**
+ * Per-item practice performance, driving the struggle-weighted draw shared by
+ * the vocabulary and conjugation drills (see lib/struggle.ts). Device-local —
+ * NOT synced (like lookupCache): it is a local refinement of *which* items to
+ * surface, while the graded progress itself (streaks, rounds) does sync.
+ * `key` is `${kind}:${itemId}`; `itemId` is a saved-word id or a verb infinitive.
+ */
+export interface DrillStat {
+  key: string;
+  kind: 'word' | 'verb';
+  itemId: string;
+  attempts: number;
+  correct: number;
+  /** Exponentially-weighted recent error rate, 0 (always right) … 1 (always wrong). */
+  errorRate: number;
+  lastSeenAt: number;
+  updatedAt: number;
+}
+
 // The IndexedDB name predates the rename to Parcours; changing it would
 // silently orphan existing local progress, so it stays.
 export const db = new Dexie('redaction') as Dexie & {
@@ -84,6 +103,7 @@ export const db = new Dexie('redaction') as Dexie & {
   kv: EntityTable<KVEntry, 'key'>;
   lookupCache: EntityTable<LookupCacheEntry, 'term'>;
   tombstones: EntityTable<Tombstone, 'key'>;
+  drillStats: EntityTable<DrillStat, 'key'>;
 };
 
 db.version(1).stores({
@@ -99,6 +119,10 @@ db.version(2).stores({
 
 db.version(3).stores({
   tombstones: 'key',
+});
+
+db.version(4).stores({
+  drillStats: 'key, kind',
 });
 
 /** Delete a saved word and leave a tombstone so the deletion syncs across devices. */

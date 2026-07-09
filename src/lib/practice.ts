@@ -1,4 +1,5 @@
 import { db, type SavedWord } from './db';
+import { drawWeighted, recordDrillResult } from './struggle';
 
 export function shuffle<T>(items: T[]): T[] {
   const arr = [...items];
@@ -16,14 +17,18 @@ export interface DrawOptions {
   requireTranslation?: boolean;
 }
 
-/** Random words for a practice round, freshly shuffled every call. */
+/**
+ * Words for a practice round, drawn struggle-weighted (the words missed most
+ * often and seen least recently come up first) — the same algorithm the
+ * conjugation drill uses to pick verbs. See lib/struggle.ts.
+ */
 export async function drawPracticeWords(
   limit: number,
   { learned = 0, requireTranslation = false }: DrawOptions = {},
 ): Promise<SavedWord[]> {
   let pool = await db.savedWords.where('learned').equals(learned).toArray();
   if (requireTranslation) pool = pool.filter((w) => w.translation.trim());
-  return shuffle(pool).slice(0, limit);
+  return drawWeighted('word', pool, (w) => w.id, limit);
 }
 
 /** Case-normalize but keep accents (exact match check). */
@@ -66,6 +71,8 @@ export async function recordWordResult(word: SavedWord, correct: boolean): Promi
   const streak = correct ? (word.streak ?? 0) + 1 : 0;
   const learned: 0 | 1 = correct ? (streak >= LEARNT_STREAK ? 1 : word.learned) : 0;
   await db.savedWords.update(word.id, { streak, learned, updatedAt: Date.now() });
+  // Feed the struggle-weighted draw so missed words resurface sooner.
+  await recordDrillResult('word', word.id, correct);
 }
 
 export async function recordRound(
