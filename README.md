@@ -39,11 +39,12 @@ npm run dev       # dev server on :5173 (Pages Functions are mirrored — see be
 npm run build     # tsc typecheck + production build + service worker
 ```
 
-Pages Functions don't run under `vite dev`, so `vite.config.ts` mirrors two of them with
+Pages Functions don't run under `vite dev`, so `vite.config.ts` mirrors three of them with
 dev middleware: `devAccountApi` (in-memory OTP store; the code is returned in the response
-and printed to the terminal) and `devTtsProxy` (pronunciation). Sync (`/api/sync`) is not
-mirrored, so it's a no-op in dev. Keep the mirrors in step with the real Functions. The PWA
-manifest and service worker are only emitted by `npm run build`.
+and printed to the terminal), `devKudosApi` (no mail in dev — the note is printed to the
+terminal) and `devTtsProxy` (pronunciation). Sync (`/api/sync`) is not mirrored, so it's a
+no-op in dev. Keep the mirrors in step with the real Functions. The PWA manifest and
+service worker are only emitted by `npm run build`.
 
 ## Deployment
 
@@ -65,7 +66,9 @@ manifest and service worker are only emitted by `npm run build`.
   dev). Confirm delivery after a deploy: `curl -s -X POST
   https://parcours.pages.dev/api/account -H 'Content-Type: application/json' -d
   '{"action":"request-code","email":"you@example.com"}'` → `{"ok":true}` with no `devCode`
-  means the mail was accepted.
+  means the mail was accepted. The same two secrets also power **kudos**
+  (`functions/api/kudos.ts`): Profile → Settings lets a signed-in learner email a short
+  thank-you note to the developer's inbox.
 
 ## Project layout
 
@@ -76,6 +79,7 @@ scripts/build-lemmas.py      regenerates the lemma tables from the Lefff lexicon
 index.html · vite.config.ts  meta/PWA tags · PWA manifest, dev API mirrors, port
 wrangler.toml                Cloudflare Pages config + KV binding
 functions/api/account.ts     email + OTP sign-in over KV (hashed codes, rate limits, Resend)
+functions/api/kudos.ts       signed-in kudos → email relay to the developer (Resend)
 functions/api/sync/[code].ts server-side sync merge (last-write-wins) over KV
 functions/api/tts.ts          same-origin pronunciation proxy for Google TTS
 public/icons/                app icons ("P" seal); public/lemmas-fr.txt (GENERATED, lazy-loaded)
@@ -133,7 +137,7 @@ displays (the tabs and filter chips themselves carry no counts).
 | `/conjugation/guide/:tense` | one tense's rules, endings, examples, live tables |
 | `/conjugation/verb/:infinitive` | one verb's full conjugation across all 9 tenses |
 | `/conjugation/:tense` | conjugation typing drill (`:tense` is a `TenseKey` or `mixed`) |
-| `/profile` | Profile (email, stats, log out) / Settings (level + audio toggles) tabs |
+| `/profile` | Profile (email, stats, log out) / Settings (level + audio toggles + kudos) tabs |
 | `/signin` | unified email + one-time-code sign-in |
 | `/practice` · `/settings` | legacy redirects → `/conjugation?tab=practice` · `/profile` |
 
@@ -223,7 +227,11 @@ translations and splitting the legacy single `streak` into the per-exercise coun
   when set it drives Home's read-next suggestion and Reading's default filter — exact-level
   match, falling back to all levels when that level is exhausted; stored in synced kv) plus
   three audio toggles (sound effects · read titles aloud · pronounce looked-up words —
-  the latter two device-local in localStorage).
+  the latter two device-local in localStorage), and a **kudos card**: a signed-in learner
+  can email a short thank-you note (≤280 chars) to the developer via `/api/kudos`
+  (`src/lib/kudos.ts`; the Function checks the email has an account, rate-limits, and
+  relays through the same Resend setup as the sign-in codes — guests see the sign-in
+  prompt instead).
 - **Lemmatization** (`lemmatize.ts` + `scripts/build-lemmas.py`) — surface form → dictionary
   lemma. `lemmaOf()` is a synchronous `Map` lookup (self-fallback, never invents a word),
   seeded by a bundled core (`data/lemmas.json`) and augmented by the full Lefff lexicon

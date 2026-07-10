@@ -3,7 +3,9 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../lib/db';
 import { useAuth } from '../components/AuthProvider';
-import { setSfxEnabled, sfxEnabled } from '../lib/sound';
+import { GuestNotice } from '../components/AuthGate';
+import { KUDOS_MAX_LENGTH, sendKudos } from '../lib/kudos';
+import { confirmTock, setSfxEnabled, sfxEnabled } from '../lib/sound';
 import {
   USER_LEVELS,
   lookupSpeechEnabled,
@@ -214,6 +216,81 @@ function SettingsTab() {
           </button>
         ))}
       </div>
+
+      <div className="section-label">Kudos</div>
+      <KudosCard />
     </>
+  );
+}
+
+/**
+ * A short thank-you note to the developer, relayed by email (`/api/kudos`,
+ * same Resend setup as the sign-in codes). Signed-in only — the server checks
+ * the email has an account — so guests get the usual sign-in prompt.
+ */
+function KudosCard() {
+  const { user } = useAuth();
+  const [message, setMessage] = useState('');
+  const [sending, setSending] = useState(false);
+  const [notice, setNotice] = useState('');
+
+  if (!user) {
+    return <GuestNotice message="Sign in with your email to send a short thank-you note to the maker of Parcours." />;
+  }
+  const email = user.email;
+
+  async function handleSend() {
+    const text = message.trim();
+    if (!text || sending) return;
+    setSending(true);
+    setNotice('');
+    try {
+      await sendKudos(email, text);
+      confirmTock();
+      setMessage('');
+      setNotice('Sent — merci ! Your note is on its way.');
+    } catch (err) {
+      setNotice(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+    } finally {
+      setSending(false);
+    }
+  }
+
+  return (
+    <div className="card">
+      <p style={{ margin: '0 0 10px', color: 'var(--ink-soft)', fontFamily: 'var(--sans)', fontSize: 13 }}>
+        Enjoying Parcours? Send a few words to the maker — they land straight in his inbox.
+      </p>
+      <textarea
+        className="text-input kudos-input"
+        value={message}
+        onChange={(e) => {
+          setMessage(e.target.value);
+          setNotice('');
+        }}
+        rows={3}
+        maxLength={KUDOS_MAX_LENGTH}
+        placeholder="Merci pour…"
+        aria-label="Kudos message"
+        disabled={sending}
+      />
+      <div className="kudos-actions">
+        <span className="kudos-count" aria-hidden>
+          {message.length}/{KUDOS_MAX_LENGTH}
+        </span>
+        <button
+          className="btn btn--accent"
+          onClick={() => void handleSend()}
+          disabled={sending || !message.trim()}
+        >
+          {sending ? 'Sending…' : 'Send kudos'}
+        </button>
+      </div>
+      {notice && (
+        <p className="form-notice" role="status">
+          {notice}
+        </p>
+      )}
+    </div>
   );
 }

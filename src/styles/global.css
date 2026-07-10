@@ -881,6 +881,30 @@ a {
   font-size: 13px;
 }
 
+/* Kudos card (Profile → Settings): note to the developer */
+
+.kudos-input {
+  display: block;
+  resize: none;
+  min-height: 88px;
+  line-height: 1.5;
+}
+
+.kudos-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.kudos-count {
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
 .lexicon-search {
   margin: 0 0 12px;
 }

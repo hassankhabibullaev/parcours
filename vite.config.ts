@@ -73,6 +73,56 @@ function devAccountApi(): Plugin {
 }
 
 /**
+ * Kudos relay (functions/api/kudos.ts) is a Cloudflare Pages Function, so it
+ * never runs under `vite dev`. This middleware accepts the POST, prints the
+ * note to the terminal instead of emailing it (no mail in dev), and skips the
+ * account-exists check (the dev account store lives inside devAccountApi).
+ * Keep it in step with functions/api/kudos.ts.
+ */
+function devKudosApi(): Plugin {
+  return {
+    name: "dev-kudos-api",
+    apply: "serve",
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const r = req as {
+          url?: string;
+          method?: string;
+          on: (event: string, cb: (chunk?: unknown) => void) => void;
+        };
+        if (r.url !== "/api/kudos" || r.method !== "POST") return next();
+        const send = (status: number, body: unknown) => {
+          res.statusCode = status;
+          res.setHeader("Content-Type", "application/json");
+          res.end(JSON.stringify(body));
+        };
+        let raw = "";
+        r.on("data", (chunk) => {
+          raw += chunk;
+        });
+        r.on("end", () => {
+          let body: { email?: string; message?: string } = {};
+          try {
+            body = JSON.parse(raw || "{}");
+          } catch {
+            return send(400, { ok: false, error: "Bad request." });
+          }
+          const email = (body.email ?? "").trim().toLowerCase();
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email))
+            return send(400, { ok: false, error: "Sign in with your email to send kudos." });
+          const message = (body.message ?? "").trim();
+          if (!message) return send(400, { ok: false, error: "Write a few words first." });
+          if (message.length > 280)
+            return send(400, { ok: false, error: "Keep it under 280 characters." });
+          server.config.logger.info(`[dev-kudos] from ${email}: ${message}`);
+          return send(200, { ok: true });
+        });
+      });
+    },
+  };
+}
+
+/**
  * The pronunciation proxy (functions/api/tts.ts) is a Cloudflare Pages Function,
  * so it never runs under `vite dev` — the request would fall through to the SPA
  * and the audio element would error, dropping the app to the robotic
@@ -133,6 +183,7 @@ export default defineConfig(({ mode }) => {
       react(),
       devTtsProxy(),
       devAccountApi(),
+      devKudosApi(),
       VitePWA({
         registerType: "autoUpdate",
         includeAssets: ["icons/apple-touch-icon.png"],
