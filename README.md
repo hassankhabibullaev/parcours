@@ -53,13 +53,19 @@ manifest and service worker are only emitted by `npm run build`.
   (the namespace `id` there is a binding identifier, not a secret).
 - Deploy the built app with `wrangler pages deploy dist --project-name=parcours` (it also
   compiles `functions/`). Deploys run on the machine's current Node with wrangler 4.x.
-- **Sign-in email delivery** goes through Resend when the `RESEND_API_KEY` secret is set
-  (`npx wrangler pages secret put RESEND_API_KEY --project-name=parcours`, then redeploy;
-  optional `OTP_FROM` overrides the sender). **Without the key the endpoint returns the code
-  in the response and the client shows it inline** — sign-in keeps working, it just isn't a
-  real email check yet. The same inline fallback also covers a failed send: on Resend's free
-  tier without a verified domain, mail goes out as `onboarding@resend.dev` and only reaches
-  the Resend account owner's own address — anyone else still gets their code inline.
+- **Sign-in email delivery is LIVE through Resend.** Two Pages secrets drive it:
+  `RESEND_API_KEY` (a sending-scoped key) and `OTP_FROM` (the sender, a verified-subdomain
+  address like `Parcours <noreply@mail.example.com>`). Set/rotate either with
+  `npx wrangler pages secret put <NAME> --project-name=parcours`, **then redeploy** so the
+  Function picks it up. The email body is a branded HTML template (`otpEmailHtml()` in
+  `functions/api/account.ts`) matching the app's newspaper-desk look, with a plain-text
+  fallback. **If `RESEND_API_KEY` is ever missing or a send fails, the endpoint falls back to
+  returning the code in the response (`devCode`) and the client shows it inline** — sign-in
+  never breaks. The dev mirror in `vite.config.ts` always uses this inline path (no mail in
+  dev). Confirm delivery after a deploy: `curl -s -X POST
+  https://parcours.pages.dev/api/account -H 'Content-Type: application/json' -d
+  '{"action":"request-code","email":"you@example.com"}'` → `{"ok":true}` with no `devCode`
+  means the mail was accepted.
 
 ## Project layout
 
@@ -245,8 +251,9 @@ translations and splitting the legacy single `streak` into the per-exercise coun
 7. Sign-in is **email + one-time code** — one form for new and existing accounts, no
    passwords; the email hash is the sync key. Reading and conjugation are open to guests;
    everything that writes personal progress is gated behind `requireAuth`
-   (`components/AuthGate.tsx`). Without `RESEND_API_KEY` the server returns the code in the
-   response (shown inline) instead of emailing it.
+   (`components/AuthGate.tsx`). Codes are emailed via Resend (live); if a key is missing or a
+   send fails the server returns the code in the response (shown inline) so sign-in still
+   works.
 8. First-line translations follow one template per part of speech (verbs "to …"); apply it
    wherever translations are produced or stored (`normalizeGloss`), never ad hoc.
 9. Session sizing and streak thresholds live in `practice.ts` as named constants — drills
