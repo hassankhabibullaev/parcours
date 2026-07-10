@@ -67,6 +67,16 @@ export function ProfileIcon({ className }: IconProps) {
   );
 }
 
+/** A left arrow (leave the sign-in page). */
+export function ArrowLeftIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M19.5 12h-15" />
+      <path d="M11 5.5 4.5 12l6.5 6.5" />
+    </svg>
+  );
+}
+
 /** A circled check (mark a word learned). */
 export function CheckCircleIcon({ className }: IconProps) {
   return (

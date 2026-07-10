@@ -6,12 +6,7 @@ import { lookup } from '../lib/dictionary';
 import { searchDictionary } from '../lib/dictionarySearch';
 import { deleteSavedWord } from '../lib/db';
 import { canSpeak, speakFrench } from '../lib/speech';
-import {
-  LEARNT_STREAKS,
-  blankStreakOf,
-  matchStreakOf,
-  promotionProgress,
-} from '../lib/practice';
+import { LEARNT_STREAKS, blankStreakOf, matchStreakOf } from '../lib/practice';
 import SectionTabs from '../components/SectionTabs';
 import VocabDrills from '../components/VocabDrills';
 import WordModal, { type LookupRequest } from '../components/WordModal';
@@ -172,7 +167,10 @@ function LearnTab() {
 
   function wordRow(w: SavedWord) {
     const editing = editingId === w.id;
-    const dotsOn = Math.round(promotionProgress(w) * LEARNT_STREAKS.match);
+    // One dot per required consecutive correct answer, split by exercise:
+    // 3 green for Word Match, 2 blue for Fill in the Blank.
+    const matchOn = Math.min(matchStreakOf(w), LEARNT_STREAKS.match);
+    const blankOn = Math.min(blankStreakOf(w), LEARNT_STREAKS.blank);
     return (
       <div key={w.id} className={`word-row${w.learned ? ' word-row--learned' : ''}`}>
         {editing ? (
@@ -240,10 +238,19 @@ function LearnTab() {
             {!w.learned && (
               <span
                 className="word-dots"
-                title={`Word Match ${Math.min(matchStreakOf(w), LEARNT_STREAKS.match)}/${LEARNT_STREAKS.match} · Fill in the Blank ${Math.min(blankStreakOf(w), LEARNT_STREAKS.blank)}/${LEARNT_STREAKS.blank}`}
+                title={`Word Match ${matchOn}/${LEARNT_STREAKS.match} · Fill in the Blank ${blankOn}/${LEARNT_STREAKS.blank}`}
               >
                 {Array.from({ length: LEARNT_STREAKS.match }, (_, i) => (
-                  <span key={i} className={`word-dot${i < dotsOn ? ' word-dot--on' : ''}`} />
+                  <span
+                    key={`m${i}`}
+                    className={`word-dot word-dot--match${i < matchOn ? ' word-dot--on' : ''}`}
+                  />
+                ))}
+                {Array.from({ length: LEARNT_STREAKS.blank }, (_, i) => (
+                  <span
+                    key={`b${i}`}
+                    className={`word-dot word-dot--blank${i < blankOn ? ' word-dot--on' : ''}`}
+                  />
                 ))}
               </span>
             )}

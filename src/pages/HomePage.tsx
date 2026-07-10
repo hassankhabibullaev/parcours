@@ -41,7 +41,13 @@ export default function HomePage() {
 
   return (
     <>
-      <div className="section-label">Read next</div>
+      <h2 className="page-heading">Home</h2>
+
+      {/* Zero the label's own top margin so the first section sits as close
+          under the heading as the tab row does on the other pages. */}
+      <div className="section-label" style={{ marginTop: 0 }}>
+        Read next
+      </div>
       {nextArticle ? (
         <div className="card card--flag">
           <div style={{ marginBottom: 4 }}>

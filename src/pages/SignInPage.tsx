@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../components/AuthProvider';
 import { AuthError, isValidEmail } from '../lib/auth';
+import { ArrowLeftIcon } from '../components/icons';
 
 const RESEND_COOLDOWN_S = 30;
 
@@ -96,6 +97,17 @@ export default function SignInPage() {
 
   return (
     <div className="auth-screen">
+      {/* The way back out — sign-in is always optional, so the arrow returns
+          to wherever the learner came from (guest mode included). */}
+      <button
+        type="button"
+        className="auth-back"
+        onClick={() => navigate(from, { replace: true })}
+        aria-label="Go back"
+        title="Go back"
+      >
+        <ArrowLeftIcon />
+      </button>
       <div className="auth-card">
         <div className="auth-brand">
           <img className="auth-brand__logo" src="/icons/icon-192.png" alt="" />
@@ -170,30 +182,23 @@ export default function SignInPage() {
           </button>
         </form>
 
-        <div className="auth-alt">
-          {step === 'code' && (
-            <>
-              <button
-                type="button"
-                className="auth-link"
-                disabled={cooldown > 0 || busy}
-                onClick={() => void sendCode()}
-              >
-                {cooldown > 0 ? `Resend code (${cooldown}s)` : 'Resend code'}
-              </button>
-              <button type="button" className="auth-link" onClick={changeEmail}>
-                Use a different email
-              </button>
-            </>
-          )}
-          <button
-            type="button"
-            className="auth-link auth-guest"
-            onClick={() => navigate(from, { replace: true })}
-          >
-            Continue browsing without an account
-          </button>
-        </div>
+        {step === 'code' && (
+          <div className="auth-alt">
+            {/* The seconds are zero-padded and tabular so the label keeps one
+                width for the whole countdown — nothing shifts as it ticks. */}
+            <button
+              type="button"
+              className="auth-link"
+              disabled={cooldown > 0 || busy}
+              onClick={() => void sendCode()}
+            >
+              {cooldown > 0 ? `Resend code (${String(cooldown).padStart(2, '0')}s)` : 'Resend code'}
+            </button>
+            <button type="button" className="auth-link" onClick={changeEmail}>
+              Use a different email
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -108,14 +108,6 @@ export const MISS_RUN_RESET = 2;
 export const matchStreakOf = (w: SavedWord): number => w.matchStreak ?? w.streak ?? 0;
 export const blankStreakOf = (w: SavedWord): number => w.blankStreak ?? 0;
 
-/** 0..1 progress toward automatic promotion — the closer of the two tracks. */
-export function promotionProgress(w: SavedWord): number {
-  return Math.min(
-    1,
-    Math.max(matchStreakOf(w) / LEARNT_STREAKS.match, blankStreakOf(w) / LEARNT_STREAKS.blank),
-  );
-}
-
 /**
  * Update a word's learning progress after one practice answer.
  *

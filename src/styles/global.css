@@ -367,26 +367,10 @@ a {
   box-shadow: 0 1px 2px rgba(33, 29, 22, 0.12);
 }
 
-/* Count pill riding along in a tab label (« Unread 34 »). */
-.seg-tab__count {
-  min-width: 20px;
-  padding: 1px 7px;
-  border-radius: 999px;
-  background: var(--paper-sunken);
-  color: var(--ink-soft);
-  font-size: 12px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-
-.seg-tab--active .seg-tab__count {
-  background: var(--accent);
-  color: var(--paper-raised);
-}
-
-/* Per-level article counts under the Reading tabs (A1: 5, B2: 12). The row must
-   stay on ONE line — the chips size down to fit, and if a viewport is ever too
-   narrow for all of them, the row scrolls sideways rather than wrapping. */
+/* Per-level filter chips under the Reading tabs (also the lexicon's shelf
+   pills). The row must stay on ONE line — the chips size down to fit, and if a
+   viewport is ever too narrow for all of them, the row scrolls sideways rather
+   than wrapping. */
 .level-counts {
   display: flex;
   flex-wrap: nowrap;
@@ -1239,7 +1223,9 @@ a {
   font-size: 13px;
 }
 
-/* Progress dots — correct answers in a row, toward auto-promotion. */
+/* Progress dots — one per consecutive correct answer required to graduate:
+   3 for Word Match, 2 for Fill in the Blank. Each group wears its drill's
+   identity color (VOCAB_THEMES in lib/vocabThemes.ts — keep in step). */
 .word-dots {
   display: inline-flex;
   gap: 3px;
@@ -1255,9 +1241,19 @@ a {
   border: 1px solid var(--rule-strong);
 }
 
-.word-dot--on {
-  background: var(--level-a1);
-  border-color: var(--level-a1);
+/* A breath between the two exercise groups. */
+.word-dot--match + .word-dot--blank {
+  margin-left: 4px;
+}
+
+.word-dot--match.word-dot--on {
+  background: #5b9438;
+  border-color: #5b9438;
+}
+
+.word-dot--blank.word-dot--on {
+  background: #5d8fbe;
+  border-color: #5d8fbe;
 }
 
 /* ——— Vocabulary · practice stage ——— */
@@ -2449,11 +2445,34 @@ a {
 /* ——— Sign-in gate ——— */
 
 .auth-screen {
+  position: relative;
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: calc(env(safe-area-inset-top) + 24px) 18px calc(env(safe-area-inset-bottom) + 24px);
+}
+
+/* Top-left arrow out of the full-screen sign-in — back to browsing as a guest. */
+.auth-back {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + 14px);
+  left: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.auth-back svg {
+  width: 24px;
+  height: 24px;
 }
 
 .auth-card {
@@ -2536,14 +2555,15 @@ a {
   margin-top: 18px;
 }
 
-/* Below-the-form links: resend, change email, keep browsing. */
+/* Below-the-form links on the code step: resend (left) · change email (right).
+   One fixed row — each link is anchored to its own edge so the ticking
+   countdown can't push anything around. */
 .auth-alt {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
   margin-top: 20px;
-  text-align: center;
 }
 
 .auth-link {
@@ -2552,6 +2572,7 @@ a {
   background: none;
   font-family: var(--sans);
   font-size: 14px;
+  font-variant-numeric: tabular-nums;
   color: var(--accent-deep);
   cursor: pointer;
   text-decoration: underline;
@@ -2561,13 +2582,6 @@ a {
 .auth-link:disabled {
   color: var(--ink-faint);
   cursor: default;
-}
-
-/* "Continue browsing without an account" — the escape hatch back to guest mode. */
-.auth-guest {
-  margin-top: 4px;
-  color: var(--ink-soft);
-  text-decoration-color: var(--rule-strong);
 }
 
 .auth-help {

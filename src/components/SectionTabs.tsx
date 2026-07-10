@@ -1,7 +1,6 @@
 export interface SectionTabDef<K extends string> {
   key: K;
   label: string;
-  count?: number;
 }
 
 interface SectionTabsProps<K extends string> {
@@ -33,7 +32,6 @@ export default function SectionTabs<K extends string>({
           onClick={() => onSelect(t.key)}
         >
           {t.label}
-          {t.count !== undefined && <span className="seg-tab__count">{t.count}</span>}
         </button>
       ))}
     </div>

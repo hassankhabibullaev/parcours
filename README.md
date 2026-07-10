@@ -54,11 +54,12 @@ manifest and service worker are only emitted by `npm run build`.
 - Deploy the built app with `wrangler pages deploy dist --project-name=parcours` (it also
   compiles `functions/`). Deploys run on the machine's current Node with wrangler 4.x.
 - **Sign-in email delivery** goes through Resend when the `RESEND_API_KEY` secret is set
-  (`npx wrangler pages secret put RESEND_API_KEY --project-name=parcours`; optional
-  `OTP_FROM` overrides the sender). **Without the key the endpoint returns the code in the
-  response and the client shows it inline** — sign-in keeps working, it just isn't a real
-  email check yet. The data behind an account is non-sensitive learning progress, so this is
-  an accepted interim state; add the key to turn on real delivery.
+  (`npx wrangler pages secret put RESEND_API_KEY --project-name=parcours`, then redeploy;
+  optional `OTP_FROM` overrides the sender). **Without the key the endpoint returns the code
+  in the response and the client shows it inline** — sign-in keeps working, it just isn't a
+  real email check yet. The same inline fallback also covers a failed send: on Resend's free
+  tier without a verified domain, mail goes out as `onboarding@resend.dev` and only reaches
+  the Resend account owner's own address — anyone else still gets their code inline.
 
 ## Project layout
 
@@ -111,8 +112,10 @@ src/
 auth wall** — signed-out users land on the app; `SignInPage` redirects back to where they
 came from on success (and if an already-signed-in user lands there).
 
-Every non-Home section follows one layout template: **section name header → two tabs →
-content** (`components/SectionTabs.tsx`).
+Every section opens with its name as a page heading; the non-Home sections then follow one
+layout template: **section name header → two tabs → content** (`components/SectionTabs.tsx`).
+Reading shows a small "N articles" line for whatever the tab + level filter currently
+displays (the tabs and filter chips themselves carry no counts).
 
 | Path | Page |
 |---|---|
@@ -188,7 +191,9 @@ translations and splitting the legacy single `streak` into the per-exercise coun
   shows its short translation inline and opens the article-style `WordModal` with an
   add action) and the lexicon (All/Learning/Learned pill filters; tapping a word opens the
   same modal fed from its stored content, no add action; the first-line translation is
-  inline-editable). **Practice**: the three drills. Translations follow **one template per
+  inline-editable). A learning word's row carries five progress dots — one per required
+  consecutive correct answer: 3 green (Word Match) + 2 blue (Fill in the Blank), lit from
+  the per-exercise streaks. **Practice**: the three drills. Translations follow **one template per
   part of speech** (`normalizeGloss` in `dictionary.ts`: verbs always "to …", qualifiers
   stripped, first sense only), applied at fetch time and to stored words by migration.
 - **Practice rules** (`practice.ts`) — every drill needs **5 words** in its pool.

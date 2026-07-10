@@ -153,8 +153,8 @@ export default function ReadingPage() {
       <SectionTabs<Tab>
         ariaLabel="Reading list"
         tabs={[
-          { key: 'unread', label: 'Not read', count: unread.length },
-          { key: 'read', label: 'Read', count: read.length },
+          { key: 'unread', label: 'Not read' },
+          { key: 'read', label: 'Read' },
         ]}
         active={tab}
         onSelect={setTab}
@@ -167,7 +167,7 @@ export default function ReadingPage() {
           aria-pressed={level === 'all'}
           onClick={() => pickLevel('all')}
         >
-          All <span className="level-count__n">{shown.length}</span>
+          All
         </button>
         {levelCounts.map(({ level: lvl, n }) => (
           <button
@@ -178,9 +178,13 @@ export default function ReadingPage() {
             onClick={() => pickLevel(level === lvl ? 'all' : lvl)}
           >
             <span className="level-count__dot" style={{ ['--lc' as string]: levelColor(lvl) }} />
-            {lvl}: <span className="level-count__n">{n}</span>
+            {lvl}
           </button>
         ))}
+      </div>
+
+      <div className="section-label">
+        {visible.length} {visible.length === 1 ? 'article' : 'articles'}
       </div>
 
       {visible.length > 0 ? (
