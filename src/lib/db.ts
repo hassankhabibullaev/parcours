@@ -19,11 +19,23 @@ export interface SavedWord {
   articleId: number | null;
   learned: 0 | 1;
   /**
-   * Consecutive correct practice answers — drives the automatic move between
-   * the still-learning and learnt shelves. Not indexed; absent on records
-   * created before it existed (read as 0).
+   * Legacy single correct-streak counter (pre per-exercise split). Migrated
+   * into matchStreak on first load (lib/migrate.ts); kept only so old synced
+   * records still parse.
    */
   streak?: number;
+  /**
+   * Per-exercise progression, driving the automatic move to the learnt shelf:
+   * Word Match / Remember? promote at 3 consecutive correct, Fill in the
+   * Blank at 2 — two independent counters (hitting either promotes). A single
+   * miss is forgiven; a streak only resets (and a learnt word only demotes)
+   * after two consecutive misses, tracked by the missRun counters.
+   * None are indexed; absent on old records (read as 0).
+   */
+  matchStreak?: number;
+  matchMissRun?: number;
+  blankStreak?: number;
+  blankMissRun?: number;
   addedAt: number;
   updatedAt: number;
 }

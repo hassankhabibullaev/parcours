@@ -2,8 +2,11 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import type { SavedWord } from '../lib/db';
 import {
-  drawPracticeWords,
+  MIN_PRACTICE_WORDS,
+  blankSessionCount,
+  drawFromPool,
   gradeAnswer,
+  loadPracticePool,
   recordRound,
   recordWordResult,
   type AnswerGrade,
@@ -17,13 +20,18 @@ import DrillTopline from '../components/DrillTopline';
 import DrillResults from '../components/DrillResults';
 import SoundPill from '../components/SoundPill';
 
-const ROUND_SIZE = 10;
+const BACK_TO = '/vocabulary?tab=practice';
 const ACCENT_KEYS = ['à', 'é', 'è', 'ê', 'î', 'û', 'ç'];
+
+/** Auto-advance delay after a correct session; longer when a base-form or
+    accent note is on screen so the learner can actually read it. */
+const ADVANCE_MS = 900;
+const ADVANCE_NOTE_MS = 1700;
 
 /**
  * Where the word sits in its saved sentence. Non-null only for words saved
  * from an article whose sentence still contains the form the learner met —
- * those get the fill-in-the-blank exercise; everything else (dictionary-search
+ * those get the fill-in-the-blank exercise; everything else (word-lookup
  * adds have `sentence: ''`) gets the translate exercise.
  */
 interface SentenceSplit {
@@ -70,16 +78,25 @@ interface Miss {
   user: string;
 }
 
+/**
+ * Fill in the Blank — one word per session, `sessions = clamp(pool, 5, 10)`.
+ * A wrong answer never shows the solution outright: the learner retries as
+ * often as they like, with a separate « Reveal answer » escape hatch. A
+ * correct session auto-advances after a short frozen pause.
+ */
 export default function PracticePage() {
   const { user } = useAuth();
   const [words, setWords] = useState<SavedWord[] | null>(null);
+  const [poolSize, setPoolSize] = useState(0);
   const [index, setIndex] = useState(0);
   const [value, setValue] = useState('');
   const [verdict, setVerdict] = useState<Verdict | null>(null);
+  const [attempted, setAttempted] = useState(false);
+  const [answerRevealed, setAnswerRevealed] = useState(false);
   const [score, setScore] = useState(0);
   const [missed, setMissed] = useState<Miss[]>([]);
   const [finished, setFinished] = useState(false);
-  const [revealed, setRevealed] = useState(false);
+  const [hintShown, setHintShown] = useState(false);
   const [typed, setTyped] = useState('');
   const [rendering, setRendering] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -92,15 +109,26 @@ export default function PracticePage() {
     setIndex(0);
     setValue('');
     setVerdict(null);
+    setAttempted(false);
+    setAnswerRevealed(false);
     setScore(0);
     setMissed([]);
     setFinished(false);
-    setRevealed(false);
+    setHintShown(false);
+  }
+
+  async function draw(): Promise<{ pool: number; drawn: SavedWord[] }> {
+    const pool = await loadPracticePool({ requireTranslation: true });
+    const sessions = blankSessionCount(pool.length);
+    const drawn = sessions > 0 ? await drawFromPool(pool, sessions) : [];
+    return { pool: pool.length, drawn };
   }
 
   async function start() {
     reset();
-    setWords(await drawPracticeWords(ROUND_SIZE, { requireTranslation: true }));
+    const { pool, drawn } = await draw();
+    setPoolSize(pool);
+    setWords(drawn);
   }
 
   useEffect(() => {
@@ -108,8 +136,10 @@ export default function PracticePage() {
     // late resolve can't swap the word list mid-round.
     let cancelled = false;
     reset();
-    drawPracticeWords(ROUND_SIZE, { requireTranslation: true }).then((drawn) => {
-      if (!cancelled) setWords(drawn);
+    draw().then(({ pool, drawn }) => {
+      if (cancelled) return;
+      setPoolSize(pool);
+      setWords(drawn);
     });
     return () => {
       cancelled = true;
@@ -151,26 +181,42 @@ export default function PracticePage() {
     return () => window.clearInterval(timer);
   }, [word, finished]);
 
+  const grade = verdict?.grade ?? null;
+  const solved = grade === 'correct' || grade === 'accents';
+
+  /* A correct session advances on its own after a short pause; the input is
+     read-only by then and the action button renders disabled. */
+  useEffect(() => {
+    if (finished || !solved) return;
+    const note = verdict?.baseForm || grade === 'accents';
+    const timer = window.setTimeout(() => next(), note ? ADVANCE_NOTE_MS : ADVANCE_MS);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [solved, finished]);
+
   if (!user) {
     return (
       <>
-        <DrillHeader title="Fill in the Blank" backTo="/practice?tab=vocabulary" backLabel="Practice" />
-        <GuestNotice message="Log in or create a free account to save words and practise them here." />
+        <DrillHeader title="Fill in the Blank" backTo={BACK_TO} backLabel="Vocabulary" />
+        <GuestNotice message="Sign in with your email to save words and practise them here." />
       </>
     );
   }
 
-  if (!words) return <DrillHeader title="Fill in the Blank" backTo="/practice?tab=vocabulary" backLabel="Practice" />;
+  if (!words) return <DrillHeader title="Fill in the Blank" backTo={BACK_TO} backLabel="Vocabulary" />;
 
   const total = words.length;
   if (total === 0) {
     return (
       <>
-        <DrillHeader title="Fill in the Blank" backTo="/practice?tab=vocabulary" backLabel="Practice" />
+        <DrillHeader title="Fill in the Blank" backTo={BACK_TO} backLabel="Vocabulary" />
         <div className="card">
-          <p style={{ margin: '0 0 12px' }}>
-            Nothing to practise yet — save words while you read, or add them from the dictionary
-            search.
+          <p style={{ margin: '0 0 6px' }}>
+            Fill in the Blank opens once you have {MIN_PRACTICE_WORDS} words in your learning pile
+            — you have {poolSize} so far.
+          </p>
+          <p style={{ margin: '0 0 12px', color: 'var(--ink-soft)' }}>
+            Save words while you read, or add them from the word lookup.
           </p>
           <Link className="btn btn--accent" to="/reading">
             Open the library
@@ -183,7 +229,7 @@ export default function PracticePage() {
   if (finished) {
     return (
       <>
-        <DrillHeader title="Fill in the Blank" backTo="/practice?tab=vocabulary" backLabel="Practice" />
+        <DrillHeader title="Fill in the Blank" backTo={BACK_TO} backLabel="Vocabulary" />
         <div style={themeVars}>
           <DrillResults
             score={score}
@@ -205,22 +251,23 @@ export default function PracticePage() {
   }
 
   if (!word) return null;
-  const grade = verdict?.grade ?? null;
   const isLast = index + 1 >= total;
-  const progressPct = ((index + (verdict ? 1 : 0)) / total) * 100;
+  const done = solved || answerRevealed;
+  const progressPct = ((index + (done ? 1 : 0)) / total) * 100;
 
   function check() {
     if (!word) return;
     const v = gradeInput(value, word);
     setVerdict(v);
-    void recordWordResult(word, v.grade !== 'wrong');
-    if (v.grade === 'wrong') {
-      setMissed((m) => [...m, { word, user: value.trim() }]);
-      errorBuzz();
-    } else {
-      setScore((s) => s + 1);
-      successChime();
+    if (!attempted) {
+      // Score, the review list and the learning streak only count the first attempt.
+      setAttempted(true);
+      void recordWordResult(word, v.grade !== 'wrong', 'blank');
+      if (v.grade === 'wrong') setMissed((m) => [...m, { word, user: value.trim() }]);
+      else setScore((s) => s + 1);
     }
+    if (v.grade === 'wrong') errorBuzz();
+    else successChime();
   }
 
   function next() {
@@ -231,20 +278,28 @@ export default function PracticePage() {
       setIndex((i) => i + 1);
       setValue('');
       setVerdict(null);
-      setRevealed(false);
+      setAttempted(false);
+      setAnswerRevealed(false);
+      setHintShown(false);
     }
+  }
+
+  function reveal() {
+    setAnswerRevealed(true);
+    setVerdict((v) => v ?? { grade: 'wrong', baseForm: false });
   }
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (verdict !== null) next();
+    if (solved) return; // auto-advance owns the transition
+    if (answerRevealed) next();
     else if (!rendering && value.trim()) check();
   }
 
   /** Insert an accented character at the caret of the input. */
   function insertAccent(ch: string) {
     const el = inputRef.current;
-    if (!el || verdict !== null) return;
+    if (!el || done) return;
     const start = el.selectionStart ?? el.value.length;
     const end = el.selectionEnd ?? start;
     setValue((v) => v.slice(0, start) + ch + v.slice(end));
@@ -255,9 +310,16 @@ export default function PracticePage() {
     });
   }
 
+  const inputLocked = done;
+  const showWrongState = grade === 'wrong';
+
   return (
-    <div className="conj-drill" style={themeVars}>
-      <DrillTopline backTo="/practice?tab=vocabulary" backLabel="Practice" title="Fill in the Blank">
+    <div
+      className="conj-drill"
+      style={solved ? { ...themeVars, pointerEvents: 'none' } : themeVars}
+      aria-busy={solved}
+    >
+      <DrillTopline backTo={BACK_TO} backLabel="Vocabulary" title="Fill in the Blank">
         <span className="hud-pill hud-pill--live" key={`score-${score}`}>
           ✓ <strong>{score}</strong>
         </span>
@@ -280,21 +342,17 @@ export default function PracticePage() {
             <p className="vocab-sentence">
               {split.before}
               <span
-                className={`vocab-blank${verdict ? ` vocab-blank--filled vocab-blank--${verdict.grade}` : ''}`}
+                className={`vocab-blank${done ? ` vocab-blank--filled vocab-blank--${solved ? grade : 'revealed'}` : ''}`}
               >
-                {verdict ? split.found : ''}
+                {done ? split.found : ''}
               </span>
               {split.after}
             </p>
-            {revealed ? (
+            {hintShown ? (
               <p className="vocab-hint">« {word.translation} »</p>
             ) : (
-              <button
-                type="button"
-                className="vocab-reveal"
-                onClick={() => setRevealed(true)}
-              >
-                Show translation
+              <button type="button" className="vocab-reveal" onClick={() => setHintShown(true)}>
+                Show hint in English
               </button>
             )}
           </>
@@ -311,13 +369,17 @@ export default function PracticePage() {
               ref={inputRef}
               className={`conj-input${grade ? ` conj-input--${grade}` : ''}`}
               value={value}
-              onChange={(e) => setValue(e.target.value)}
+              onChange={(e) => {
+                setValue(e.target.value);
+                // Typing again after a miss clears the wrong stamp — a fresh try.
+                if (verdict?.grade === 'wrong' && !answerRevealed) setVerdict(null);
+              }}
               onKeyDown={(e) => {
                 if (e.key.length === 1 || e.key === 'Backspace') keyClick();
               }}
               onFocus={() => setFocused(true)}
               onBlur={() => setFocused(false)}
-              readOnly={verdict !== null}
+              readOnly={inputLocked}
               placeholder="en français…"
               aria-label={split ? 'The missing word' : `French for “${word.translation}”`}
               autoCapitalize="none"
@@ -331,7 +393,9 @@ export default function PracticePage() {
                 {grade === 'wrong' ? '✕' : '✓'}
               </span>
             )}
-            {(grade === 'wrong' || grade === 'accents') && (
+            {/* The correct answer appears only when earned (accent nudge) or
+                explicitly requested — never as a side effect of being wrong. */}
+            {(grade === 'accents' || answerRevealed) && (
               <span
                 className={`conj-field__tag${grade === 'accents' ? ' conj-field__tag--soft' : ''}`}
               >
@@ -340,25 +404,23 @@ export default function PracticePage() {
             )}
           </div>
 
-          {verdict?.baseForm && grade !== 'wrong' && (
+          {verdict?.baseForm && solved && (
             <p className="feedback feedback--accents">
               Right word, but that’s the base form — here it was <strong>{word.display}</strong>
             </p>
           )}
-          {grade === 'wrong' && word.lemma !== word.display.toLowerCase() && (
+          {answerRevealed && word.lemma !== word.display.toLowerCase() && (
             <p className="feedback feedback--wrong">Base form: {word.lemma}</p>
           )}
 
-          <div
-            className={`conj-accents${!focused || verdict !== null ? ' conj-accents--dim' : ''}`}
-          >
+          <div className={`conj-accents${!focused || done ? ' conj-accents--dim' : ''}`}>
             <span className="conj-accents__lbl">Accents</span>
             {ACCENT_KEYS.map((ch) => (
               <button
                 type="button"
                 className="accent-key"
                 key={ch}
-                disabled={verdict !== null}
+                disabled={done}
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => insertAccent(ch)}
               >
@@ -368,18 +430,30 @@ export default function PracticePage() {
           </div>
 
           <div className="conj-actions">
-            {verdict === null ? (
-              <button
-                className="btn btn--primary"
-                type="submit"
-                disabled={rendering || !value.trim()}
-              >
-                Check <span className="kbd-hint">⏎</span>
+            {solved ? (
+              <button className="btn btn--accent" type="button" disabled>
+                {isLast ? 'Finish' : 'Next →'}
               </button>
-            ) : (
+            ) : answerRevealed ? (
               <button className="btn btn--accent" type="submit" autoFocus>
                 {isLast ? 'Finish' : 'Next →'} <span className="kbd-hint">⏎</span>
               </button>
+            ) : (
+              <>
+                <button
+                  className="btn btn--primary"
+                  type="submit"
+                  disabled={rendering || !value.trim()}
+                >
+                  {showWrongState || attempted ? 'Check again' : 'Check'}{' '}
+                  <span className="kbd-hint">⏎</span>
+                </button>
+                {attempted && (
+                  <button className="btn btn--ghost" type="button" onClick={reveal}>
+                    Reveal answer
+                  </button>
+                )}
+              </>
             )}
           </div>
         </form>

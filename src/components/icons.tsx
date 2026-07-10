@@ -45,25 +45,24 @@ export function LexiconIcon({ className }: IconProps) {
   );
 }
 
-/** A target / bullseye (practice — take aim at what needs work). */
-export function PracticeIcon({ className }: IconProps) {
+/** A conjugation table — header row, pronoun column, form cells. */
+export function ConjugationIcon({ className }: IconProps) {
   return (
     <svg {...base} className={className}>
-      <circle cx="12" cy="12" r="8.5" />
-      <circle cx="12" cy="12" r="4.5" />
-      <circle cx="12" cy="12" r="0.9" fill="currentColor" stroke="none" />
+      <rect x="4" y="4.5" width="16" height="15" rx="2" />
+      <path d="M4 9.5h16" />
+      <path d="M10 9.5v10" />
+      <path d="M13 14.5h4" />
     </svg>
   );
 }
 
-/** Sliders (settings). */
-export function SettingsIcon({ className }: IconProps) {
+/** A person (profile). */
+export function ProfileIcon({ className }: IconProps) {
   return (
     <svg {...base} className={className}>
-      <path d="M4 7.5h8M16.5 7.5H20" />
-      <circle cx="14.5" cy="7.5" r="2.2" />
-      <path d="M4 16.5h3.5M12 16.5h8" />
-      <circle cx="9.5" cy="16.5" r="2.2" />
+      <circle cx="12" cy="8.4" r="3.7" />
+      <path d="M5.2 19.6c1-3.6 3.6-5.4 6.8-5.4s5.8 1.8 6.8 5.4" />
     </svg>
   );
 }
@@ -96,15 +95,6 @@ export function TrashIcon({ className }: IconProps) {
       <path d="M9.5 6.5V4.9a1.4 1.4 0 0 1 1.4-1.4h2.2a1.4 1.4 0 0 1 1.4 1.4v1.6" />
       <path d="m6.5 6.5.9 12.6a1.5 1.5 0 0 0 1.5 1.4h6.2a1.5 1.5 0 0 0 1.5-1.4l.9-12.6" />
       <path d="M10 10.5v6M14 10.5v6" />
-    </svg>
-  );
-}
-
-/** A plus (add to vocabulary). */
-export function PlusIcon({ className }: IconProps) {
-  return (
-    <svg {...base} className={className}>
-      <path d="M12 5.5v13M5.5 12h13" />
     </svg>
   );
 }

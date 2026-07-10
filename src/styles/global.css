@@ -74,7 +74,7 @@ a {
   position: sticky;
   top: 0;
   z-index: 30;
-  padding: calc(env(safe-area-inset-top) + 14px) 16px 10px;
+  padding: calc(env(safe-area-inset-top) + 8px) 16px 6px;
   text-align: center;
   border-bottom: 1px solid var(--rule-strong);
   box-shadow: 0 3px 0 -2px var(--rule);
@@ -101,7 +101,7 @@ a {
 .masthead__title {
   margin: 0;
   color: var(--ink);
-  font-size: 30px;
+  font-size: 20px;
   font-weight: 700;
   letter-spacing: 0.09em;
   text-transform: uppercase;
@@ -110,7 +110,7 @@ a {
 .masthead__title a {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   text-decoration: none;
 }
 
@@ -118,16 +118,16 @@ a {
 .masthead__title a::before,
 .masthead__title a::after {
   content: '';
-  width: 24px;
+  width: 20px;
   height: 5px;
   border-top: 1px solid var(--rule-strong);
   border-bottom: 1px solid var(--rule-strong);
 }
 
 .masthead__logo {
-  width: 30px;
-  height: 30px;
-  border-radius: 7px;
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
 }
 
 /* ——— Page frame ——— */
@@ -141,16 +141,9 @@ a {
 }
 
 .page-heading {
-  margin: 0 0 4px;
+  margin: 0 0 14px;
   font-size: 24px;
   line-height: 1.2;
-}
-
-.page-subheading {
-  margin: 0 0 18px;
-  color: var(--ink-soft);
-  font-size: 15px;
-  font-style: italic;
 }
 
 .section-label {
@@ -918,11 +911,20 @@ a {
   overflow: hidden;
 }
 
+/* Each result is one tappable row: the short translation shows inline, the
+   tap opens the same word modal as in articles (with the add action). */
 .dict-result {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 8px 8px 14px;
+  width: 100%;
+  padding: 10px 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dict-result:active {
+  background: var(--paper-sunken);
 }
 
 .dict-result + .dict-result {
@@ -960,6 +962,10 @@ a {
   white-space: nowrap;
 }
 
+.dict-result__loading {
+  color: var(--ink-faint);
+}
+
 /* ——— Flat icon buttons ——— */
 
 .icon-btn {
@@ -983,10 +989,6 @@ a {
 
 .icon-btn:disabled {
   opacity: 0.4;
-}
-
-.icon-btn--add {
-  color: var(--accent-deep);
 }
 
 .icon-btn--learned {
@@ -1025,6 +1027,21 @@ a {
 .word-row__main {
   flex: 1;
   min-width: 0;
+}
+
+/* The word itself is tappable (opens the detail modal) — keep the text layout
+   of the plain row, just make the hit area honest. */
+.word-row__main--tap {
+  display: block;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 8px;
+  margin: -2px -6px;
+  padding: 2px 6px;
+}
+
+.word-row__main--tap:active {
+  background: var(--paper-sunken);
 }
 
 .word-row__word {
@@ -1267,7 +1284,8 @@ a {
 }
 
 .vocab-blank--correct,
-.vocab-blank--wrong {
+.vocab-blank--wrong,
+.vocab-blank--revealed {
   color: var(--level-a1);
   border-color: var(--level-a1);
 }
@@ -1463,6 +1481,21 @@ a {
   width: 100%;
 }
 
+/* A drill below its word minimum: visibly parked, not tappable. */
+.drill-card--locked {
+  opacity: 0.55;
+  filter: grayscale(0.5);
+  cursor: default;
+}
+
+@media (hover: hover) {
+  .drill-card--locked:hover {
+    transform: none;
+    box-shadow: 0 1px 2px rgba(33, 29, 22, 0.06);
+    border-color: var(--rule);
+  }
+}
+
 @media (max-width: 520px) {
   .tense-row,
   .drill-grid {
@@ -1475,6 +1508,253 @@ a {
   .drill-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ——— Conjugation · Learn tab (rules + verb reference) ——— */
+
+.learn-list {
+  background: var(--paper-raised);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.learn-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 14px;
+  text-decoration: none;
+}
+
+.learn-row + .learn-row {
+  border-top: 1px solid var(--rule);
+}
+
+.learn-row:active {
+  background: var(--paper-sunken);
+}
+
+.learn-row__dot {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--tc, var(--ink-faint));
+}
+
+.learn-row__title {
+  font-size: 16px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.learn-row__sub {
+  flex: 1;
+  min-width: 0;
+  color: var(--ink-soft);
+  font-size: 13px;
+  font-style: italic;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.learn-row__chev {
+  color: var(--ink-faint);
+}
+
+/* ——— Conjugation · tense guide ——— */
+
+.guide-usage {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 15.5px;
+  line-height: 1.6;
+}
+
+.guide-usage li + li {
+  margin-top: 4px;
+}
+
+.guide-usage--traps {
+  font-size: 14.5px;
+}
+
+.guide-formation {
+  border-left: 3px solid var(--tc, var(--accent));
+  font-size: 15.5px;
+  font-style: italic;
+}
+
+.guide-endings {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.guide-endings__row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.guide-endings__label {
+  color: var(--ink-soft);
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.guide-endings__forms {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.guide-endings__chip {
+  padding: 2px 8px;
+  border: 1px solid var(--tc, var(--rule-strong));
+  border-radius: 7px;
+  background: var(--tc-wash, var(--paper-raised));
+  color: var(--tc, var(--ink));
+  font-size: 14px;
+  font-weight: 600;
+  font-style: italic;
+}
+
+.guide-example {
+  margin: 0 0 10px;
+}
+
+.guide-example__fr {
+  display: block;
+  font-size: 17px;
+  font-style: italic;
+  font-weight: 600;
+}
+
+.guide-example__en {
+  display: block;
+  color: var(--ink-soft);
+  font-family: var(--sans);
+  font-size: 13px;
+}
+
+.guide-tables {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+@media (max-width: 480px) {
+  .guide-tables {
+    grid-template-columns: 1fr;
+  }
+}
+
+.guide-practice {
+  width: 100%;
+  margin: 26px 0 4px;
+}
+
+/* ——— Conjugation · reference tables (guide + verb pages) ——— */
+
+.conj-table {
+  padding: 0;
+  overflow: hidden;
+}
+
+.conj-table + .conj-table {
+  margin-top: 12px;
+}
+
+.conj-table__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 14px;
+  background: var(--tc-wash, var(--paper-sunken));
+  border-bottom: 1px solid var(--rule);
+  color: var(--tc, var(--ink));
+  font-size: 16px;
+  font-style: italic;
+  font-weight: 700;
+}
+
+.conj-table__head-en {
+  color: var(--ink-faint);
+  font-family: var(--sans);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.conj-table__rows {
+  padding: 6px 14px 10px;
+}
+
+.conj-table__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+  border-bottom: 1px dashed var(--rule);
+  font-size: 15.5px;
+}
+
+.conj-table__row:last-child {
+  border-bottom: none;
+}
+
+.conj-table__pronoun {
+  color: var(--ink-soft);
+  font-style: italic;
+  white-space: nowrap;
+}
+
+.conj-table__form {
+  font-weight: 600;
+  text-align: right;
+}
+
+/* Two-column pronoun grid on the full-verb page (8 rows → 4 + 4,
+   singulars down the left, plurals down the right). */
+@media (min-width: 560px) {
+  .conj-table__rows--split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: repeat(4, auto);
+    grid-auto-flow: column;
+    column-gap: 26px;
+  }
+
+  .conj-table__rows--split .conj-table__row:nth-child(4) {
+    border-bottom: none;
+  }
+}
+
+/* Verb page heading: infinitive + speaker + gloss on one line. */
+.verb-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-style: italic;
+}
+
+.verb-title__meaning {
+  color: var(--ink-soft);
+  font-size: 15px;
+  font-style: italic;
+  font-weight: 400;
 }
 
 /* ——— Conjugation · drill HUD ——— */
@@ -1867,11 +2147,13 @@ a {
 /* ——— Conjugation · actions ——— */
 
 .conj-actions {
+  display: flex;
+  gap: 10px;
   margin-top: 12px;
 }
 
 .conj-actions .btn {
-  width: 100%;
+  flex: 1;
   padding: 12px;
   font-size: 15px;
 }
@@ -2183,18 +2465,18 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  margin-bottom: 14px;
+  gap: 10px;
+  margin-bottom: 34px;
 }
 
 .auth-brand__logo {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
 }
 
 .auth-brand__word {
-  font-size: 30px;
+  font-size: 22px;
   font-weight: 700;
   letter-spacing: 0.09em;
   text-transform: uppercase;
@@ -2218,12 +2500,43 @@ a {
   font-size: 13px;
 }
 
+/* Sub-form copy: what the code flow is about to do / just did. */
+.auth-hint {
+  margin: 10px 0 0;
+  color: var(--ink-faint);
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.auth-sent {
+  margin: 0 0 6px;
+  color: var(--ink-soft);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.auth-sent strong {
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+/* The 6-digit one-time-code field: big, evenly spaced digits. */
+.auth-code-input {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.4em;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
 .auth-submit {
   width: 100%;
   margin-top: 18px;
 }
 
-/* Below-the-form links: switch to Register / Log in, and Forgot password. */
+/* Below-the-form links: resend, change email, keep browsing. */
 .auth-alt {
   display: flex;
   flex-direction: column;
@@ -2231,13 +2544,6 @@ a {
   gap: 12px;
   margin-top: 20px;
   text-align: center;
-}
-
-.auth-switch {
-  margin: 0;
-  font-family: var(--sans);
-  font-size: 14px;
-  color: var(--ink-soft);
 }
 
 .auth-link {
@@ -2252,8 +2558,9 @@ a {
   text-underline-offset: 2px;
 }
 
-.auth-link--strong {
-  font-weight: 700;
+.auth-link:disabled {
+  color: var(--ink-faint);
+  cursor: default;
 }
 
 /* "Continue browsing without an account" — the escape hatch back to guest mode. */

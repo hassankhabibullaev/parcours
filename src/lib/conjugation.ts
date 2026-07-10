@@ -164,6 +164,12 @@ export function pronounDisplay(pronoun: string, tense: TenseKey, answer: string)
   return `que ${pronoun}`;
 }
 
+/** Reference-table pronoun display: like pronounDisplay, but without the
+    « q. nous » width contraction — tables have room for « que nous ». */
+export function pronounDisplayFull(pronoun: string, tense: TenseKey, answer: string): string {
+  return pronounDisplay(pronoun, tense, answer).replace(/^q\.\s/, 'que ');
+}
+
 export function tenseLabel(key: TenseKey): string {
   return TENSES.find((t) => t.key === key)?.label ?? key;
 }

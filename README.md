@@ -1,10 +1,10 @@
 # Parcours
 
-**Parcours** is a French-learning PWA styled as a newspaper editor's desk. Three tools —
-**Reading**, **Vocabulary**, and **Practice** (vocabulary drills + verb conjugation) — share
-one local-first store of the learner's progress (IndexedDB via Dexie). It is a single-page
-React app, installable to the home screen, and works offline (only dictionary lookups and
-pronunciation need the network).
+**Parcours** is a French-learning PWA styled as a newspaper editor's desk. Four sections —
+**Reading**, **Vocabulary**, **Conjugation** and **Profile** — share one local-first store of
+the learner's progress (IndexedDB via Dexie). It is a single-page React app, installable to
+the home screen, and works offline (only dictionary lookups and pronunciation need the
+network).
 
 This README is the onboarding map for someone (or some model) picking up the code cold:
 what the app does, how it's organized, and which file to open next. Read a module's source
@@ -12,13 +12,17 @@ for the fine detail. The original product brief is in [OVERVIEW.md](OVERVIEW.md)
 
 ## Guest-first access model
 
-The app is **usable without an account**: anyone can read articles and do conjugation
-practice. An account (username + password) is required only for actions that write personal
-progress — **marking an article read, saving vocabulary, and the vocabulary drills** — plus
-cross-device sync. When a guest triggers a gated action, an auth-required modal explains
-what an account unlocks and offers the sign-in page; the guest can dismiss it and keep
-browsing. See `components/AuthGate.tsx` (`useAuthGate().requireAuth(reason)` guards each
-call site; drill pages a guest reaches by URL render an inline `GuestNotice`).
+The app is **usable without an account**: anyone can read articles, browse the conjugation
+reference and do conjugation practice. An account is required only for actions that write
+personal progress — **marking an article read, saving vocabulary, and the vocabulary
+drills** — plus cross-device sync. When a guest triggers a gated action, an auth-required
+modal explains what an account unlocks and offers the sign-in page; the guest can dismiss it
+and keep browsing. See `components/AuthGate.tsx` (`useAuthGate().requireAuth(reason)` guards
+each call site; drill pages a guest reaches by URL render an inline `GuestNotice`).
+
+**Sign-in is one unified email + one-time-code form** (`pages/SignInPage.tsx`): enter an
+email, receive a 6-digit code, type it in. A first-time email gets its account created on
+verification; a known email logs in — there is no separate register screen and no password.
 
 The app was renamed from « Rédaction » to « Parcours »; the IndexedDB database deliberately
 keeps the old name `redaction` so existing local progress is never orphaned.
@@ -36,9 +40,10 @@ npm run build     # tsc typecheck + production build + service worker
 ```
 
 Pages Functions don't run under `vite dev`, so `vite.config.ts` mirrors two of them with
-dev middleware: `devAccountApi` (in-memory account store) and `devTtsProxy` (pronunciation).
-Sync (`/api/sync`) is not mirrored, so it's a no-op in dev. Keep the mirrors in step with
-the real Functions. The PWA manifest and service worker are only emitted by `npm run build`.
+dev middleware: `devAccountApi` (in-memory OTP store; the code is returned in the response
+and printed to the terminal) and `devTtsProxy` (pronunciation). Sync (`/api/sync`) is not
+mirrored, so it's a no-op in dev. Keep the mirrors in step with the real Functions. The PWA
+manifest and service worker are only emitted by `npm run build`.
 
 ## Deployment
 
@@ -48,6 +53,12 @@ the real Functions. The PWA manifest and service worker are only emitted by `npm
   (the namespace `id` there is a binding identifier, not a secret).
 - Deploy the built app with `wrangler pages deploy dist --project-name=parcours` (it also
   compiles `functions/`). Deploys run on the machine's current Node with wrangler 4.x.
+- **Sign-in email delivery** goes through Resend when the `RESEND_API_KEY` secret is set
+  (`npx wrangler pages secret put RESEND_API_KEY --project-name=parcours`; optional
+  `OTP_FROM` overrides the sender). **Without the key the endpoint returns the code in the
+  response and the client shows it inline** — sign-in keeps working, it just isn't a real
+  email check yet. The data behind an account is non-sensitive learning progress, so this is
+  an accepted interim state; add the key to turn on real delivery.
 
 ## Project layout
 
@@ -57,17 +68,18 @@ conjugation_verbs.json       source data: 100 verbs × 9 tenses (root, never mod
 scripts/build-lemmas.py      regenerates the lemma tables from the Lefff lexicon
 index.html · vite.config.ts  meta/PWA tags · PWA manifest, dev API mirrors, port
 wrangler.toml                Cloudflare Pages config + KV binding
-functions/api/account.ts     username+password signup/login over KV (PBKDF2 + per-IP rate limit)
+functions/api/account.ts     email + OTP sign-in over KV (hashed codes, rate limits, Resend)
 functions/api/sync/[code].ts server-side sync merge (last-write-wins) over KV
 functions/api/tts.ts          same-origin pronunciation proxy for Google TTS
 public/icons/                app icons ("P" seal); public/lemmas-fr.txt (GENERATED, lazy-loaded)
 src/
-  main.tsx · App.tsx         bootstrap (router, SW reg, providers) · routes
+  main.tsx · App.tsx         bootstrap (router, SW reg, providers, migrations) · routes
   styles/global.css          the entire design system
   data/content.ts            typed exports of both datasets + TENSES metadata
+  data/tenseGuide.ts         the Learn tab's grammar reference content (9 tense guides)
   data/lemmas.json           GENERATED bundled lemma core — do not hand-edit
   lib/                       the logic layer (see table)
-  components/                Layout, AuthProvider, AuthGate, icons, modals, drill chrome
+  components/                Layout, AuthProvider, AuthGate, SectionTabs, icons, modals, drill chrome
   pages/                     one file per route
 ```
 
@@ -76,37 +88,45 @@ src/
 | Concern | File |
 |---|---|
 | Shared IndexedDB store & schema | `db.ts` |
-| Identity (username/password) + session + account wipe on logout | `auth.ts` (+ `components/AuthProvider.tsx`) |
+| Identity (email + OTP) + session + account wipe on logout | `auth.ts` (+ `components/AuthProvider.tsx`) |
 | Guest gating (`requireAuth`, auth-required modal, `GuestNotice`) | `components/AuthGate.tsx` |
+| User prefs: CEFR level (synced kv) + audio toggles (localStorage) | `settings.ts` |
+| One-shot local data passes (gloss template, streak split) | `migrate.ts` |
 | Article read/position write path | `articleProgress.ts` |
 | Account sync client | `sync.ts` |
 | Struggle-weighted draw (words + verbs, one algorithm) | `struggle.ts` |
 | Lemma lookup, tokenizer, paragraph/sentence splitting | `lemmatize.ts` |
-| Online dictionary (Wiktionary + MyMemory) with cache | `dictionary.ts` |
+| Online dictionary (Wiktionary + MyMemory) with cache + gloss template | `dictionary.ts` |
 | Offline lemma search over bundled content | `dictionarySearch.ts` |
 | Save a word to the lexicon (single write path) | `vocab.ts` |
-| Practice drawing, grading, streak/shelf progression | `practice.ts` |
-| Conjugation session generator | `conjugation.ts` |
+| Practice drawing, grading, session sizing, streak/shelf progression | `practice.ts` |
+| Conjugation session generator + pronoun display | `conjugation.ts` |
 | Per-tense / per-mode color identities | `tenseThemes.ts` · `vocabThemes.ts` |
 | Sound effects · confetti · French speech (TTS) | `sound.ts` · `confetti.ts` · `speech.ts` |
 
 ## Routes (`src/App.tsx`)
 
 `/signin` is a full-screen route (no nav); everything else renders inside `Layout` (masthead
-+ 5-tab bottom nav: Reading · Vocabulary · **Home** · Practice · Settings). There is **no
++ 5-tab bottom nav: Reading · Vocabulary · **Home** · Conjugation · Profile). There is **no
 auth wall** — signed-out users land on the app; `SignInPage` redirects back to where they
 came from on success (and if an already-signed-in user lands there).
 
+Every non-Home section follows one layout template: **section name header → two tabs →
+content** (`components/SectionTabs.tsx`).
+
 | Path | Page |
 |---|---|
-| `/` | HomePage (greeting + read-next + vocab shortcut + practice quick-launch) |
+| `/` | HomePage (read-next suggestion + vocab shortcut + practice quick-launch) |
 | `/reading` · `/reading/:id` | article library (Not read/Read tabs + level filter) · article view |
-| `/vocabulary` | lexicon (Learning/Learned tabs) + dictionary search |
-| `/practice` | Practice hub — Vocabulary / Conjugation tabs (`?tab=conjugation`) |
+| `/vocabulary` | Learn (word lookup + lexicon w/ All·Learning·Learned pills) / Practice (3 drills) tabs |
 | `/vocabulary/learn` · `/vocabulary/practice` · `/vocabulary/remember` | the three vocab drills |
+| `/conjugation` | Learn (tense rules + verb reference) / Practice (tense picker) tabs |
+| `/conjugation/guide/:tense` | one tense's rules, endings, examples, live tables |
+| `/conjugation/verb/:infinitive` | one verb's full conjugation across all 9 tenses |
 | `/conjugation/:tense` | conjugation typing drill (`:tense` is a `TenseKey` or `mixed`) |
-| `/signin` | sign-in / sign-up page |
-| `/settings` | account (or guest sign-in card), progress summary, sound toggle, Log Out |
+| `/profile` | Profile (email, stats, log out) / Settings (level + audio toggles) tabs |
+| `/signin` | unified email + one-time-code sign-in |
+| `/practice` · `/settings` | legacy redirects → `/conjugation?tab=practice` · `/profile` |
 
 ## Storage (`src/lib/db.ts`)
 
@@ -116,10 +136,10 @@ booleans).
 
 | Table | Holds |
 |---|---|
-| `savedWords` | the lexicon; keyed by `lemma`; `streak` drives learnt/learning |
+| `savedWords` | the lexicon; keyed by `lemma`; per-exercise streaks drive learnt/learning |
 | `articleProgress` | per-article read flag + scroll position |
 | `practiceResults` | one row per finished drill round |
-| `kv` | small key/value store (sync code, last-sync time, account name) |
+| `kv` | small key/value store (sync code, last-sync time, `userLevel`, migration flags) |
 | `lookupCache` | dictionary cache — never synced |
 | `tombstones` | deletion records so sync can propagate removals |
 | `drillStats` | per-item error-rate + last-seen for the struggle-weighted draw — device-local, never synced |
@@ -127,6 +147,9 @@ booleans).
 Logout clears every table (not `db.delete()`): the app stays mounted as a guest after
 sign-out, so its live queries would block a whole-database delete — clearing wipes the same
 data and updates those queries reactively.
+
+`lib/migrate.ts` runs one-shot local passes at boot (kv-flagged): re-templating stored
+translations and splitting the legacy single `streak` into the per-exercise counters.
 
 ## Content data (`src/data/content.ts`)
 
@@ -137,26 +160,59 @@ data and updates those queries reactively.
   `TENSES` lists the 9 tense keys/labels. Some être-verb forms carry pipe-separated
   gender/number variants (`"es passé|es passée"`) — split on `|`, accept every variant,
   display joined with `/`.
+- **Tense guides** (`src/data/tenseGuide.ts`): static teaching text per tense (usage,
+  formation, endings, examples, traps); the example tables next to it render live from the
+  verb dataset so the guide can't drift from what the drills grade.
 
 ## Modules (brief)
 
-- **Auth & sync** — `auth.ts` verifies credentials against `functions/api/account.ts`
-  (PBKDF2 hash in KV at `acct:<username>`), stores `{ name, username }` in localStorage
-  (`parcours-user`), and points sync at `deriveSyncCode(username)` — a SHA-256 hash, so the
-  raw name never hits a URL/server. `sync.ts` pushes the device's full state, the Function
-  merges it into that KV bucket last-write-wins, and applies the result. Two invariants:
-  tombstones must round-trip with their `key` field, and `syncNow()` never rejects
-  (`{ ok:false, error }`) so the UI can't stick. `Layout` auto-syncs on load/refocus (no-op
-  until a first sync sets `lastSyncAt`).
-- **Reading** — `ReadingPage` (Not read/Read tabs + a per-CEFR-level filter chip row) and
-  `ArticlePage` (tappable word tokens, **one word per tap**; tap → `WordModal` lookup/save;
-  drop cap, saved-lemma highlighting, scroll-progress, typewriter headline). Progress writes
-  go through `articleProgress.ts` and are skipped for guests.
-- **Vocabulary / Practice** — `VocabularyPage` (Learning/Learned tabs + offline dictionary
-  search, the only manual-add path). `PracticeHubPage` has Vocabulary (`VocabDrills`: Word
-  Match / Fill in the Blank / Remember?) and Conjugation (`ConjugationPicker`) tabs. Drills
-  draw items **struggle-weighted** (`struggle.ts`): each answer updates a `drillStats` row
-  (EWMA error rate + last-seen), and the draw favours high-error, not-recently-seen items.
+- **Auth & sync** — `auth.ts` implements the email + OTP flow against
+  `functions/api/account.ts`: `request-code` stores a hashed 6-digit code in KV
+  (`otp:<email>`, 10 min TTL, 5 attempts, per-IP and per-email rate limits) and emails it
+  via Resend; `verify-code` checks it and creates `acct:<email>` on first use. The session
+  (`{ email }`) lives in localStorage (`parcours-user`); sync is keyed by
+  `deriveSyncCode(email)` — a SHA-256 hash, so the raw address never hits a URL/server.
+  Legacy `{ username }` sessions from the password era are kept signed in under the same
+  identifier (same sync bucket); old `acct:<username>` records are orphaned — a legacy user
+  who logs out must sign in with email and starts a fresh bucket. `sync.ts` pushes the
+  device's full state, the Function merges it last-write-wins, and applies the result.
+  Two invariants: tombstones must round-trip with their `key` field, and `syncNow()` never
+  rejects (`{ ok:false, error }`) so the UI can't stick. `Layout` auto-syncs on
+  load/refocus (no-op until a first sync sets `lastSyncAt`).
+- **Reading** — `ReadingPage` (Not read/Read tabs + a per-CEFR-level filter chip row; the
+  default chip follows the Profile → Settings level) and `ArticlePage` (tappable word
+  tokens, **one word per tap**; tap → `WordModal` lookup/save; drop cap, saved-lemma
+  highlighting, scroll-progress, typewriter headline, optional read-aloud headline).
+  Progress writes go through `articleProgress.ts` and are skipped for guests.
+- **Vocabulary** — two tabs. **Learn**: the word lookup (offline lemma search; each result
+  shows its short translation inline and opens the article-style `WordModal` with an
+  add action) and the lexicon (All/Learning/Learned pill filters; tapping a word opens the
+  same modal fed from its stored content, no add action; the first-line translation is
+  inline-editable). **Practice**: the three drills. Translations follow **one template per
+  part of speech** (`normalizeGloss` in `dictionary.ts`: verbs always "to …", qualifiers
+  stripped, first sense only), applied at fetch time and to stored words by migration.
+- **Practice rules** (`practice.ts`) — every drill needs **5 words** in its pool.
+  Word Match & Remember?: 5 words/session, `sessions = min(6, floor(pool/5))`.
+  Fill in the Blank: 1 word/session, `sessions = clamp(pool, 5, 10)`; a wrong answer allows
+  retrying without showing the solution (separate « Reveal answer » button; the English
+  hint button reads « Show hint in English »). A fully-correct session **auto-advances**
+  after a short pause with every control frozen. Words graduate at **3 consecutive correct
+  in Word Match/Remember? or 2 in Fill in the Blank** (independent counters; hitting either
+  promotes); one miss is forgiven, **two consecutive misses** reset that exercise's streak
+  (and demote a learnt word). Manual mark-learnt/unlearnt aligns both counters. Draws are
+  struggle-weighted (`struggle.ts`): each answer updates a `drillStats` row (EWMA error
+  rate + last-seen), and the draw favours high-error, not-recently-seen items.
+- **Conjugation** — two tabs. **Learn**: nine tense guides (`/conjugation/guide/:tense`)
+  and a searchable list of all 100 drilled verbs, each opening its complete conjugation
+  (`/conjugation/verb/:infinitive`). **Practice**: the tense picker → typing drill
+  (unchanged mechanics: 10 exercises × 3 prompts, struggle-weighted verb draw,
+  accent-tolerant grading, auto-advance on all-correct).
+- **Profile** — two tabs. **Profile**: email, progress stats, Log Out (guests get a
+  sign-in card). **Settings** (`lib/settings.ts`): the **current level** (empty by default;
+  when set it drives Home's read-next suggestion and Reading's default filter — exact-level
+  match, falling back to all levels when that level is exhausted; stored in synced kv) plus
+  three audio toggles (sound effects · read titles aloud · pronounce looked-up words —
+  the latter two device-local in localStorage).
 - **Lemmatization** (`lemmatize.ts` + `scripts/build-lemmas.py`) — surface form → dictionary
   lemma. `lemmaOf()` is a synchronous `Map` lookup (self-fallback, never invents a word),
   seeded by a bundled core (`data/lemmas.json`) and augmented by the full Lefff lexicon
@@ -176,15 +232,21 @@ data and updates those queries reactively.
 2. No topic filters/tags — out of scope. Corpus is A1–B2 only (no C1/C2).
 3. The dictionary (word lookups) is online; the lemmatizer fetches its lexicon once, then
    works offline from Cache Storage.
-4. Vocabulary is exactly three drills (under Practice); the lexicon is displayed by lemma;
-   the only manual-add path is the offline dictionary search.
-5. Conjugation is typing only. Reading is one word per tap (no multi-word selection).
+4. Vocabulary is exactly three drills (under Vocabulary → Practice); the lexicon is
+   displayed by lemma; the only manual-add path is the word lookup on the Learn tab.
+5. Conjugation practice is typing only. Reading is one word per tap (no multi-word selection).
 6. Practice draws are struggle-weighted (words and verbs), one shared algorithm; `drillStats`
    is device-local (never synced).
-7. Sign-in is a username + password account (backend-verified via KV); the username hash is
-   the sync key. Reading and conjugation are open to guests; everything that writes personal
-   progress is gated behind `requireAuth` (`components/AuthGate.tsx`).
-8. A neutral `confirmTock` (not the celebratory `successChime`) acknowledges save-type
-   actions (marking an article read, saving a word); drills keep the chimes/fanfare.
-9. Renamed to Parcours, but the IndexedDB name stays `redaction`.
-10. Zoom is disabled app-wide (viewport meta + gesture/wheel/key guards in `main.tsx`).
+7. Sign-in is **email + one-time code** — one form for new and existing accounts, no
+   passwords; the email hash is the sync key. Reading and conjugation are open to guests;
+   everything that writes personal progress is gated behind `requireAuth`
+   (`components/AuthGate.tsx`). Without `RESEND_API_KEY` the server returns the code in the
+   response (shown inline) instead of emailing it.
+8. First-line translations follow one template per part of speech (verbs "to …"); apply it
+   wherever translations are produced or stored (`normalizeGloss`), never ad hoc.
+9. Session sizing and streak thresholds live in `practice.ts` as named constants — drills
+   read them, they never hardcode counts.
+10. A neutral `confirmTock` (not the celebratory `successChime`) acknowledges save-type
+    actions (marking an article read, saving a word); drills keep the chimes/fanfare.
+11. Renamed to Parcours, but the IndexedDB name stays `redaction`.
+12. Zoom is disabled app-wide (viewport meta + gesture/wheel/key guards in `main.tsx`).

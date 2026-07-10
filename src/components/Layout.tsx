@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, Link, useLocation } from 'react-router-dom';
-import { DeskIcon, NewspaperIcon, LexiconIcon, PracticeIcon, SettingsIcon } from './icons';
+import { DeskIcon, NewspaperIcon, LexiconIcon, ConjugationIcon, ProfileIcon } from './icons';
 import { autoSync } from '../lib/sync';
 import { uiClick, wordTap } from '../lib/sound';
 
@@ -9,8 +9,8 @@ const TABS = [
   { to: '/reading', label: 'Reading', icon: NewspaperIcon, end: false },
   { to: '/vocabulary', label: 'Vocabulary', icon: LexiconIcon, end: false },
   { to: '/', label: 'Home', icon: DeskIcon, end: true },
-  { to: '/practice', label: 'Practice', icon: PracticeIcon, end: false },
-  { to: '/settings', label: 'Settings', icon: SettingsIcon, end: false },
+  { to: '/conjugation', label: 'Conjugation', icon: ConjugationIcon, end: false },
+  { to: '/profile', label: 'Profile', icon: ProfileIcon, end: false },
 ];
 
 export default function Layout() {

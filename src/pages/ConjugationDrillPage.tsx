@@ -29,8 +29,8 @@ import SoundPill from '../components/SoundPill';
 
 const BLANK = () => Array(PROMPTS_PER_EXERCISE).fill('') as string[];
 const ACCENT_KEYS = ['à', 'é', 'è', 'ê', 'î', 'û', 'ç'];
-/** Back target: the Conjugation tab of the Practice hub. */
-const CONJ_BACK = '/practice?tab=conjugation';
+/** Back target: the Conjugation section's Practice tab. */
+const CONJ_BACK = '/conjugation?tab=practice';
 
 /** Auto-advance delay after a fully correct exercise; longer when an accent
     correction is on screen so the learner can actually read it. */
@@ -123,12 +123,12 @@ export default function ConjugationDrillPage() {
     return () => window.clearTimeout(timer);
   }, [grades, finished]);
 
-  if (!mode) return <Navigate to="/practice?tab=conjugation" replace />;
+  if (!mode) return <Navigate to={CONJ_BACK} replace />;
 
   const title = mode === 'mixed' ? 'Mixed drill' : tenseLabel(mode);
 
   if (loading) {
-    return <DrillHeader title={title} backTo={CONJ_BACK} backLabel="Practice" />;
+    return <DrillHeader title={title} backTo={CONJ_BACK} backLabel="Conjugation" />;
   }
   const total = session.length * PROMPTS_PER_EXERCISE;
   const allFilled = values.every((v) => v.trim() !== '');
@@ -248,7 +248,7 @@ export default function ConjugationDrillPage() {
   if (finished) {
     return (
       <>
-        <DrillHeader title={title} backTo={CONJ_BACK} backLabel="Practice" />
+        <DrillHeader title={title} backTo={CONJ_BACK} backLabel="Conjugation" />
         <div style={themeVars}>
           <DrillResults
             score={score}
@@ -266,7 +266,7 @@ export default function ConjugationDrillPage() {
               color: TENSE_THEMES[m.tense].color,
             }))}
             backTo={CONJ_BACK}
-            backLabel="Back to practice"
+            backLabel="Back to conjugation"
           />
         </div>
       </>
@@ -277,7 +277,7 @@ export default function ConjugationDrillPage() {
 
   return (
     <div className="conj-drill" style={themeVars}>
-      <DrillTopline backTo={CONJ_BACK} backLabel="Practice" title={title}>
+      <DrillTopline backTo={CONJ_BACK} backLabel="Conjugation" title={title}>
         <span className="hud-pill hud-pill--live" key={`score-${score}`}>
           ✓ <strong>{score}</strong>
         </span>

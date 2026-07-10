@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../lib/db';
 import { articles } from '../data/content';
-import { useAuth } from '../components/AuthProvider';
 import { useAuthGate } from '../components/AuthGate';
+import { useUserLevel } from '../lib/settings';
 import { VOCAB_THEMES } from '../lib/vocabThemes';
 import { MIXED_BLOB } from '../lib/tenseThemes';
 import { LexiconIcon } from '../components/icons';
@@ -21,26 +21,26 @@ const QUICK_LAUNCH = [
 ];
 
 export default function HomePage() {
-  const { user } = useAuth();
   const { requireAuth } = useAuthGate();
   const words = useLiveQuery(() => db.savedWords.toArray(), []) ?? [];
   const progress = useLiveQuery(() => db.articleProgress.toArray(), []) ?? [];
+  const level = useUserLevel();
 
   const learnt = words.filter((w) => w.learned === 1).length;
   const readIds = new Set(progress.filter((p) => p.read === 1).map((p) => p.articleId));
 
-  const nextArticle = articles.find((a) => !readIds.has(a.id));
+  // The suggestion draws from the learner's level when one is set (exact-level
+  // match); once that level is read out, fall back to the whole library rather
+  // than showing nothing.
+  const unread = articles.filter((a) => !readIds.has(a.id));
+  const nextArticle = (level ? unread.find((a) => a.cefr_level === level) : undefined) ?? unread[0];
   const nextProgress = nextArticle
     ? progress.find((p) => p.articleId === nextArticle.id)
     : undefined;
   const nextStarted = (nextProgress?.position ?? 0) > 0.02;
 
-  const firstName = user?.name?.trim().split(/\s+/)[0];
-
   return (
     <>
-      <h2 className="page-heading">{firstName ? `Bonjour, ${firstName}` : 'Bonjour'}</h2>
-
       <div className="section-label">Read next</div>
       {nextArticle ? (
         <div className="card card--flag">

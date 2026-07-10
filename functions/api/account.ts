@@ -1,17 +1,23 @@
 /**
- * Username + password accounts, backed by the same Workers KV namespace as sync.
+ * Email + one-time-code (OTP) accounts, backed by the same Workers KV
+ * namespace as sync. One unified flow for new and returning learners:
  *
- * The account record lives at KV key `acct:<username>` and stores a PBKDF2 hash
- * of the password (never the password itself) plus the display name. This is a
- * real credential check — sign-up refuses a taken username, log-in refuses a
- * wrong password — but the threat model is modest: the data behind an account is
- * non-sensitive learning progress, and the sync bucket is still reached by a
- * (separately derived) code. The password gates the login UX and account
- * ownership, not the bucket contents.
+ *   POST /api/account { action: 'request-code', email }
+ *     → generates a 6-digit code, stores its hash at `otp:<email>` (10 min TTL,
+ *       5 attempts) and emails it. → 200 { ok: true }
+ *   POST /api/account { action: 'verify-code', email, code }
+ *     → checks the code; on success creates the account record at
+ *       `acct:<email>` if it doesn't exist yet (sign-up and log-in are the
+ *       same action). → 200 { ok: true, name, created }
  *
- * POST /api/account  { action: 'signup' | 'login', username, password, name? }
- *   → 200 { ok: true, name }
- *   → 4xx { ok: false, error }
+ * Email delivery goes through Resend (https://resend.com) when the
+ * RESEND_API_KEY env var / secret is configured (optional OTP_FROM overrides
+ * the sender). Without a key — fresh deploys, previews — the endpoint stays
+ * functional by returning the code in the response (`devCode`) so sign-in
+ * still works; the client shows it inline. The data behind an account is
+ * non-sensitive learning progress, so this fallback is an accepted trade-off
+ * until a mail key is added. Configure the secret with:
+ *   npx wrangler pages secret put RESEND_API_KEY --project-name=parcours
  *
  * A dev mirror of this handler lives in vite.config.ts (Pages Functions don't
  * run under `vite dev`); keep the two in step.
@@ -19,16 +25,26 @@
 
 interface Env {
   SYNC_KV: KVNamespace;
+  RESEND_API_KEY?: string;
+  OTP_FROM?: string;
 }
 
 interface AccountRecord {
+  email: string;
   name: string;
-  salt: string; // hex
-  hash: string; // hex, PBKDF2(password, salt)
   createdAt: number;
 }
 
-const PBKDF2_ITERATIONS = 100_000;
+interface OtpRecord {
+  hash: string; // hex SHA-256 of `${email}:${code}`
+  tries: number;
+  expiresAt: number;
+}
+
+const OTP_TTL_SECONDS = 600; // codes live 10 minutes
+const OTP_MAX_TRIES = 5;
+const OTP_REQUEST_CAP = 5; // codes per email per window
+const OTP_REQUEST_WINDOW_SECONDS = 900;
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -41,26 +57,10 @@ function bytesToHex(bytes: Uint8Array): string {
   return [...bytes].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-function hexToBytes(hex: string): Uint8Array {
-  const out = new Uint8Array(hex.length / 2);
-  for (let i = 0; i < out.length; i++) out[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
-  return out;
-}
-
-async function hashPassword(password: string, saltHex: string): Promise<string> {
-  const key = await crypto.subtle.importKey(
-    'raw',
-    new TextEncoder().encode(password),
-    'PBKDF2',
-    false,
-    ['deriveBits'],
-  );
-  const bits = await crypto.subtle.deriveBits(
-    { name: 'PBKDF2', salt: hexToBytes(saltHex), iterations: PBKDF2_ITERATIONS, hash: 'SHA-256' },
-    key,
-    256,
-  );
-  return bytesToHex(new Uint8Array(bits));
+async function hashCode(email: string, code: string): Promise<string> {
+  const data = new TextEncoder().encode(`${email}:${code}`);
+  const digest = await crypto.subtle.digest('SHA-256', data);
+  return bytesToHex(new Uint8Array(digest));
 }
 
 // Constant-time-ish compare so a wrong hash can't be timed byte-by-byte.
@@ -71,34 +71,56 @@ function safeEqual(a: string, b: string): boolean {
   return diff === 0;
 }
 
-function normalizeUsername(u: unknown): string {
-  return typeof u === 'string' ? u.trim().toLowerCase() : '';
+function normalizeEmail(e: unknown): string {
+  return typeof e === 'string' ? e.trim().toLowerCase() : '';
 }
 
-// Coarse per-IP throttle. This endpoint is unauthenticated and runs 100k PBKDF2
-// iterations per call, so without a cap it's both a password-brute-force and a
-// CPU-amplification vector. KV is eventually consistent, so this is a soft limit
-// (a burst can slip a few extra through) — enough for the modest threat model;
-// Cloudflare's edge absorbs volumetric floods. The dev mirror in vite.config.ts
-// deliberately omits this (local, in-memory, single user).
+function isValidEmail(email: string): boolean {
+  return email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+}
+
+// Coarse per-IP throttle: this endpoint is unauthenticated and can send mail,
+// so cap it before doing any work. KV is eventually consistent, so this is a
+// soft limit — enough for the modest threat model; Cloudflare's edge absorbs
+// volumetric floods. The dev mirror in vite.config.ts omits it (local only).
 const RL_MAX_PER_WINDOW = 20;
 const RL_WINDOW_SECONDS = 60;
 
-async function isRateLimited(env: Env, ip: string): Promise<boolean> {
-  const key = `rl:acct:${ip}`;
+async function isRateLimited(env: Env, key: string, max: number, windowSeconds: number): Promise<boolean> {
   const count = Number((await env.SYNC_KV.get(key)) ?? 0);
-  if (count >= RL_MAX_PER_WINDOW) return true;
-  await env.SYNC_KV.put(key, String(count + 1), { expirationTtl: RL_WINDOW_SECONDS });
+  if (count >= max) return true;
+  await env.SYNC_KV.put(key, String(count + 1), { expirationTtl: windowSeconds });
   return false;
+}
+
+/** Send the code via Resend; returns false when no provider is configured. */
+async function sendCodeEmail(env: Env, email: string, code: string): Promise<boolean> {
+  if (!env.RESEND_API_KEY) return false;
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: env.OTP_FROM ?? 'Parcours <onboarding@resend.dev>',
+      to: [email],
+      subject: `${code} is your Parcours sign-in code`,
+      text:
+        `Your Parcours sign-in code is: ${code}\n\n` +
+        `It expires in 10 minutes. If you didn't request it, you can ignore this email.`,
+    }),
+  });
+  return res.ok;
 }
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown';
-  if (await isRateLimited(env, ip)) {
+  if (await isRateLimited(env, `rl:acct:${ip}`, RL_MAX_PER_WINDOW, RL_WINDOW_SECONDS)) {
     return json({ ok: false, error: 'Too many attempts. Please wait a minute and try again.' }, 429);
   }
 
-  let body: { action?: string; username?: string; password?: string; name?: string };
+  let body: { action?: string; email?: string; code?: string };
   try {
     body = await request.json();
   } catch {
@@ -106,50 +128,66 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   }
 
   const action = body.action;
-  const username = normalizeUsername(body.username);
-  const password = typeof body.password === 'string' ? body.password : '';
-  const name = typeof body.name === 'string' ? body.name.trim().slice(0, 60) : '';
-
-  if (!/^[a-z0-9._-]{3,32}$/.test(username)) {
-    return json(
-      { ok: false, error: 'Username must be 3–32 characters: letters, numbers, . _ -' },
-      400,
-    );
-  }
-  if (password.length < 6) {
-    return json({ ok: false, error: 'Password must be at least 6 characters.' }, 400);
+  const email = normalizeEmail(body.email);
+  if (!isValidEmail(email)) {
+    return json({ ok: false, error: 'Enter a valid email address.' }, 400);
   }
 
-  const kvKey = `acct:${username}`;
+  const otpKey = `otp:${email}`;
 
-  if (action === 'signup') {
-    const existing = await env.SYNC_KV.get(kvKey);
-    if (existing) {
-      return json({ ok: false, error: 'That username is taken. Try logging in.' }, 409);
+  if (action === 'request-code') {
+    if (
+      await isRateLimited(env, `otpreq:${email}`, OTP_REQUEST_CAP, OTP_REQUEST_WINDOW_SECONDS)
+    ) {
+      return json(
+        { ok: false, error: 'Too many codes requested. Please wait a few minutes.' },
+        429,
+      );
     }
-    const salt = bytesToHex(crypto.getRandomValues(new Uint8Array(16)));
-    const hash = await hashPassword(password, salt);
-    const record: AccountRecord = {
-      name: name || username,
-      salt,
-      hash,
-      createdAt: Date.now(),
+    const code = String(crypto.getRandomValues(new Uint32Array(1))[0] % 1_000_000).padStart(6, '0');
+    const record: OtpRecord = {
+      hash: await hashCode(email, code),
+      tries: 0,
+      expiresAt: Date.now() + OTP_TTL_SECONDS * 1000,
     };
-    await env.SYNC_KV.put(kvKey, JSON.stringify(record));
-    return json({ ok: true, name: record.name });
+    await env.SYNC_KV.put(otpKey, JSON.stringify(record), { expirationTtl: OTP_TTL_SECONDS });
+    const sent = await sendCodeEmail(env, email, code).catch(() => false);
+    // No mail provider configured: hand the code back so sign-in still works.
+    return sent ? json({ ok: true }) : json({ ok: true, devCode: code });
   }
 
-  if (action === 'login') {
-    const raw = await env.SYNC_KV.get(kvKey);
-    if (!raw) {
-      return json({ ok: false, error: 'No account for that username. Sign up first.' }, 404);
+  if (action === 'verify-code') {
+    const code = typeof body.code === 'string' ? body.code.trim() : '';
+    if (!/^\d{6}$/.test(code)) {
+      return json({ ok: false, error: 'Enter the 6-digit code from the email.' }, 400);
     }
-    const record = JSON.parse(raw) as AccountRecord;
-    const hash = await hashPassword(password, record.salt);
-    if (!safeEqual(hash, record.hash)) {
-      return json({ ok: false, error: 'Wrong username or password.' }, 401);
+    const raw = await env.SYNC_KV.get(otpKey);
+    const record = raw ? (JSON.parse(raw) as OtpRecord) : null;
+    if (!record || record.expiresAt < Date.now()) {
+      return json({ ok: false, error: 'That code has expired — request a new one.' }, 400);
     }
-    return json({ ok: true, name: record.name });
+    if (record.tries >= OTP_MAX_TRIES) {
+      await env.SYNC_KV.delete(otpKey);
+      return json({ ok: false, error: 'Too many wrong attempts — request a new code.' }, 429);
+    }
+    if (!safeEqual(record.hash, await hashCode(email, code))) {
+      record.tries += 1;
+      const ttl = Math.max(60, Math.ceil((record.expiresAt - Date.now()) / 1000));
+      await env.SYNC_KV.put(otpKey, JSON.stringify(record), { expirationTtl: ttl });
+      return json({ ok: false, error: 'Wrong code — check the email and try again.' }, 401);
+    }
+    await env.SYNC_KV.delete(otpKey);
+
+    // Same action signs up and logs in: create the account on first verify.
+    const acctKey = `acct:${email}`;
+    const existing = await env.SYNC_KV.get(acctKey);
+    if (existing) {
+      const account = JSON.parse(existing) as AccountRecord;
+      return json({ ok: true, name: account.name ?? '', created: false });
+    }
+    const account: AccountRecord = { email, name: '', createdAt: Date.now() };
+    await env.SYNC_KV.put(acctKey, JSON.stringify(account));
+    return json({ ok: true, name: '', created: true });
   }
 
   return json({ ok: false, error: 'Unknown action.' }, 400);

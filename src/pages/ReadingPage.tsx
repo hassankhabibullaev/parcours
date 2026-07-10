@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState, type MouseEvent } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type MouseEvent } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { articles, type Article, type CefrLevel } from '../data/content';
@@ -6,6 +6,8 @@ import { db } from '../lib/db';
 import { setArticleRead } from '../lib/articleProgress';
 import { confirmTock } from '../lib/sound';
 import { useAuthGate } from '../components/AuthGate';
+import { useUserLevel } from '../lib/settings';
+import SectionTabs from '../components/SectionTabs';
 import { CheckCircleIcon, UndoIcon } from '../components/icons';
 
 type Tab = 'unread' | 'read';
@@ -18,6 +20,20 @@ export default function ReadingPage() {
   const [tab, setTab] = useState<Tab>('unread');
   // Active CEFR level filter, or 'all'. Tapping a level chip narrows the list.
   const [level, setLevel] = useState<CefrLevel | 'all'>('all');
+
+  // The default filter follows the level set in Profile → Settings (unset →
+  // All). It loads async from the store, so apply it once it arrives — unless
+  // the learner has already tapped a chip on this visit.
+  const userLevel = useUserLevel();
+  const levelTouchedRef = useRef(false);
+  useEffect(() => {
+    if (userLevel === undefined || levelTouchedRef.current) return;
+    setLevel(userLevel === '' ? 'all' : userLevel);
+  }, [userLevel]);
+  const pickLevel = (next: CefrLevel | 'all') => {
+    levelTouchedRef.current = true;
+    setLevel(next);
+  };
 
   // The list always starts at the top — coming back from a long article (or
   // from "Mark as read") must not inherit the article's scroll offset.
@@ -133,33 +149,23 @@ export default function ReadingPage() {
   return (
     <>
       <h2 className="page-heading">Reading</h2>
-      <p className="page-subheading">Stories for every level — tap any word to look it up.</p>
 
-      <div className="seg-tabs" role="tablist" aria-label="Reading list">
-        <button
-          role="tab"
-          aria-selected={tab === 'unread'}
-          className={`seg-tab${tab === 'unread' ? ' seg-tab--active' : ''}`}
-          onClick={() => setTab('unread')}
-        >
-          Not read <span className="seg-tab__count">{unread.length}</span>
-        </button>
-        <button
-          role="tab"
-          aria-selected={tab === 'read'}
-          className={`seg-tab${tab === 'read' ? ' seg-tab--active' : ''}`}
-          onClick={() => setTab('read')}
-        >
-          Read <span className="seg-tab__count">{read.length}</span>
-        </button>
-      </div>
+      <SectionTabs<Tab>
+        ariaLabel="Reading list"
+        tabs={[
+          { key: 'unread', label: 'Not read', count: unread.length },
+          { key: 'read', label: 'Read', count: read.length },
+        ]}
+        active={tab}
+        onSelect={setTab}
+      />
 
       <div className="level-counts" role="group" aria-label="Filter by level">
         <button
           type="button"
           className={`level-count level-count--all${level === 'all' ? ' level-count--active' : ''}`}
           aria-pressed={level === 'all'}
-          onClick={() => setLevel('all')}
+          onClick={() => pickLevel('all')}
         >
           All <span className="level-count__n">{shown.length}</span>
         </button>
@@ -169,7 +175,7 @@ export default function ReadingPage() {
             type="button"
             className={`level-count${n === 0 ? ' level-count--empty' : ''}${level === lvl ? ' level-count--active' : ''}`}
             aria-pressed={level === lvl}
-            onClick={() => setLevel((cur) => (cur === lvl ? 'all' : lvl))}
+            onClick={() => pickLevel(level === lvl ? 'all' : lvl)}
           >
             <span className="level-count__dot" style={{ ['--lc' as string]: levelColor(lvl) }} />
             {lvl}: <span className="level-count__n">{n}</span>

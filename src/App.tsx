@@ -7,9 +7,11 @@ import ArticlePage from './pages/ArticlePage';
 import VocabularyPage from './pages/VocabularyPage';
 import MatchSessionPage from './pages/MatchSessionPage';
 import PracticePage from './pages/PracticePage';
-import PracticeHubPage from './pages/PracticeHubPage';
+import ConjugationPage from './pages/ConjugationPage';
+import TenseGuidePage from './pages/TenseGuidePage';
+import VerbPage from './pages/VerbPage';
 import ConjugationDrillPage from './pages/ConjugationDrillPage';
-import SettingsPage from './pages/SettingsPage';
+import ProfilePage from './pages/ProfilePage';
 
 export default function App() {
   // The app is browsable without an account (see components/AuthGate). Signing in
@@ -26,10 +28,14 @@ export default function App() {
         <Route path="vocabulary/learn" element={<MatchSessionPage kind="learn" />} />
         <Route path="vocabulary/practice" element={<PracticePage />} />
         <Route path="vocabulary/remember" element={<MatchSessionPage kind="remember" />} />
-        <Route path="practice" element={<PracticeHubPage />} />
-        <Route path="conjugation" element={<Navigate to="/practice?tab=conjugation" replace />} />
+        <Route path="conjugation" element={<ConjugationPage />} />
+        <Route path="conjugation/guide/:tense" element={<TenseGuidePage />} />
+        <Route path="conjugation/verb/:infinitive" element={<VerbPage />} />
         <Route path="conjugation/:tense" element={<ConjugationDrillPage />} />
-        <Route path="settings" element={<SettingsPage />} />
+        <Route path="profile" element={<ProfilePage />} />
+        {/* Legacy routes from the pre-rename layout. */}
+        <Route path="practice" element={<Navigate to="/conjugation?tab=practice" replace />} />
+        <Route path="settings" element={<Navigate to="/profile" replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

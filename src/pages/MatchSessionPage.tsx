@@ -1,7 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { SavedWord } from '../lib/db';
-import { drawPracticeWords, recordRound, recordWordResult } from '../lib/practice';
+import {
+  MATCH_WORDS_PER_SESSION,
+  MIN_PRACTICE_WORDS,
+  drawFromPool,
+  loadPracticePool,
+  matchSessionCount,
+  recordRound,
+  recordWordResult,
+} from '../lib/practice';
 import { vocabThemeVars } from '../lib/vocabThemes';
 import { successChime } from '../lib/sound';
 import { useAuth } from '../components/AuthProvider';
@@ -12,56 +20,59 @@ import DrillResults from '../components/DrillResults';
 import SoundPill from '../components/SoundPill';
 import MatchBoard from '../components/MatchBoard';
 
-const ROUNDS = 5;
-const MIN_WORDS = 20;
+const BACK_TO = '/vocabulary?tab=practice';
+
+/** The pause between a completed board and the next one mounting — buttons
+    are frozen for its duration so a stray double-tap can't skip state. */
+const ADVANCE_MS = 900;
 
 const SESSIONS = {
   learn: {
     title: 'Word Match',
     mode: 'learn',
     learned: 0,
-    // 20 words → 5 boards of 4 pairs.
-    target: 20,
-    gate: 'Word Match opens once you have 20 words in your learning pile',
-    gateHint: 'Save words while you read, or add them from the dictionary search.',
+    gate: `Word Match opens once you have ${MIN_PRACTICE_WORDS} words in your learning pile`,
+    gateHint: 'Save words while you read, or add them from the word lookup.',
   },
   remember: {
     title: 'Remember?',
     mode: 'remember',
     learned: 1,
-    // Up to 30 words → 5 boards of 6 pairs (fewer pairs per board below 30).
-    target: 30,
-    gate: 'Remember? opens once you have 20 words on the learnt shelf',
-    gateHint: 'Keep practising — words graduate there after three correct answers in a row.',
+    gate: `Remember? opens once you have ${MIN_PRACTICE_WORDS} words on the learnt shelf`,
+    gateHint: 'Keep practising — words graduate there through correct answers.',
   },
 } as const;
 
 export type MatchSessionKind = keyof typeof SESSIONS;
 
-/** Split into ROUNDS boards, sizes as even as possible (larger boards first). */
-function splitRounds(words: SavedWord[]): SavedWord[][] {
+/** Chunk the drawn words into boards of MATCH_WORDS_PER_SESSION. */
+function splitRounds(words: SavedWord[], rounds: number): SavedWord[][] {
   const out: SavedWord[][] = [];
-  const base = Math.floor(words.length / ROUNDS);
-  let extra = words.length % ROUNDS;
-  let i = 0;
-  for (let r = 0; r < ROUNDS; r++) {
-    const size = base + (extra-- > 0 ? 1 : 0);
-    out.push(words.slice(i, i + size));
-    i += size;
+  for (let r = 0; r < rounds; r++) {
+    out.push(words.slice(r * MATCH_WORDS_PER_SESSION, (r + 1) * MATCH_WORDS_PER_SESSION));
   }
   return out;
 }
 
+/**
+ * Word Match / Remember? — 5 words per session, up to 6 sessions
+ * (`sessions = min(6, floor(pool / 5))`). Wrong pairs simply stay on the
+ * board to retry; a cleanly finished board auto-advances after a short
+ * frozen pause.
+ */
 export default function MatchSessionPage({ kind }: { kind: MatchSessionKind }) {
   const { user } = useAuth();
   const session = SESSIONS[kind];
   const themeVars = vocabThemeVars(kind);
 
   const [words, setWords] = useState<SavedWord[] | null>(null);
+  const [poolSize, setPoolSize] = useState(0);
   const [round, setRound] = useState(0);
   const [misses, setMisses] = useState(0);
   const [missedIds, setMissedIds] = useState<Set<string>>(new Set());
   const [finished, setFinished] = useState(false);
+  const [advancing, setAdvancing] = useState(false);
+  const advanceTimer = useRef<number | null>(null);
 
   function reset() {
     setWords(null);
@@ -69,16 +80,22 @@ export default function MatchSessionPage({ kind }: { kind: MatchSessionKind }) {
     setMisses(0);
     setMissedIds(new Set());
     setFinished(false);
+    setAdvancing(false);
+  }
+
+  async function draw(): Promise<{ pool: number; drawn: SavedWord[] }> {
+    const pool = await loadPracticePool({ learned: session.learned, requireTranslation: true });
+    const sessions = matchSessionCount(pool.length);
+    const drawn =
+      sessions > 0 ? await drawFromPool(pool, sessions * MATCH_WORDS_PER_SESSION) : [];
+    return { pool: pool.length, drawn };
   }
 
   async function start() {
     reset();
-    setWords(
-      await drawPracticeWords(session.target, {
-        learned: session.learned,
-        requireTranslation: true,
-      }),
-    );
+    const { pool, drawn } = await draw();
+    setPoolSize(pool);
+    setWords(drawn);
   }
 
   useEffect(() => {
@@ -87,34 +104,38 @@ export default function MatchSessionPage({ kind }: { kind: MatchSessionKind }) {
     // completeRound must match the pairs the learner actually saw.
     let cancelled = false;
     reset();
-    drawPracticeWords(session.target, { learned: session.learned, requireTranslation: true }).then(
-      (drawn) => {
-        if (!cancelled) setWords(drawn);
-      },
-    );
+    draw().then(({ pool, drawn }) => {
+      if (cancelled) return;
+      setPoolSize(pool);
+      setWords(drawn);
+    });
     return () => {
       cancelled = true;
+      if (advanceTimer.current !== null) window.clearTimeout(advanceTimer.current);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kind]);
 
   if (!user) {
     return (
       <>
-        <DrillHeader title={session.title} backTo="/practice?tab=vocabulary" backLabel="Practice" />
-        <GuestNotice message="Log in or create a free account to save words and practise them here." />
+        <DrillHeader title={session.title} backTo={BACK_TO} backLabel="Vocabulary" />
+        <GuestNotice message="Sign in with your email to save words and practise them here." />
       </>
     );
   }
 
-  if (!words) return <DrillHeader title={session.title} backTo="/practice?tab=vocabulary" backLabel="Practice" />;
+  if (!words) return <DrillHeader title={session.title} backTo={BACK_TO} backLabel="Vocabulary" />;
 
-  if (words.length < MIN_WORDS) {
+  const rounds = matchSessionCount(poolSize);
+
+  if (rounds === 0) {
     return (
       <>
-        <DrillHeader title={session.title} backTo="/practice?tab=vocabulary" backLabel="Practice" />
+        <DrillHeader title={session.title} backTo={BACK_TO} backLabel="Vocabulary" />
         <div className="card">
           <p style={{ margin: '0 0 6px' }}>
-            {session.gate} — you have {words.length} so far.
+            {session.gate} — you have {poolSize} so far.
           </p>
           <p style={{ margin: '0 0 12px', color: 'var(--ink-soft)' }}>{session.gateHint}</p>
           <Link className="btn btn--accent" to={kind === 'learn' ? '/reading' : '/vocabulary'}>
@@ -129,7 +150,7 @@ export default function MatchSessionPage({ kind }: { kind: MatchSessionKind }) {
     const missedWords = words.filter((w) => missedIds.has(w.id));
     return (
       <>
-        <DrillHeader title={session.title} backTo="/practice?tab=vocabulary" backLabel="Practice" />
+        <DrillHeader title={session.title} backTo={BACK_TO} backLabel="Vocabulary" />
         <div style={themeVars}>
           <DrillResults
             score={words.length - missedWords.length}
@@ -142,40 +163,53 @@ export default function MatchSessionPage({ kind }: { kind: MatchSessionKind }) {
     );
   }
 
-  const boards = splitRounds(words);
+  const boards = splitRounds(words, rounds);
 
   function completeRound(ids: Set<string>) {
-    // One board = one practice answer per word on it: clean → streak grows,
-    // missed → back to still-learning.
-    for (const w of boards[round]) void recordWordResult(w, !ids.has(w.id));
+    // One board = one practice answer per word on it (match-streak track):
+    // clean → streak grows, missed → the miss run advances.
+    for (const w of boards[round]) void recordWordResult(w, !ids.has(w.id), 'match');
     setMissedIds((prev) => new Set([...prev, ...ids]));
-    if (round + 1 >= ROUNDS) {
+    if (round + 1 >= rounds) {
       const allMissed = new Set([...missedIds, ...ids]);
       recordRound('vocabulary', session.mode, words!.length - allMissed.size, words!.length);
       setFinished(true);
     } else {
+      // Auto-advance to the next session after a short pause; everything is
+      // frozen (pointer-events off) until the new board mounts.
       successChime();
-      setRound((r) => r + 1);
+      setAdvancing(true);
+      advanceTimer.current = window.setTimeout(() => {
+        setAdvancing(false);
+        setRound((r) => r + 1);
+      }, ADVANCE_MS);
     }
   }
 
   return (
-    <div className="conj-drill" style={themeVars}>
-      <DrillTopline backTo="/practice?tab=vocabulary" backLabel="Practice" title={session.title}>
+    <div
+      className="conj-drill"
+      style={advancing ? { ...themeVars, pointerEvents: 'none' } : themeVars}
+      aria-busy={advancing}
+    >
+      <DrillTopline backTo={BACK_TO} backLabel="Vocabulary" title={session.title}>
         <span className="hud-pill hud-pill--live" key={`miss-${misses}`}>
           ✕ <strong>{misses}</strong>
         </span>
         <SoundPill />
       </DrillTopline>
       <div className="conj-progress">
-        <div className="conj-progress__fill" style={{ width: `${(round / ROUNDS) * 100}%` }} />
+        <div
+          className="conj-progress__fill"
+          style={{ width: `${((round + (advancing ? 1 : 0)) / rounds) * 100}%` }}
+        />
       </div>
 
       <div className="card conj-stage" key={round}>
         <div className="conj-stage__head">
           <span className="conj-tense-badge">Match the pairs</span>
           <span className="conj-stage__counter">
-            N° {round + 1}/{ROUNDS}
+            N° {round + 1}/{rounds}
           </span>
         </div>
         <div className="vocab-board">

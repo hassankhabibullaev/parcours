@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../lib/db';
+import { db, type SavedWord } from '../lib/db';
 import { lookup, type LookupResult } from '../lib/dictionary';
 import { canSpeak, speakFrench } from '../lib/speech';
 import { useAutoSpeak } from '../lib/useAutoSpeak';
+import { lookupSpeechEnabled } from '../lib/settings';
 import { errorBuzz, confirmTock } from '../lib/sound';
 import { saveWord } from '../lib/vocab';
 import { useAuthGate } from './AuthGate';
@@ -20,16 +21,28 @@ export interface LookupRequest {
 
 interface WordModalProps {
   request: LookupRequest;
+  /**
+   * The already-saved record when opened from the vocabulary list: its stored
+   * translation/definition/sentence are shown as-is (no online lookup) and
+   * the save action is omitted — the word is in the lexicon already.
+   */
+  saved?: SavedWord;
   onClose: () => void;
 }
 
-export default function WordModal({ request, onClose }: WordModalProps) {
+export default function WordModal({ request, saved, onClose }: WordModalProps) {
   const { display, term, sentence, articleId } = request;
   const { requireAuth } = useAuthGate();
 
   const [result, setResult] = useState<LookupResult | null>(null);
   const [failed, setFailed] = useState(false);
   useEffect(() => {
+    // A saved word already carries its content — no network round-trip.
+    if (saved) {
+      setResult({ term, translation: saved.translation, definition: saved.definition });
+      setFailed(false);
+      return;
+    }
     let cancelled = false;
     setResult(null);
     setFailed(false);
@@ -44,7 +57,7 @@ export default function WordModal({ request, onClose }: WordModalProps) {
     return () => {
       cancelled = true;
     };
-  }, [term]);
+  }, [term, saved]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -57,7 +70,8 @@ export default function WordModal({ request, onClose }: WordModalProps) {
   // Pronounce the term automatically when the modal opens (and again for each
   // newly tapped word, since this instance is reused). The tap that opened the
   // modal has already primed the audio element, so playback is allowed on iOS.
-  useAutoSpeak(term);
+  // The learner can turn this off in Profile → Settings.
+  useAutoSpeak(term, lookupSpeechEnabled());
 
   const alreadySaved = useLiveQuery(
     () => db.savedWords.where('lemma').equals(term).first(),
@@ -149,15 +163,19 @@ export default function WordModal({ request, onClose }: WordModalProps) {
             )}
             {sentence && <blockquote className="modal__sentence">{sentence}</blockquote>}
 
-            <div className="modal__actions">
-              {alreadySaved ? (
-                <span className="btn btn--ghost modal__saved">In your vocabulary ✓</span>
-              ) : (
-                <button className="btn btn--primary" onClick={handleSave} disabled={failed}>
-                  Save to Vocabulary
-                </button>
-              )}
-            </div>
+            {/* Opened from the vocabulary list: the word is saved by definition —
+                same layout, just no save action. */}
+            {!saved && (
+              <div className="modal__actions">
+                {alreadySaved ? (
+                  <span className="btn btn--ghost modal__saved">In your vocabulary ✓</span>
+                ) : (
+                  <button className="btn btn--primary" onClick={handleSave} disabled={failed}>
+                    Add to Vocabulary
+                  </button>
+                )}
+              </div>
+            )}
           </>
         )}
       </div>

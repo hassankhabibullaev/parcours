@@ -13,6 +13,7 @@ import {
 } from '../lib/lemmatize';
 import { keyClick, confirmTock } from '../lib/sound';
 import { useAutoSpeak } from '../lib/useAutoSpeak';
+import { titleSpeechEnabled } from '../lib/settings';
 import { useAuth } from '../components/AuthProvider';
 import { useAuthGate } from '../components/AuthGate';
 import WordModal, { type LookupRequest } from '../components/WordModal';
@@ -101,8 +102,9 @@ export default function ArticlePage() {
     return () => window.clearInterval(timer);
   }, [article]);
 
-  // Read the headline aloud once it has finished typing itself out.
-  useAutoSpeak(article?.title, !rendering);
+  // Read the headline aloud once it has finished typing itself out — unless
+  // the learner turned headlines off in Profile → Settings.
+  useAutoSpeak(article?.title, !rendering && titleSpeechEnabled());
 
   // Record the visit and restore the saved scroll position once.
   const restoredRef = useRef(false);

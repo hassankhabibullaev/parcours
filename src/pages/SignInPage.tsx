@@ -1,19 +1,20 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../components/AuthProvider';
-import { AuthError, isValidPassword, isValidUsername } from '../lib/auth';
+import { AuthError, isValidEmail } from '../lib/auth';
 
-type Mode = 'login' | 'signup';
+const RESEND_COOLDOWN_S = 30;
 
 /**
- * Full-screen sign-in page (no nav). Two modes: Log in (username + password) and
- * Sign up (name + username + password). Credentials are verified by the account
- * backend, so a taken username or wrong password is reported inline. Reachable by
- * choice — a guest can always dismiss it and keep browsing. On success (or if an
- * already-signed-in user lands here) it returns to wherever they came from.
+ * Full-screen sign-in page (no nav). One unified email + code form: enter an
+ * email, receive a one-time code, type it in — a first-time email gets an
+ * account created on the spot, a known one logs in. No passwords, no separate
+ * register screen. Reachable by choice — a guest can always dismiss it and
+ * keep browsing. On success (or if an already-signed-in user lands here) it
+ * returns to wherever they came from.
  */
 export default function SignInPage() {
-  const { user, logIn, signUp } = useAuth();
+  const { user, requestCode, verifyCode } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as { from?: string } | null)?.from ?? '/';
@@ -24,40 +25,73 @@ export default function SignInPage() {
     if (user) navigate(from, { replace: true });
   }, [user, from, navigate]);
 
-  const [mode, setMode] = useState<Mode>('login');
-  const [name, setName] = useState('');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [step, setStep] = useState<'email' | 'code'>('email');
+  const [email, setEmail] = useState('');
+  const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showForgot, setShowForgot] = useState(false);
+  // The server hands the code back when no mail provider is configured
+  // (always in dev) — show it so sign-in still works end to end.
+  const [devCode, setDevCode] = useState<string | null>(null);
+  const [cooldown, setCooldown] = useState(0);
+  const codeRef = useRef<HTMLInputElement | null>(null);
 
-  const nameOk = mode === 'login' || name.trim().length > 0;
-  const canSubmit = nameOk && isValidUsername(username) && isValidPassword(password);
+  // Resend cooldown ticker.
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const t = window.setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => window.clearTimeout(t);
+  }, [cooldown]);
 
-  function switchMode(next: Mode) {
-    if (next === mode) return;
-    setMode(next);
-    setError(null);
-    setShowForgot(false);
-  }
+  const canSend = isValidEmail(email);
+  const canVerify = /^\d{6}$/.test(code.trim());
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (!canSubmit || busy) return;
+  async function sendCode() {
+    if (!canSend || busy) return;
     setBusy(true);
     setError(null);
     try {
-      if (mode === 'signup') await signUp(name, username, password);
-      else await logIn(username, password);
+      const { devCode: dc } = await requestCode(email);
+      setDevCode(dc ?? null);
+      setStep('code');
+      setCode('');
+      setCooldown(RESEND_COOLDOWN_S);
+      requestAnimationFrame(() => codeRef.current?.focus());
     } catch (err) {
       setError(
-        err instanceof AuthError
-          ? err.message
-          : 'Something went wrong. Please try again.',
+        err instanceof AuthError ? err.message : 'Something went wrong. Please try again.',
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function submitCode() {
+    if (!canVerify || busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await verifyCode(email, code);
+      // The user effect above redirects once the session lands.
+    } catch (err) {
+      setError(
+        err instanceof AuthError ? err.message : 'Something went wrong. Please try again.',
       );
       setBusy(false);
     }
+  }
+
+  function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (step === 'email') void sendCode();
+    else void submitCode();
+  }
+
+  function changeEmail() {
+    setStep('email');
+    setCode('');
+    setError(null);
+    setDevCode(null);
   }
 
   return (
@@ -69,108 +103,89 @@ export default function SignInPage() {
         </div>
 
         <form onSubmit={handleSubmit}>
-          {mode === 'signup' && (
+          {step === 'email' ? (
             <>
-              <label className="auth-label" htmlFor="auth-name">
-                Your name
+              <label className="auth-label" htmlFor="auth-email">
+                Email
               </label>
               <input
-                id="auth-name"
+                id="auth-email"
                 className="text-input"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                autoComplete="name"
-                autoCapitalize="words"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                inputMode="email"
+              />
+              <p className="auth-hint">
+                We'll email you a one-time code — new emails get an account automatically.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="auth-sent">
+                Enter the 6-digit code sent to <strong>{email}</strong>
+              </p>
+              {devCode && (
+                <p className="auth-help">
+                  Email delivery isn't set up on this server yet — your code is{' '}
+                  <strong>{devCode}</strong>
+                </p>
+              )}
+              <label className="auth-label" htmlFor="auth-code">
+                Code
+              </label>
+              <input
+                id="auth-code"
+                ref={codeRef}
+                className="text-input auth-code-input"
+                value={code}
+                onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                autoComplete="one-time-code"
+                inputMode="numeric"
+                pattern="\d{6}"
+                maxLength={6}
+                placeholder="••••••"
               />
             </>
           )}
-
-          <label className="auth-label" htmlFor="auth-username">
-            Username
-          </label>
-          <input
-            id="auth-username"
-            className="text-input"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            autoComplete="username"
-            autoCapitalize="none"
-            autoCorrect="off"
-            spellCheck={false}
-          />
-
-          <label className="auth-label" htmlFor="auth-password">
-            Password
-          </label>
-          <input
-            id="auth-password"
-            className="text-input"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
-          />
 
           {error && <p className="auth-error">{error}</p>}
 
           <button
             className="btn btn--accent auth-submit"
             type="submit"
-            disabled={!canSubmit || busy}
+            disabled={busy || (step === 'email' ? !canSend : !canVerify)}
           >
-            {busy
-              ? mode === 'signup'
-                ? 'Creating account…'
-                : 'Logging in…'
-              : mode === 'signup'
-                ? 'Create account'
-                : 'Log in'}
+            {step === 'email'
+              ? busy
+                ? 'Sending code…'
+                : 'Send code'
+              : busy
+                ? 'Signing in…'
+                : 'Sign in'}
           </button>
         </form>
 
         <div className="auth-alt">
-          {mode === 'login' ? (
+          {step === 'code' && (
             <>
-              <p className="auth-switch">
-                Don’t have an account?{' '}
-                <button
-                  type="button"
-                  className="auth-link auth-link--strong"
-                  onClick={() => switchMode('signup')}
-                >
-                  Register
-                </button>
-              </p>
               <button
                 type="button"
                 className="auth-link"
-                onClick={() => setShowForgot((v) => !v)}
+                disabled={cooldown > 0 || busy}
+                onClick={() => void sendCode()}
               >
-                Forgot password?
+                {cooldown > 0 ? `Resend code (${cooldown}s)` : 'Resend code'}
               </button>
-              {showForgot && (
-                <p className="auth-help">
-                  Contact the author at{' '}
-                  <a href="https://t.me/khassanboi" target="_blank" rel="noreferrer">
-                    t.me/khassanboi
-                  </a>{' '}
-                  and provide your username.
-                </p>
-              )}
+              <button type="button" className="auth-link" onClick={changeEmail}>
+                Use a different email
+              </button>
             </>
-          ) : (
-            <p className="auth-switch">
-              Already have an account?{' '}
-              <button
-                type="button"
-                className="auth-link auth-link--strong"
-                onClick={() => switchMode('login')}
-              >
-                Log in
-              </button>
-            </p>
           )}
-
           <button
             type="button"
             className="auth-link auth-guest"

@@ -1,16 +1,18 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
 import {
   getStoredUser,
-  signUp as authSignUp,
-  logIn as authLogIn,
+  requestCode as authRequestCode,
+  verifyCode as authVerifyCode,
   signOut as authSignOut,
   type User,
 } from '../lib/auth';
 
 interface AuthValue {
   user: User | null;
-  signUp: (name: string, username: string, password: string) => Promise<void>;
-  logIn: (username: string, password: string) => Promise<void>;
+  /** Email a one-time code; resolves with the code itself when mail isn't configured. */
+  requestCode: (email: string) => Promise<{ devCode?: string }>;
+  /** Verify the code — signs in, creating the account on first use. */
+  verifyCode: (email: string, code: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -25,12 +27,12 @@ export function useAuth(): AuthValue {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(() => getStoredUser());
 
-  async function signUp(name: string, username: string, password: string): Promise<void> {
-    setUser(await authSignUp(name, username, password));
+  async function requestCode(email: string): Promise<{ devCode?: string }> {
+    return authRequestCode(email);
   }
 
-  async function logIn(username: string, password: string): Promise<void> {
-    setUser(await authLogIn(username, password));
+  async function verifyCode(email: string, code: string): Promise<void> {
+    setUser(await authVerifyCode(email, code));
   }
 
   async function signOut(): Promise<void> {
@@ -41,6 +43,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, signUp, logIn, signOut }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, requestCode, verifyCode, signOut }}>
+      {children}
+    </AuthContext.Provider>
   );
 }

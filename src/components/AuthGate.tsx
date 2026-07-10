@@ -24,15 +24,15 @@ export type GateReason = 'read' | 'vocab' | 'practice';
 const COPY: Record<GateReason, { title: string; body: string }> = {
   read: {
     title: 'Keep track of your reading',
-    body: 'Log in or create a free account to mark articles as read and remember where you left off. It only takes a moment.',
+    body: 'Sign in with your email to mark articles as read and remember where you left off. It only takes a moment — no password needed.',
   },
   vocab: {
     title: 'Save words to your vocabulary',
-    body: 'Log in or create a free account to build a personal word list you can practise later. It only takes a moment.',
+    body: 'Sign in with your email to build a personal word list you can practise later. It only takes a moment — no password needed.',
   },
   practice: {
     title: 'Practise your vocabulary',
-    body: 'Log in or create a free account to save words and drill them here. Conjugation practice stays open to everyone.',
+    body: 'Sign in with your email to save words and drill them here. Conjugation practice stays open to everyone.',
   },
 };
 
@@ -107,7 +107,7 @@ function AuthRequiredModal({ reason, onClose }: { reason: GateReason; onClose: (
         <p className="modal__lede">{body}</p>
         <div className="modal__actions modal__actions--stack">
           <button className="btn btn--accent" onClick={goToSignIn}>
-            Log in or sign up
+            Sign in
           </button>
           <button className="btn btn--ghost" onClick={onClose}>
             Maybe later
@@ -132,7 +132,7 @@ export function GuestNotice({ message }: { message: string }) {
         className="btn btn--accent"
         onClick={() => navigate('/signin', { state: { from: location.pathname + location.search } })}
       >
-        Log in or sign up
+        Sign in
       </button>
     </div>
   );

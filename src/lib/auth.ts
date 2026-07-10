@@ -1,21 +1,20 @@
 /**
- * Username + password identity. Credentials are verified by the account backend
- * (functions/api/account.ts, mirrored for `vite dev` in vite.config.ts): sign-up
- * refuses a taken username, log-in refuses a wrong password. The threat model is
- * modest — the data behind an account is non-sensitive learning progress — but
- * this is a real login, not the old unverified email label.
+ * Email + one-time-code identity. One unified flow: the learner enters their
+ * email, receives a 6-digit code (functions/api/account.ts, mirrored for
+ * `vite dev` in vite.config.ts), and verifying it signs them in — creating the
+ * account on the spot if it's their first time. No passwords anywhere.
  *
- * The identity lives in localStorage (the session persists indefinitely until an
- * explicit sign-out). The sync bucket key is a hash of the username, so the
- * account progress travels under an opaque code, not the raw name.
+ * The identity lives in localStorage (the session persists indefinitely until
+ * an explicit sign-out). The sync bucket key is a hash of the email, so the
+ * account progress travels under an opaque code, not the raw address.
  */
 
 import { db, setKV } from './db';
 import { syncNow } from './sync';
 
 export interface User {
-  name: string;
-  username: string;
+  email: string;
+  name?: string;
 }
 
 const USER_KEY = 'parcours-user';
@@ -24,9 +23,13 @@ export function getStoredUser(): User | null {
   try {
     const raw = localStorage.getItem(USER_KEY);
     if (!raw) return null;
-    const parsed = JSON.parse(raw) as Partial<User>;
-    if (!parsed.username) return null;
-    return { name: parsed.name ?? '', username: parsed.username };
+    const parsed = JSON.parse(raw) as Partial<User> & { username?: string };
+    // Legacy sessions (username + password era) stored { name, username }.
+    // Keep them signed in under the same identifier so their sync bucket
+    // (derived from that string) still matches.
+    const email = parsed.email ?? parsed.username;
+    if (!email) return null;
+    return { email, name: parsed.name || undefined };
   } catch {
     return null;
   }
@@ -48,25 +51,21 @@ function clearStoredUser(): void {
   }
 }
 
-export function normalizeUsername(username: string): string {
-  return username.trim().toLowerCase();
+export function normalizeEmail(email: string): string {
+  return email.trim().toLowerCase();
 }
 
-/** Usernames: 3–32 chars, letters/numbers plus . _ - (matches the backend). */
-export function isValidUsername(username: string): boolean {
-  return /^[a-z0-9._-]{3,32}$/.test(normalizeUsername(username));
-}
-
-export function isValidPassword(password: string): boolean {
-  return password.length >= 6;
+export function isValidEmail(email: string): boolean {
+  const e = normalizeEmail(email);
+  return e.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
 }
 
 /**
- * A stable, opaque sync-bucket key from the username. Hashed so the name never
+ * A stable, opaque sync-bucket key from the email. Hashed so the address never
  * appears in the `/api/sync/:code` URL or the server's KV keys.
  */
-export async function deriveSyncCode(username: string): Promise<string> {
-  const data = new TextEncoder().encode(`parcours:${normalizeUsername(username)}`);
+export async function deriveSyncCode(email: string): Promise<string> {
+  const data = new TextEncoder().encode(`parcours:${normalizeEmail(email)}`);
   const digest = await crypto.subtle.digest('SHA-256', data);
   const hex = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
   return `acct-${hex.slice(0, 32)}`;
@@ -75,22 +74,22 @@ export async function deriveSyncCode(username: string): Promise<string> {
 interface AccountResponse {
   ok?: boolean;
   name?: string;
+  created?: boolean;
+  /** Present when the server has no mail provider configured (and always in dev). */
+  devCode?: string;
   error?: string;
 }
 
-/** Thrown for a rejected credential so the UI can show the server's message. */
+/** Thrown for a rejected request so the UI can show the server's message. */
 export class AuthError extends Error {}
 
-async function postAccount(
-  action: 'signup' | 'login',
-  fields: { username: string; password: string; name?: string },
-): Promise<string> {
+async function postAccount(payload: Record<string, string>): Promise<AccountResponse> {
   let res: Response;
   try {
     res = await fetch('/api/account', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action, ...fields, username: normalizeUsername(fields.username) }),
+      body: JSON.stringify(payload),
     });
   } catch {
     throw new AuthError('Could not reach the server — check your connection and try again.');
@@ -104,30 +103,33 @@ async function postAccount(
   if (!res.ok || !data.ok) {
     throw new AuthError(data.error ?? 'Something went wrong. Please try again.');
   }
-  return data.name ?? normalizeUsername(fields.username);
+  return data;
 }
 
-/** Finish a successful auth: remember the identity, point sync at the bucket, pull. */
-async function establishSession(name: string, username: string): Promise<User> {
-  const user: User = { name: name.trim() || normalizeUsername(username), username: normalizeUsername(username) };
+/**
+ * Ask the server to email a sign-in code. Returns the code itself when email
+ * delivery isn't configured (dev, or no mail key yet) so the UI can show it.
+ */
+export async function requestCode(email: string): Promise<{ devCode?: string }> {
+  const data = await postAccount({ action: 'request-code', email: normalizeEmail(email) });
+  return { devCode: data.devCode };
+}
+
+/**
+ * Verify the emailed code. Creates the account if this email has none (one
+ * form serves both sign-up and log-in), then establishes the local session.
+ */
+export async function verifyCode(email: string, code: string): Promise<User> {
+  const data = await postAccount({
+    action: 'verify-code',
+    email: normalizeEmail(email),
+    code: code.trim(),
+  });
+  const user: User = { email: normalizeEmail(email), name: data.name || undefined };
   storeUser(user);
-  await setKV('syncCode', await deriveSyncCode(user.username));
-  // Name rides along in the synced store so other devices show it too.
-  await setKV('accountName', user.name);
+  await setKV('syncCode', await deriveSyncCode(user.email));
   await syncNow();
   return user;
-}
-
-/** Create a new account, then sign in. */
-export async function signUp(name: string, username: string, password: string): Promise<User> {
-  const resolvedName = await postAccount('signup', { username, password, name });
-  return establishSession(name || resolvedName, username);
-}
-
-/** Verify credentials for an existing account, then sign in. */
-export async function logIn(username: string, password: string): Promise<User> {
-  const name = await postAccount('login', { username, password });
-  return establishSession(name, username);
 }
 
 /**

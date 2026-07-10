@@ -6,6 +6,7 @@ import App from './App';
 import { AuthProvider } from './components/AuthProvider';
 import { AuthGateProvider } from './components/AuthGate';
 import { loadLexicon } from './lib/lemmatize';
+import { runMigrations } from './lib/migrate';
 import './styles/global.css';
 
 registerSW({ immediate: true });
@@ -13,6 +14,9 @@ registerSW({ immediate: true });
 // Warm the full French lexicon in the background (cached after first load) so
 // reading lemmatisation is ready by the time the learner opens an article.
 void loadLexicon();
+
+// One-shot local data passes (translation template, per-exercise streaks).
+void runMigrations();
 
 // Zoom is disabled app-wide: iOS Safari ignores user-scalable=no in the browser,
 // so pinch (gesture* events), ctrl/cmd+wheel and ctrl/cmd+±0 are blocked here too.

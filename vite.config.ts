@@ -4,35 +4,14 @@ import { VitePWA } from "vite-plugin-pwa";
 
 /**
  * Account API (functions/api/account.ts) is a Cloudflare Pages Function, so it
- * never runs under `vite dev`. This middleware mirrors it with an in-memory
- * store (resets on restart) so sign-up / log-in work locally. Keep it in step
- * with functions/api/account.ts. Uses only web-standard globals (the same
- * `crypto.subtle` as the Function) so it needs no Node type packages.
+ * never runs under `vite dev`. This middleware mirrors the email + OTP flow
+ * with an in-memory store (resets on restart) so sign-in works locally. No
+ * mail is ever sent in dev — the code always comes back as `devCode` (and is
+ * printed to the terminal). Keep it in step with functions/api/account.ts.
  */
 function devAccountApi(): Plugin {
-  interface Rec { name: string; salt: string; hash: string }
-  const accounts = new Map<string, Rec>();
-  const toHex = (b: Uint8Array) => [...b].map((x) => x.toString(16).padStart(2, "0")).join("");
-  const fromHex = (h: string) => {
-    const o = new Uint8Array(h.length / 2);
-    for (let i = 0; i < o.length; i++) o[i] = parseInt(h.slice(i * 2, i * 2 + 2), 16);
-    return o;
-  };
-  const hashPassword = async (password: string, saltHex: string) => {
-    const key = await crypto.subtle.importKey(
-      "raw",
-      new TextEncoder().encode(password),
-      "PBKDF2",
-      false,
-      ["deriveBits"],
-    );
-    const bits = await crypto.subtle.deriveBits(
-      { name: "PBKDF2", salt: fromHex(saltHex), iterations: 100_000, hash: "SHA-256" },
-      key,
-      256,
-    );
-    return toHex(new Uint8Array(bits));
-  };
+  const accounts = new Map<string, { name: string }>();
+  const codes = new Map<string, { code: string; tries: number; expiresAt: number }>();
   return {
     name: "dev-account-api",
     apply: "serve",
@@ -54,41 +33,39 @@ function devAccountApi(): Plugin {
           raw += chunk;
         });
         r.on("end", () => {
-          void (async () => {
-            let body: { action?: string; username?: string; password?: string; name?: string } = {};
-            try {
-              body = JSON.parse(raw || "{}");
-            } catch {
-              return send(400, { ok: false, error: "Bad request." });
+          let body: { action?: string; email?: string; code?: string } = {};
+          try {
+            body = JSON.parse(raw || "{}");
+          } catch {
+            return send(400, { ok: false, error: "Bad request." });
+          }
+          const email = (body.email ?? "").trim().toLowerCase();
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email))
+            return send(400, { ok: false, error: "Enter a valid email address." });
+          if (body.action === "request-code") {
+            const code = String(Math.floor(Math.random() * 1_000_000)).padStart(6, "0");
+            codes.set(email, { code, tries: 0, expiresAt: Date.now() + 600_000 });
+            server.config.logger.info(`[dev-account] sign-in code for ${email}: ${code}`);
+            return send(200, { ok: true, devCode: code });
+          }
+          if (body.action === "verify-code") {
+            const rec = codes.get(email);
+            if (!rec || rec.expiresAt < Date.now())
+              return send(400, { ok: false, error: "That code has expired — request a new one." });
+            if (rec.tries >= 5) {
+              codes.delete(email);
+              return send(429, { ok: false, error: "Too many wrong attempts — request a new code." });
             }
-            const username = (body.username ?? "").trim().toLowerCase();
-            const password = body.password ?? "";
-            const name = (body.name ?? "").trim().slice(0, 60);
-            if (!/^[a-z0-9._-]{3,32}$/.test(username))
-              return send(400, {
-                ok: false,
-                error: "Username must be 3–32 characters: letters, numbers, . _ -",
-              });
-            if (password.length < 6)
-              return send(400, { ok: false, error: "Password must be at least 6 characters." });
-            if (body.action === "signup") {
-              if (accounts.has(username))
-                return send(409, { ok: false, error: "That username is taken. Try logging in." });
-              const salt = toHex(crypto.getRandomValues(new Uint8Array(16)));
-              const hash = await hashPassword(password, salt);
-              accounts.set(username, { name: name || username, salt, hash });
-              return send(200, { ok: true, name: name || username });
+            if ((body.code ?? "").trim() !== rec.code) {
+              rec.tries += 1;
+              return send(401, { ok: false, error: "Wrong code — check the email and try again." });
             }
-            if (body.action === "login") {
-              const rec = accounts.get(username);
-              if (!rec)
-                return send(404, { ok: false, error: "No account for that username. Sign up first." });
-              if ((await hashPassword(password, rec.salt)) !== rec.hash)
-                return send(401, { ok: false, error: "Wrong username or password." });
-              return send(200, { ok: true, name: rec.name });
-            }
-            return send(400, { ok: false, error: "Unknown action." });
-          })();
+            codes.delete(email);
+            const created = !accounts.has(email);
+            if (created) accounts.set(email, { name: "" });
+            return send(200, { ok: true, name: accounts.get(email)!.name, created });
+          }
+          return send(400, { ok: false, error: "Unknown action." });
         });
       });
     },

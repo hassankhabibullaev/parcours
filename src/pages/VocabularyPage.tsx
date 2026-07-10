@@ -1,34 +1,71 @@
-import { useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db, deleteSavedWord, type SavedWord } from '../lib/db';
+import { db, type SavedWord } from '../lib/db';
 import { lookup } from '../lib/dictionary';
 import { searchDictionary } from '../lib/dictionarySearch';
-import { saveWord } from '../lib/vocab';
-import { confirmTock } from '../lib/sound';
+import { deleteSavedWord } from '../lib/db';
 import { canSpeak, speakFrench } from '../lib/speech';
-import { useAuthGate } from '../components/AuthGate';
-import { LEARNT_STREAK } from '../lib/practice';
+import {
+  LEARNT_STREAKS,
+  blankStreakOf,
+  matchStreakOf,
+  promotionProgress,
+} from '../lib/practice';
+import SectionTabs from '../components/SectionTabs';
+import VocabDrills from '../components/VocabDrills';
+import WordModal, { type LookupRequest } from '../components/WordModal';
 import {
   CheckCircleIcon,
   CheckIcon,
   CloseIcon,
   EditIcon,
-  PlusIcon,
   SpeakerIcon,
   TrashIcon,
   UndoIcon,
 } from '../components/icons';
 
-type Tab = 'learning' | 'learned';
+type Tab = 'learn' | 'practice';
+type Shelf = 'all' | 'learning' | 'learned';
 
+interface ModalState {
+  request: LookupRequest;
+  saved?: SavedWord;
+}
+
+/**
+ * Vocabulary — two tabs. Learn holds the dictionary search and the lexicon
+ * (Learning/Learned as pill filters); Practice lists the three word drills.
+ * The active tab lives in the URL (`?tab=practice`) so drill back links can
+ * return here.
+ */
 export default function VocabularyPage() {
-  const { requireAuth } = useAuthGate();
+  const [params, setParams] = useSearchParams();
+  const tab: Tab = params.get('tab') === 'practice' ? 'practice' : 'learn';
+
+  return (
+    <>
+      <h2 className="page-heading">Vocabulary</h2>
+      <SectionTabs<Tab>
+        ariaLabel="Vocabulary"
+        tabs={[
+          { key: 'learn', label: 'Learn' },
+          { key: 'practice', label: 'Practice' },
+        ]}
+        active={tab}
+        onSelect={(t) => setParams(t === 'practice' ? { tab: 'practice' } : {}, { replace: true })}
+      />
+      {tab === 'learn' ? <LearnTab /> : <VocabDrills />}
+    </>
+  );
+}
+
+function LearnTab() {
   const words = useLiveQuery(() => db.savedWords.orderBy('addedAt').reverse().toArray(), []);
 
   const [query, setQuery] = useState('');
-  const [addingLemma, setAddingLemma] = useState<string | null>(null);
-  const [tab, setTab] = useState<Tab>('learning');
+  const [shelf, setShelf] = useState<Shelf>('all');
+  const [modal, setModal] = useState<ModalState | null>(null);
 
   // Inline editing of a word's first-line translation. `editingRef` mirrors
   // `editingId` synchronously so a blur fired by unmount can't double-commit
@@ -37,38 +74,70 @@ export default function VocabularyPage() {
   const [draft, setDraft] = useState('');
   const editingRef = useRef<string | null>(null);
 
+  // Debounce the search so the per-result translation fetches don't fire on
+  // every keystroke.
+  const trimmed = query.trim();
+  const [debounced, setDebounced] = useState('');
+  useEffect(() => {
+    const t = window.setTimeout(() => setDebounced(trimmed), 250);
+    return () => window.clearTimeout(t);
+  }, [trimmed]);
+
+  const results = useMemo(() => (debounced ? searchDictionary(debounced) : []), [debounced]);
+
+  // Short translations for search results, shown inline without any tap:
+  // saved words and the drilled verbs have one locally; the rest are fetched
+  // once (the lookup itself caches in IndexedDB).
+  const [glosses, setGlosses] = useState<Record<string, string>>({});
+  const requestedRef = useRef(new Set<string>());
+  const savedByLemma = useMemo(
+    () => new Map((words ?? []).map((w) => [w.lemma, w])),
+    [words],
+  );
+  useEffect(() => {
+    let cancelled = false;
+    for (const r of results) {
+      if (r.meaning || savedByLemma.has(r.lemma) || requestedRef.current.has(r.lemma)) continue;
+      requestedRef.current.add(r.lemma);
+      lookup(r.lemma).then((res) => {
+        if (!cancelled) setGlosses((g) => ({ ...g, [r.lemma]: res.translation }));
+      });
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [results, savedByLemma]);
+
   if (!words) return null;
 
   const learning = words.filter((w) => !w.learned);
   const learnt = words.filter((w) => w.learned);
-  const savedLemmas = new Set(words.map((w) => w.lemma));
+  const shown = shelf === 'learning' ? learning : shelf === 'learned' ? learnt : words;
 
-  const trimmed = query.trim();
-  const results = trimmed ? searchDictionary(trimmed) : [];
+  function openSavedWord(w: SavedWord) {
+    setModal({
+      request: { display: w.display || w.lemma, term: w.lemma, sentence: w.sentence, articleId: w.articleId },
+      saved: w,
+    });
+  }
 
-  const shown = tab === 'learning' ? learning : learnt;
-
-  async function addFromDictionary(lemma: string) {
-    if (addingLemma) return;
-    // Building a vocabulary needs an account — prompt guests to sign in.
-    if (!requireAuth('vocab')) return;
-    setAddingLemma(lemma);
-    try {
-      // Translation is fetched online (fail-soft — the word is saved either way).
-      const { translation, definition } = await lookup(lemma);
-      await saveWord({ lemma, display: lemma, translation, definition, sentence: '', articleId: null });
-      confirmTock();
-    } finally {
-      setAddingLemma(null);
-    }
+  function openSearchResult(lemma: string) {
+    const saved = savedByLemma.get(lemma);
+    setModal({
+      request: { display: lemma, term: lemma, sentence: saved?.sentence ?? '', articleId: saved?.articleId ?? null },
+      saved,
+    });
   }
 
   function toggleLearned(w: SavedWord) {
-    // Manual override of the automatic progression — align the streak so the
-    // dots (and the next practice answer) agree with the new shelf.
+    // Manual override of the automatic progression — align both exercise
+    // streaks so the dots (and the next practice answer) agree with the shelf.
     db.savedWords.update(w.id, {
       learned: w.learned ? 0 : 1,
-      streak: w.learned ? 0 : LEARNT_STREAK,
+      matchStreak: w.learned ? 0 : LEARNT_STREAKS.match,
+      blankStreak: w.learned ? 0 : LEARNT_STREAKS.blank,
+      matchMissRun: 0,
+      blankMissRun: 0,
       updatedAt: Date.now(),
     });
   }
@@ -103,11 +172,12 @@ export default function VocabularyPage() {
 
   function wordRow(w: SavedWord) {
     const editing = editingId === w.id;
+    const dotsOn = Math.round(promotionProgress(w) * LEARNT_STREAKS.match);
     return (
       <div key={w.id} className={`word-row${w.learned ? ' word-row--learned' : ''}`}>
-        <div className="word-row__main">
-          <span className="word-row__word">{w.lemma}</span>
-          {editing ? (
+        {editing ? (
+          <div className="word-row__main">
+            <span className="word-row__word">{w.lemma}</span>
             <input
               className="word-row__edit"
               value={draft}
@@ -129,10 +199,19 @@ export default function VocabularyPage() {
               autoCorrect="off"
               spellCheck={false}
             />
-          ) : (
+          </div>
+        ) : (
+          /* The word itself opens the same detail modal as in articles. */
+          <button
+            type="button"
+            className="word-row__main word-row__main--tap"
+            onClick={() => openSavedWord(w)}
+            aria-label={`Open ${w.lemma}`}
+          >
+            <span className="word-row__word">{w.lemma}</span>
             <span className="word-row__translation">{w.translation || '—'}</span>
-          )}
-        </div>
+          </button>
+        )}
         {editing ? (
           <div className="word-row__icons">
             {/* preventDefault keeps the input focused so its onClick (not the
@@ -161,13 +240,10 @@ export default function VocabularyPage() {
             {!w.learned && (
               <span
                 className="word-dots"
-                title={`${Math.min(w.streak ?? 0, LEARNT_STREAK)}/${LEARNT_STREAK} correct in a row`}
+                title={`Word Match ${Math.min(matchStreakOf(w), LEARNT_STREAKS.match)}/${LEARNT_STREAKS.match} · Fill in the Blank ${Math.min(blankStreakOf(w), LEARNT_STREAKS.blank)}/${LEARNT_STREAKS.blank}`}
               >
-                {Array.from({ length: LEARNT_STREAK }, (_, i) => (
-                  <span
-                    key={i}
-                    className={`word-dot${i < (w.streak ?? 0) ? ' word-dot--on' : ''}`}
-                  />
+                {Array.from({ length: LEARNT_STREAKS.match }, (_, i) => (
+                  <span key={i} className={`word-dot${i < dotsOn ? ' word-dot--on' : ''}`} />
                 ))}
               </span>
             )}
@@ -213,18 +289,19 @@ export default function VocabularyPage() {
     );
   }
 
+  const shelves: { key: Shelf; label: string; n: number }[] = [
+    { key: 'all', label: 'All', n: words.length },
+    { key: 'learning', label: 'Learning', n: learning.length },
+    { key: 'learned', label: 'Learned', n: learnt.length },
+  ];
+
   return (
     <>
-      <h2 className="page-heading">Vocabulary</h2>
-      <p className="page-subheading">
-        Your growing word collection — tap words as you read, or search below.
-      </p>
-
       <input
         className="text-input lexicon-search"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search the dictionary to add a word…"
+        placeholder="Look up a word…"
         autoCapitalize="none"
         autoCorrect="off"
         spellCheck={false}
@@ -234,27 +311,26 @@ export default function VocabularyPage() {
       {trimmed &&
         (results.length > 0 ? (
           <div className="dict-results">
-            {results.map((r) => (
-              <div key={r.lemma} className="dict-result">
-                <div className="dict-result__main">
-                  <span className="dict-result__word">{r.lemma}</span>
-                  {r.meaning && <span className="dict-result__meaning">{r.meaning}</span>}
-                </div>
-                {savedLemmas.has(r.lemma) ? (
-                  <span className="dict-result__added">In your vocabulary ✓</span>
-                ) : (
-                  <button
-                    className="icon-btn icon-btn--add"
-                    onClick={() => addFromDictionary(r.lemma)}
-                    disabled={addingLemma !== null}
-                    aria-label={`Add ${r.lemma} to vocabulary`}
-                    title="Add to vocabulary"
-                  >
-                    {addingLemma === r.lemma ? '…' : <PlusIcon />}
-                  </button>
-                )}
-              </div>
-            ))}
+            {results.map((r) => {
+              const saved = savedByLemma.get(r.lemma);
+              const gloss = saved?.translation || r.meaning || glosses[r.lemma];
+              return (
+                <button
+                  type="button"
+                  key={r.lemma}
+                  className="dict-result"
+                  onClick={() => openSearchResult(r.lemma)}
+                >
+                  <span className="dict-result__main">
+                    <span className="dict-result__word">{r.lemma}</span>
+                    <span className="dict-result__meaning">
+                      {gloss ?? <span className="dict-result__loading">…</span>}
+                    </span>
+                  </span>
+                  {saved && <span className="dict-result__added">Saved ✓</span>}
+                </button>
+              );
+            })}
           </div>
         ) : (
           <p className="form-notice">No matches in the dictionary.</p>
@@ -263,7 +339,7 @@ export default function VocabularyPage() {
       {words.length === 0 ? (
         <div className="card" style={{ marginTop: 12 }}>
           <p style={{ margin: '0 0 12px' }}>
-            Save words by tapping them while you read, or search the dictionary above.
+            Save words by tapping them while you read, or look one up above.
           </p>
           <Link className="btn btn--accent" to="/reading">
             Open the library
@@ -271,35 +347,34 @@ export default function VocabularyPage() {
         </div>
       ) : (
         <>
-          <div className="seg-tabs" role="tablist" aria-label="Lexicon">
-            <button
-              role="tab"
-              aria-selected={tab === 'learning'}
-              className={`seg-tab${tab === 'learning' ? ' seg-tab--active' : ''}`}
-              onClick={() => setTab('learning')}
-            >
-              Learning <span className="seg-tab__count">{learning.length}</span>
-            </button>
-            <button
-              role="tab"
-              aria-selected={tab === 'learned'}
-              className={`seg-tab${tab === 'learned' ? ' seg-tab--active' : ''}`}
-              onClick={() => setTab('learned')}
-            >
-              Learned <span className="seg-tab__count">{learnt.length}</span>
-            </button>
+          <div className="level-counts" role="group" aria-label="Filter by shelf">
+            {shelves.map((s) => (
+              <button
+                key={s.key}
+                type="button"
+                className={`level-count${shelf === s.key ? ' level-count--active' : ''}`}
+                aria-pressed={shelf === s.key}
+                onClick={() => setShelf(s.key)}
+              >
+                {s.label} <span className="level-count__n">{s.n}</span>
+              </button>
+            ))}
           </div>
 
           {shown.length > 0 ? (
             shown.map(wordRow)
           ) : (
             <p className="lex-group__empty">
-              {tab === 'learning'
-                ? 'Nothing in rotation — save words while you read.'
-                : `Words move here after ${LEARNT_STREAK} correct answers in a row.`}
+              {shelf === 'learned'
+                ? `Words land here after ${LEARNT_STREAKS.match} correct in a row in Word Match or ${LEARNT_STREAKS.blank} in Fill in the Blank — or mark one learnt yourself.`
+                : 'Nothing in rotation — save words while you read.'}
             </p>
           )}
         </>
+      )}
+
+      {modal && (
+        <WordModal request={modal.request} saved={modal.saved} onClose={() => setModal(null)} />
       )}
     </>
   );
