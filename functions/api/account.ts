@@ -93,6 +93,61 @@ async function isRateLimited(env: Env, key: string, max: number, windowSeconds: 
   return false;
 }
 
+/**
+ * The code email's HTML body — mirrors the app's newspaper-desk aesthetic
+ * (cream paper, burgundy "P" seal, serif wordmark, tabular-nums code card).
+ * Table-based layout + inline styles throughout: Gmail/Outlook strip <style>
+ * blocks and ignore flexbox/grid, so nothing here can rely on either.
+ */
+function otpEmailHtml(code: string): string {
+  return `
+<div style="background:#f0ece3;padding:32px 16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:420px;margin:0 auto;">
+    <tr>
+      <td align="center" style="padding-bottom:28px;">
+        <table role="presentation" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="padding-right:10px;">
+              <div style="width:34px;height:34px;border-radius:8px;background:#b5503a;text-align:center;line-height:34px;font-family:Georgia,'Times New Roman',serif;color:#f7f1e6;font-size:18px;font-weight:700;">P</div>
+            </td>
+            <td>
+              <span style="font-family:Georgia,'Times New Roman',serif;font-size:21px;font-weight:700;letter-spacing:0.08em;color:#211d16;text-transform:uppercase;">Parcours</span>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td style="background:#faf7f0;border:1px solid #ddd5c5;border-radius:10px;padding:32px 28px;">
+        <p style="margin:0 0 6px;font-family:Georgia,'Times New Roman',serif;font-size:19px;line-height:1.3;color:#211d16;">
+          Your sign-in code
+        </p>
+        <p style="margin:0 0 22px;font-size:14px;line-height:1.5;color:#6b6255;">
+          Enter this in Parcours to sign in. It expires in 10 minutes.
+        </p>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td align="center" style="background:#f0ece3;border:1px solid #ddd5c5;border-radius:10px;padding:18px 12px;">
+              <span style="font-family:Georgia,'Times New Roman',serif;font-size:32px;font-weight:700;letter-spacing:0.35em;color:#211d16;font-variant-numeric:tabular-nums;">
+                ${code}
+              </span>
+            </td>
+          </tr>
+        </table>
+        <p style="margin:22px 0 0;font-size:13px;line-height:1.5;color:#8a8172;">
+          Didn't request this? You can safely ignore this email — no account changes without the code.
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" style="padding-top:22px;">
+        <span style="font-size:12px;color:#a39c8c;">Parcours · your French, one edition at a time</span>
+      </td>
+    </tr>
+  </table>
+</div>`.trim();
+}
+
 /** Send the code via Resend; returns false when no provider is configured. */
 async function sendCodeEmail(env: Env, email: string, code: string): Promise<boolean> {
   if (!env.RESEND_API_KEY) return false;
@@ -109,6 +164,7 @@ async function sendCodeEmail(env: Env, email: string, code: string): Promise<boo
       text:
         `Your Parcours sign-in code is: ${code}\n\n` +
         `It expires in 10 minutes. If you didn't request it, you can ignore this email.`,
+      html: otpEmailHtml(code),
     }),
   });
   return res.ok;
