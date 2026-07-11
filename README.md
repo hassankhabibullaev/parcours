@@ -88,6 +88,7 @@ src/
   styles/global.css          the entire design system
   data/content.ts            typed exports of both datasets + TENSES metadata
   data/tenseGuide.ts         the Learn tab's grammar reference content (9 tense guides)
+  data/expressions.ts        curated fixed expressions + glosses for phrase-aware taps
   data/lemmas.json           GENERATED bundled lemma core — do not hand-edit
   lib/                       the logic layer (see table)
   components/                Layout, AuthProvider, AuthGate, SectionTabs, icons, modals, drill chrome
@@ -107,6 +108,7 @@ src/
 | Account sync client | `sync.ts` |
 | Struggle-weighted draw (words + verbs, one algorithm) | `struggle.ts` |
 | Lemma lookup, tokenizer, paragraph/sentence splitting | `lemmatize.ts` |
+| Fixed-expression + reflexive-verb detection in sentences | `expressions.ts` (+ `data/expressions.ts`) |
 | Online dictionary (Wiktionary + MyMemory) with cache + gloss template | `dictionary.ts` |
 | Offline lemma search over bundled content | `dictionarySearch.ts` |
 | Save a word to the lexicon (single write path) | `vocab.ts` |
@@ -194,9 +196,12 @@ translations and splitting the legacy single `streak` into the per-exercise coun
   load/refocus (no-op until a first sync sets `lastSyncAt`).
 - **Reading** — `ReadingPage` (Not read/Read tabs + a per-CEFR-level filter chip row; the
   default chip follows the Profile → Settings level) and `ArticlePage` (tappable word
-  tokens, **one word per tap**; tap → `WordModal` lookup/save; drop cap, saved-lemma
-  highlighting, scroll-progress, typewriter headline, optional read-aloud headline).
-  Progress writes go through `articleProgress.ts` and are skipped for guests.
+  tokens, **one tap**, no drag selection; tap → `WordModal` lookup/save; drop cap,
+  saved-lemma highlighting, scroll-progress, typewriter headline, optional read-aloud
+  headline). A tap inside a **recognised fixed expression picks up the whole phrase**
+  (« grâce à » → "thanks to", « a besoin d'eau » → avoir besoin de, « s'est passé » →
+  se passer) — see the Expressions module below. Progress writes go through
+  `articleProgress.ts` and are skipped for guests.
 - **Vocabulary** — two tabs. **Learn**: the word lookup (offline lemma search; each result
   shows its short translation inline and opens the article-style `WordModal` with an
   add action) and the lexicon (All/Learning/Learned pill filters; tapping a word opens the
@@ -232,7 +237,22 @@ translations and splitting the legacy single `streak` into the per-exercise coun
   (`src/lib/kudos.ts`; the Function checks the email has an account, rate-limits, and
   relays through the same Resend setup as the sign-in codes — guests see the sign-in
   prompt instead).
-- **Lemmatization** (`lemmatize.ts` + `scripts/build-lemmas.py`) — surface form → dictionary
+- **Expressions** (`lib/expressions.ts` + `data/expressions.ts`) — fixed-phrase detection
+  so taps translate phrases in context, not words in isolation. Two detectors run per
+  sentence: (1) a curated list (~190 locutions with hand-written template-conform glosses,
+  tuned against the corpus's n-grams) matched greedily leftmost-longest — an expression
+  token matches a word's surface **or its lemma** (infinitives match conjugated forms:
+  « ont besoin de » → avoir besoin de; elisions match through ELISIONS: « bien qu' » →
+  bien que), and a **final** de/à also accepts its contractions (« près du sol », « grâce
+  aux »; final only — « du nouveau modèle » must not read as de nouveau); (2) a generic
+  reflexive rule: « se/s' + verb » (and « s'est + participle ») becomes the reflexive
+  infinitive (« se trouve » → se trouver "to be located"), gated on a verb-shaped lemma
+  (-er/-ir/-re/-oir) so pronouns (« s'il », « s'y ») stay out. Matches never cross
+  punctuation. The curated gloss renders instantly (offline too) as the modal's first
+  line via `lookup(term, { gloss })`; Wiktionary still fills the definition lines, and
+  the phrase saves/highlights/drills exactly like a word (`display` = the surface span,
+  so Fill in the Blank blanks the whole phrase). ~2.2k matches across the 200 articles
+  (~11/article). A tap outside any expression still looks up the single word.
   lemma. `lemmaOf()` is a synchronous `Map` lookup (self-fallback, never invents a word),
   seeded by a bundled core (`data/lemmas.json`) and augmented by the full Lefff lexicon
   (`public/lemmas-fr.txt`, ~350k lines, fetched once and cached in Cache Storage).
@@ -253,7 +273,8 @@ translations and splitting the legacy single `streak` into the per-exercise coun
    works offline from Cache Storage.
 4. Vocabulary is exactly three drills (under Vocabulary → Practice); the lexicon is
    displayed by lemma; the only manual-add path is the word lookup on the Learn tab.
-5. Conjugation practice is typing only. Reading is one word per tap (no multi-word selection).
+5. Conjugation practice is typing only. Reading is one tap, no drag selection — but a tap
+   inside a recognised fixed expression (data/expressions.ts) looks up the whole phrase.
 6. Practice draws are struggle-weighted (words and verbs), one shared algorithm; `drillStats`
    is device-local (never synced).
 7. Sign-in is **email + one-time code** — one form for new and existing accounts, no

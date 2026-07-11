@@ -11,6 +11,7 @@ import {
   onLexiconReady,
   type Token,
 } from '../lib/lemmatize';
+import { findExpressions } from '../lib/expressions';
 import { keyClick, confirmTock } from '../lib/sound';
 import { useAutoSpeak } from '../lib/useAutoSpeak';
 import { titleSpeechEnabled } from '../lib/settings';
@@ -201,6 +202,9 @@ export default function ArticlePage() {
               // Context-aware lemmas for this sentence: a determiner before a
               // verb/noun homograph reads it as a noun (« le livre » → livre).
               const lemmas = lemmatizeTokens(sentence.tokens);
+              // Fixed expressions (« grâce à », « se trouve ») — tapping any
+              // word inside one looks up the whole phrase in context.
+              const expressions = findExpressions(sentence.tokens, lemmas);
               return (
               <span key={si}>
                 {groupTokens(sentence.tokens).map((group, gi) => (
@@ -208,14 +212,27 @@ export default function ArticlePage() {
                     {group.map((token, ti) => {
                       if (!token.word) return <span key={ti}>{token.text}</span>;
                       const lemma = lemmas.get(token) ?? token.word;
-                      const savedClass = savedLemmas?.has(lemma) ? ' w--saved' : '';
+                      const expr = expressions.get(token);
+                      const savedClass = savedLemmas?.has(expr ? expr.term : lemma)
+                        ? ' w--saved'
+                        : '';
                       const openLookup = () =>
-                        setLookup({
-                          display: token.word!,
-                          term: lemma,
-                          sentence: sentence.text,
-                          articleId: article.id,
-                        });
+                        setLookup(
+                          expr
+                            ? {
+                                display: expr.text,
+                                term: expr.term,
+                                gloss: expr.gloss || undefined,
+                                sentence: sentence.text,
+                                articleId: article.id,
+                              }
+                            : {
+                                display: token.word!,
+                                term: lemma,
+                                sentence: sentence.text,
+                                articleId: article.id,
+                              },
+                        );
                       if (pi === 0 && si === 0 && gi === 0 && ti === 0) {
                         // Newspaper drop cap on the article's opening letter; an
                         // elision opener (« L'or ») keeps its apostrophe in the cap.

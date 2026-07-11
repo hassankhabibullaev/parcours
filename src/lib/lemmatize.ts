@@ -70,7 +70,7 @@ const CLITIC_MARKERS = new Set([
   'me', 'm', 'te', 'se', 's', 'ne', 'n', 'qui',
 ]);
 
-function normalizeWord(word: string): string {
+export function normalizeWord(word: string): string {
   return word.toLowerCase().replace(/’/g, "'").replace(/'$/, '');
 }
 

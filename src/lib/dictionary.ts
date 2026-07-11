@@ -100,14 +100,29 @@ export function looksLikeVerbDefinition(term: string, definition: string): boole
  * Look up a French term (single word lemma or phrase). Results are cached in
  * IndexedDB, so anything seen once keeps working offline. The first-line
  * translation follows one structure per part of speech (see normalizeGloss).
+ *
+ * `opts.gloss` is a curated first-line translation (a recognised fixed
+ * expression — see data/expressions.ts): it is authoritative, already in
+ * template form, and works offline; only the longer definition lines are
+ * fetched then.
  */
-export async function lookup(term: string): Promise<LookupResult> {
+export async function lookup(
+  term: string,
+  opts: { gloss?: string } = {},
+): Promise<LookupResult> {
   const key = term.toLowerCase();
   const cached = await db.lookupCache.get(key);
-  if (cached) return { term, translation: cached.translation, definition: cached.definition };
+  if (cached) {
+    return {
+      term,
+      translation: cached.translation || opts.gloss || '',
+      definition: cached.definition,
+    };
+  }
 
   const [translated, senses] = await Promise.all([
-    fetchTranslation(term).catch(() => null),
+    // The curated gloss already answers the first line — skip the MT call.
+    opts.gloss ? Promise.resolve(null) : fetchTranslation(term).catch(() => null),
     fetchWiktionary(key).catch(() => [] as WiktSense[]),
   ]);
 
@@ -118,19 +133,23 @@ export async function lookup(term: string): Promise<LookupResult> {
   // "participle of …" style form references), templated by its own POS. A
   // concise dictionary gloss beats machine translation, which mangles bare
   // infinitives; fall back to MyMemory when Wiktionary has nothing usable.
-  const main = senses.find((s) => !isFormOfGloss(s.text));
-  let translation = '';
-  if (main) {
-    translation = normalizeGloss(main.text, { verb: main.pos === 'verb', properNoun });
-  }
-  if (!translation || translation.length > 48) {
-    const fallback = translated ?? main?.text ?? senses[0]?.text ?? '';
-    const isVerb = main ? main.pos === 'verb' : verbList.includes(key);
-    const normalized = fallback ? normalizeGloss(fallback, { verb: isVerb, properNoun }) : '';
-    translation = normalized || translation;
+  let translation = opts.gloss ?? '';
+  if (!translation) {
+    const main = senses.find((s) => !isFormOfGloss(s.text));
+    if (main) {
+      translation = normalizeGloss(main.text, { verb: main.pos === 'verb', properNoun });
+    }
+    if (!translation || translation.length > 48) {
+      const fallback = translated ?? main?.text ?? senses[0]?.text ?? '';
+      const isVerb = main ? main.pos === 'verb' : verbList.includes(key);
+      const normalized = fallback ? normalizeGloss(fallback, { verb: isVerb, properNoun }) : '';
+      translation = normalized || translation;
+    }
   }
 
-  if (translation || definition) {
+  // With a curated gloss, cache only once the definition fetch succeeded, so
+  // an offline first look doesn't pin an empty definition forever.
+  if (opts.gloss ? definition : translation || definition) {
     await db.lookupCache.put({ term: key, translation, definition, updatedAt: Date.now() });
   }
   return { term, translation, definition };

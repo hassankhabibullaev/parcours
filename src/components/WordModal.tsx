@@ -15,6 +15,8 @@ export interface LookupRequest {
   display: string;
   /** What to look up and save: the lemma for words, the phrase itself otherwise. */
   term: string;
+  /** Curated first-line translation for a recognised fixed expression. */
+  gloss?: string;
   sentence: string;
   articleId: number | null;
 }
@@ -31,7 +33,7 @@ interface WordModalProps {
 }
 
 export default function WordModal({ request, saved, onClose }: WordModalProps) {
-  const { display, term, sentence, articleId } = request;
+  const { display, term, gloss, sentence, articleId } = request;
   const { requireAuth } = useAuthGate();
 
   const [result, setResult] = useState<LookupResult | null>(null);
@@ -44,9 +46,11 @@ export default function WordModal({ request, saved, onClose }: WordModalProps) {
       return;
     }
     let cancelled = false;
-    setResult(null);
+    // A curated expression gloss needs no network: show it immediately and let
+    // the fetched definition lines fill in when (and if) they arrive.
+    setResult(gloss ? { term, translation: gloss, definition: '' } : null);
     setFailed(false);
-    lookup(term).then((r) => {
+    lookup(term, { gloss }).then((r) => {
       if (cancelled) return;
       setResult(r);
       if (!r.translation && !r.definition) {
