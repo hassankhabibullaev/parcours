@@ -253,13 +253,30 @@ translations and splitting the legacy single `streak` into the per-exercise coun
   the phrase saves/highlights/drills exactly like a word (`display` = the surface span,
   so Fill in the Blank blanks the whole phrase). ~2.2k matches across the 200 articles
   (~11/article). A tap outside any expression still looks up the single word.
-  lemma. `lemmaOf()` is a synchronous `Map` lookup (self-fallback, never invents a word),
+- **Lemmatizer** (`lib/lemmatize.ts` + `scripts/build-lemmas.py`) — the surface-form → base-form
+  map. `lemmaOf()` is a synchronous `Map` lookup (self-fallback, never invents a word),
   seeded by a bundled core (`data/lemmas.json`) and augmented by the full Lefff lexicon
-  (`public/lemmas-fr.txt`, ~350k lines, fetched once and cached in Cache Storage).
-  `lemmatizeTokens()` disambiguates verb/noun homographs with a two-word context window
-  (`le livre`→livre, `je livre`→livrer). **Gotcha:** changing the `lemmas-fr.txt` format
-  requires bumping `LEXICON_CACHE` in `lemmatize.ts`, or returning users keep the stale
-  cached file.
+  (`public/lemmas-fr.txt`, ~400k lines, fetched once and cached in Cache Storage). Each line is
+  `form⇥flags⇥default⇥noun⇥adj`: `flags` are the form's readings — n(oun) a(djective) and the
+  verb readings f(inite) p(ast participle) g(present participle) i(nfinitive); `default` is the
+  context-free lemma (verb-preferred); `noun`/`adj` are the lemmas to use when context says the
+  word is nominal/adjectival (present only when they differ from the default). **`lemmatizeTokens()`
+  is a left-to-right noun-phrase state machine** — not just a determiner check — that reads each
+  homograph the way its position demands: determiners/prepositions/numbers open a noun phrase whose
+  words read nominally (`le livre`→livre, `en marche`→marche), the closed prenominal-adjective set
+  stays adjectival before the head (`la belle porte`→porte) and post-head adjectives resolve as
+  adjectives (`la porte ouverte`→ouvert); a word the phrase can't absorb is the clause verb again
+  (`la marche rapide fatigue`→fatiguer); subject/object clitics force a verb (`je livre`→livrer,
+  `il la ferme`→fermer); être/copulas put the next word in attribute position — adjective
+  (`il est ferme`→ferme), noun (`il est guide`→guide), or an être-verb/reflexive participle
+  (`elle est passée`→passer, `s'est formée`→former); after avoir a participle is the compound past
+  (`a marché`→marcher) and a non-participle noun reading is a noun (`on a cours`); a capitalized
+  mid-sentence word (or a sentence-initial name before a finite verb) is a proper noun
+  (`Marie porte`→porter). Closed classes (determiners, pronouns, prepositions, être/avoir forms) are
+  curated TS sets; the open classes come from the lexicon flags. ~20% of corpus tokens get a
+  context lemma different from the bare default. **Gotcha:** changing the `lemmas-fr.txt` format
+  requires bumping `LEXICON_CACHE` in `lemmatize.ts` (now `v3`), or returning users keep the stale
+  cached file; regenerate the tables with `python3 scripts/build-lemmas.py`.
 - **Pronunciation** (`speech.ts` + `functions/api/tts.ts`) — plays Google Translate's French
   voice through our own same-origin proxy, decoded and played via the shared Web Audio
   `AudioContext` (**not** an `<audio>` element — avoids the iOS Now-Playing/Dynamic-Island

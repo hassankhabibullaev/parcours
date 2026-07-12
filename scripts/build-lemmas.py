@@ -7,17 +7,26 @@ Two artifacts are produced:
      100 drill verbs -> its infinitive). Ships in the JS bundle so common verbs
      lemmatize instantly, before the full lexicon has loaded.
 
-  2. public/lemmas-fr.txt  — the FULL lexicon: one "form<TAB>lemma" line per
-     non-trivial mapping drawn from the Lefff (Lexique des Formes Fléchies du
-     Français, LGPL-LR). ~350k entries; lazy-loaded and cached at runtime.
+  2. public/lemmas-fr.txt  — the FULL lexicon drawn from the Lefff (Lexique des
+     Formes Fléchies du Français, LGPL-LR), lazy-loaded and cached at runtime.
+     One line per form, tab-separated with empty trailing fields trimmed:
 
-Only non-identity mappings are stored — a form absent from the tables lemmatises
-to itself, which is already correct for adverbs, masculine-singular nouns and
-adjectives, infinitives, etc. When a form has several possible lemmas we prefer a
-verb infinitive (so « est »→être, « suis »→être, « irai »→aller and participles
-like « abandonnée »→abandonner resolve usefully), breaking ties on the shortest
-lemma. Context-free, this cannot disambiguate true homographs (« livre » the book
-vs. « livrer »), which is the small residual error.
+         form  flags  default  noun  adj
+
+     `flags` says which readings the form has — n(oun), a(djective), and for
+     verb readings f(inite), p(ast participle), g(present participle),
+     i(nfinitive). `default` is the context-free lemma (empty = the form
+     itself); `noun`/`adj` are the lemmas to prefer when sentence context says
+     the word is used nominally/adjectivally, present only when they differ
+     from the default. Forms with no non-identity lemma and no flags are
+     omitted entirely — they lemmatise to themselves, which is already correct.
+
+The DEFAULT lemma prefers a verb infinitive — this maps the ultra-common
+function words the right way (« est »→être, « a »→avoir, « irai »→aller) and
+connects participles to their verb (« abandonnée »→abandonner); ties break on
+the shortest lemma. Context-free, this misreads the nominal side of verb/noun
+homographs (« le livre » the book, not livrer) — which is exactly what the
+noun/adj columns + the runtime's contextual rules (lib/lemmatize.ts) fix.
 
 Usage:
     python3 scripts/build-lemmas.py [path/to/lefff-3.4.mlex]
@@ -38,6 +47,18 @@ LEFFF_URL = "https://raw.githubusercontent.com/Poyoman39/node-lefff/main/src/lef
 
 # A "word" for our purposes: letters, with internal hyphens/apostrophes.
 WORD = re.compile(r"^[a-zà-öø-ÿœæ]+(?:['-][a-zà-öø-ÿœæ]+)*$")
+
+# Lefff morphology tags: UPPERCASE letters are mood/tense (lowercase are
+# person/gender/number). We fold them into four verb-reading flags.
+FINITE_MOODS = set("PFIJCSTY")  # indicative/subjunctive/conditional/imperative
+
+# Only open/content categories contribute lemma candidates. Determiner,
+# pronoun and clitic categories carry grammatical artifacts as lemmas
+# (« il » → cln, « de » → un, « ça » → çaimp) that would pollute the default
+# table; the runtime classifies those closed classes itself.
+CONTENT_CATS = {
+    "v", "auxAvoir", "auxEtre", "nc", "adj", "np", "adv", "prep", "csu", "coo",
+}
 
 
 def lefff_path() -> Path:
@@ -66,70 +87,101 @@ def drilled_verb_forms() -> set[str]:
     return forms
 
 
-def parse_lefff(mlex: Path) -> dict[str, dict[str, bool]]:
-    """form -> {candidate lemma -> is_verb}."""
+def parse_lefff(mlex: Path):
+    """Per form: {candidate lemma -> is_verb}, plus reading flags.
+
+    `lemmas_of` mirrors the historical default-lemma computation (every
+    category is a candidate; a lemma counts as verbal when any of its lines'
+    categories starts with "v"). `flags_of` records which READINGS the form
+    has — only open classes the runtime disambiguates (nc / adj / verbs
+    incl. auxiliaries); function-word categories are curated in TypeScript.
+    `noun_of` / `adj_of` collect the lemma candidates per reading.
+    """
     lemmas_of: dict[str, dict[str, bool]] = {}
+    flags_of: dict[str, set[str]] = {}
+    noun_of: dict[str, dict[str, bool]] = {}
+    adj_of: dict[str, dict[str, bool]] = {}
+    # Verb infinitive -> masculine-singular past participle (« passer »→passé):
+    # the dictionary form of a participial adjective, whose Lefff adj entries
+    # carry the VERB as lemma (« passée adj passer Kfs »).
+    kms: dict[str, str] = {}
     with mlex.open(encoding="utf-8") as f:
         for line in f:
             parts = line.rstrip("\n").split("\t")
             if len(parts) < 3:
                 continue
             form, cat, lemma = parts[0].lower(), parts[1], parts[2].lower()
+            morph = parts[3] if len(parts) > 3 else ""
             if not WORD.match(form) or not WORD.match(lemma):
+                continue
+            if cat not in CONTENT_CATS:
                 continue
             entry = lemmas_of.setdefault(form, {})
             entry[lemma] = entry.get(lemma, False) or cat.startswith("v")
-    return lemmas_of
+            flags = flags_of.setdefault(form, set())
+            # Can this reading be singular (or number-invariant)? Plural-only
+            # self-lemmas are Lefff quirks (« jours nc jours mp ») that would
+            # otherwise beat the real singular (« jours nc jour mp »).
+            sg = "p" not in morph or "s" in morph
+            if cat == "nc":
+                flags.add("n")
+                seen = noun_of.setdefault(form, {})
+                seen[lemma] = seen.get(lemma, False) or sg
+            elif cat == "adj":
+                flags.add("a")
+                seen = adj_of.setdefault(form, {})
+                seen[lemma] = seen.get(lemma, False) or sg
+            elif cat in ("v", "auxAvoir", "auxEtre"):
+                for ch in morph:
+                    if ch == "K":
+                        flags.add("p")
+                    elif ch == "G":
+                        flags.add("g")
+                    elif ch == "W":
+                        flags.add("i")
+                    elif ch in FINITE_MOODS:
+                        flags.add("f")
+                if "K" in morph and "f" not in morph and "p" not in morph:
+                    if lemma not in kms or len(form) < len(kms[lemma]):
+                        kms[lemma] = form
+    return lemmas_of, flags_of, noun_of, adj_of, kms
 
 
-def build_full_lexicon(
-    lemmas_of: dict[str, dict[str, bool]],
-) -> tuple[dict[str, str], dict[str, str]]:
-    """Pick one lemma per surface form, plus a noun override for homographs.
+def pick_reading_lemma(form: str, cands: dict[str, bool]) -> str:
+    """One lemma for a noun/adj reading: the form itself when it can be
+    singular as its own lemma (meaning-safe: « cours »→cours never cour,
+    « fois »→fois never foi), else the longest candidate the form extends
+    (a plural reduces to its singular: « livres »→livre, « jours »→jour,
+    « nouvelles »→nouvelle), else the shortest. A plural-only self-lemma
+    (« jours nc jours mp », a Lefff quirk) never wins over an alternative."""
+    if cands.get(form):
+        return form
+    pool = [l for l in cands if l != form] or [form]
+    prefixes = [l for l in pool if form.startswith(l)]
+    if prefixes:
+        return max(prefixes, key=len)
+    return min(pool, key=lambda l: (len(l), l))
 
-    The PRIMARY table prefers a verb infinitive — this maps the ultra-common
-    function words the right way (« est »→être, « a »→avoir, « suis »→être,
-    « irai »→aller) and connects participles to their verb (« abandonnée »→
-    abandonner); ties break on the shortest lemma. A form with no non-identity
-    candidate is omitted and lemmatises to itself at runtime, which is already
-    correct for adverbs, base nouns and adjectives.
 
-    The verb preference is right when the form is actually used as a verb, but
-    wrong for the noun/adjective reading of a verb/noun HOMOGRAPH (« le livre »
-    the book, not livrer). For those forms we also record the best non-verb
-    lemma; the runtime picks it when local context (a preceding determiner) says
-    the word is a noun. Only recorded when the form has both a verb reading and a
-    distinct non-verb reading, so it stays a targeted override, not a second
-    guess for every word."""
+def build_full_lexicon(lemmas_of: dict[str, dict[str, bool]]) -> dict[str, str]:
+    """The context-free DEFAULT lemma per form (verb infinitive preferred,
+    ties on shortest). A form with no non-identity candidate is omitted and
+    lemmatises to itself at runtime."""
     table: dict[str, str] = {}
-    homograph_noun: dict[str, str] = {}
     for form, cands in lemmas_of.items():
         others = [l for l in cands if l != form]
         if not others:
             continue
-        primary = min(others, key=lambda l: (0 if cands[l] else 1, len(l), l))
-        table[form] = primary
+        table[form] = min(others, key=lambda l: (0 if cands[l] else 1, len(l), l))
+    return table
 
-        # A verb/noun homograph: a verb reading (the primary) alongside a
-        # distinct non-verb reading. Prefer the form itself when it's one of the
-        # non-verb lemmas — that's meaning-safe (« cours »→cours, « porte »→
-        # porte), never flipping to an unrelated shorter noun (« cours »→cour);
-        # otherwise take the shortest, which reduces a plural to its singular
-        # (« livres »→livre). Skip when it would equal the primary.
-        if not cands[primary]:
-            continue  # primary is already a noun/adj — no verb bias to correct
-        nonverbs = [l for l in cands if not cands[l]]
-        if not nonverbs:
-            continue
-        noun = form if form in nonverbs else min(nonverbs, key=lambda l: (len(l), l))
-        if noun != primary:
-            homograph_noun[form] = noun
-    return table, homograph_noun
+
+VERB_SHAPED = re.compile(r"(?:er|ir|re|oir)$")
 
 
 def main() -> None:
-    lemmas_of = parse_lefff(lefff_path())
-    full, homograph_noun = build_full_lexicon(lemmas_of)
+    lemmas_of, flags_of, noun_of, adj_of, kms = parse_lefff(lefff_path())
+    full = build_full_lexicon(lemmas_of)
 
     # The bundled core is a slice of the full table (drilled-verb forms only) so
     # the two never disagree — it just makes common verbs lemmatise instantly,
@@ -142,18 +194,48 @@ def main() -> None:
         + "\n"
     )
 
-    # Each line is "form<TAB>lemma"; a verb/noun homograph adds a third column,
-    # "form<TAB>verblemma<TAB>nounlemma", read by the context-aware runtime.
+    # form \t flags \t default \t noun \t adj — trailing empties trimmed.
     full_out = ROOT / "public" / "lemmas-fr.txt"
     lines = []
-    for form, lemma in sorted(full.items()):
-        noun = homograph_noun.get(form)
-        lines.append(f"{form}\t{lemma}\t{noun}" if noun else f"{form}\t{lemma}")
+    counts = {"noun": 0, "adj": 0, "flagged": 0}
+    for form in sorted(set(full) | {f for f, fl in flags_of.items() if fl}):
+        default = full.get(form, form)
+        flags = "".join(c for c in "nafpgi" if c in flags_of.get(form, ()))
+        noun = adj = ""
+        if "n" in flags:
+            picked = pick_reading_lemma(form, noun_of[form])
+            # A plural-only self-pick with no alternative (« humains », whose
+            # only nc entry is humains/mp) is no better than the default.
+            if picked != default and (picked != form or noun_of[form][form]):
+                noun = picked
+        if "a" in flags:
+            # A participial-adjective entry names the VERB (« passée adj
+            # passer ») — swap in the verb's masc-sg participle (passé), the
+            # adjective's actual dictionary form.
+            cands: dict[str, bool] = {}
+            for lem, sg in adj_of[form].items():
+                if VERB_SHAPED.search(lem) and lem in kms:
+                    lem = kms[lem]
+                cands[lem] = cands.get(lem, False) or sg
+            picked = pick_reading_lemma(form, cands)
+            if picked != default and (picked != form or cands[form]):
+                adj = picked
+        cols = [form, flags, "" if default == form else default, noun, adj]
+        while cols and cols[-1] == "":
+            cols.pop()
+        if len(cols) == 1:
+            continue  # identity form with no flags — self-lemma at runtime
+        lines.append("\t".join(cols))
+        if flags:
+            counts["flagged"] += 1
+        counts["noun"] += bool(noun)
+        counts["adj"] += bool(adj)
     full_out.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
     print(f"core (bundled):  {len(core):>7,} entries → {core_out.relative_to(ROOT)}")
-    print(f"full (lazy):     {len(full):>7,} entries → {full_out.relative_to(ROOT)}")
-    print(f"  homographs:    {len(homograph_noun):>7,} with a noun override")
+    print(f"full (lazy):     {len(lines):>7,} lines → {full_out.relative_to(ROOT)}")
+    print(f"  flagged:       {counts['flagged']:>7,} with POS flags")
+    print(f"  noun overrides:{counts['noun']:>7,}   adj overrides: {counts['adj']:>7,}")
     print(f"full size:       {full_out.stat().st_size / 1024:.0f} KB raw")
 
 
