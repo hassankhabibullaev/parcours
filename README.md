@@ -114,6 +114,7 @@ src/
 | Save a word to the lexicon (single write path) | `vocab.ts` |
 | Practice drawing, grading, session sizing, streak/shelf progression | `practice.ts` |
 | Conjugation session generator + pronoun display | `conjugation.ts` |
+| Conjugation needs-work list (verb×tense mistakes → mastery) | `conjStruggles.ts` |
 | Per-tense / per-mode color identities | `tenseThemes.ts` · `vocabThemes.ts` |
 | Sound effects · confetti · French speech (TTS) | `sound.ts` · `confetti.ts` · `speech.ts` |
 
@@ -154,7 +155,7 @@ booleans).
 | `savedWords` | the lexicon; keyed by `lemma`; per-exercise streaks drive learnt/learning |
 | `articleProgress` | per-article read flag + scroll position |
 | `practiceResults` | one row per finished drill round |
-| `kv` | small key/value store (sync code, last-sync time, `userLevel`, migration flags) |
+| `kv` | small key/value store (sync code, last-sync time, `userLevel`, `conjStruggles`, migration flags) |
 | `lookupCache` | dictionary cache — never synced |
 | `tombstones` | deletion records so sync can propagate removals |
 | `drillStats` | per-item error-rate + last-seen for the struggle-weighted draw — device-local, never synced |
@@ -222,11 +223,23 @@ translations and splitting the legacy single `streak` into the per-exercise coun
   (and demote a learnt word). Manual mark-learnt/unlearnt aligns both counters. Draws are
   struggle-weighted (`struggle.ts`): each answer updates a `drillStats` row (EWMA error
   rate + last-seen), and the draw favours high-error, not-recently-seen items.
-- **Conjugation** — two tabs. **Learn**: nine tense guides (`/conjugation/guide/:tense`)
-  and a searchable list of all 100 drilled verbs, each opening its complete conjugation
-  (`/conjugation/verb/:infinitive`). **Practice**: the tense picker → typing drill
-  (unchanged mechanics: 10 exercises × 3 prompts, struggle-weighted verb draw,
-  accent-tolerant grading, auto-advance on all-correct).
+- **Conjugation** — two tabs. **Learn**: a **needs-work list** (see below), then nine tense
+  guides (`/conjugation/guide/:tense`) and a searchable list of all 100 drilled verbs, each
+  opening its complete conjugation (`/conjugation/verb/:infinitive`). **Practice**: the tense
+  picker → typing drill (10 exercises × 3 prompts, struggle-weighted verb draw,
+  accent-tolerant grading, auto-advance on all-correct). A **wrong answer's correction is
+  blurred** and only un-blurs on tap (`conj-field__tag--blur` → « Reveal »), so the learner
+  gets a beat to recall it from memory rather than being handed the answer; an accent slip
+  (graded correct) still shows its corrected form outright in green.
+- **Needs-work list** (`lib/conjStruggles.ts`) — every verb×tense pair missed in the typing
+  drill, shown at the top of Conjugation → Learn with a tense badge and progress dots, kept
+  until the learner gets that pair right **3 consecutive trials** (`CONJ_MASTERY_STREAK`; a
+  row links to the verb's full conjugation to study the flagged tense). One exercise is one
+  trial per pair — the pair counts correct only when every prompt for it was right first try
+  (accent slips count as correct, matching the drill's score); a miss resets the streak and
+  re-adds it. Stored as one JSON blob in the **synced `kv`** store (key `conjStruggles`), so
+  it rides the existing last-write-wins kv sync with no schema or server change. The drill
+  records it from `check()` on the first attempt, alongside the per-verb struggle stat.
 - **Profile** — two tabs. **Profile**: email, progress stats, Log Out (guests get a
   sign-in card). **Settings** (`lib/settings.ts`): the **current level** (empty by default;
   when set it drives Home's read-next suggestion and Reading's default filter — exact-level

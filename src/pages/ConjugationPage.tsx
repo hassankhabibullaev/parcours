@@ -1,8 +1,11 @@
 import { useMemo, useState, type CSSProperties } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { useLiveQuery } from 'dexie-react-hooks';
 import { TENSES, verbList, verbMeanings } from '../data/content';
 import { TENSE_THEMES } from '../lib/tenseThemes';
 import { foldAccents } from '../lib/practice';
+import { tenseLabel } from '../lib/conjugation';
+import { getStruggles, CONJ_MASTERY_STREAK } from '../lib/conjStruggles';
 import SectionTabs from '../components/SectionTabs';
 import ConjugationPicker from '../components/ConjugationPicker';
 
@@ -51,6 +54,7 @@ function LearnTab() {
 
   return (
     <>
+      <NeedsWorkSection />
       <div className="section-label">Tenses &amp; rules</div>
       <div className="learn-list">
         {TENSES.map((t) => (
@@ -100,6 +104,58 @@ function LearnTab() {
       ) : (
         <p className="form-notice">No verb matches — the drill set has {verbList.length}.</p>
       )}
+    </>
+  );
+}
+
+/**
+ * The needs-work list: verb×tense pairs missed in the typing drill, each kept
+ * until three consecutive correct trials (see lib/conjStruggles.ts). Hidden
+ * when there's nothing outstanding. A row links to the verb's full conjugation
+ * so the learner can study the exact tense flagged; the dots show progress
+ * toward clearing it.
+ */
+function NeedsWorkSection() {
+  const struggles = useLiveQuery(() => getStruggles(), []);
+  if (!struggles || struggles.length === 0) return null;
+
+  return (
+    <>
+      <div className="section-label">Needs work · {struggles.length}</div>
+      <p className="needs-work__lede">
+        Verbs and tenses you've slipped on in practice. Each stays here until you
+        get it right {CONJ_MASTERY_STREAK} times in a row.
+      </p>
+      <div className="learn-list">
+        {struggles.map((s) => {
+          const theme = TENSE_THEMES[s.tense];
+          return (
+            <Link
+              key={`${s.verb}|${s.tense}`}
+              className="learn-row needs-work__row"
+              to={`/conjugation/verb/${encodeURIComponent(s.verb)}`}
+              style={{ '--tc': theme.color, '--tc-wash': theme.wash } as CSSProperties}
+            >
+              <span className="needs-work__verb">
+                {s.verb}
+                <span className="needs-work__meaning">{verbMeanings[s.verb]}</span>
+              </span>
+              <span className="conj-tense-badge needs-work__tense">{tenseLabel(s.tense)}</span>
+              <span
+                className="word-dots needs-work__dots"
+                aria-label={`${s.streak} of ${CONJ_MASTERY_STREAK} correct in a row`}
+              >
+                {Array.from({ length: CONJ_MASTERY_STREAK }, (_, i) => (
+                  <span
+                    key={i}
+                    className={`word-dot needs-work__dot${i < s.streak ? ' needs-work__dot--on' : ''}`}
+                  />
+                ))}
+              </span>
+            </Link>
+          );
+        })}
+      </div>
     </>
   );
 }

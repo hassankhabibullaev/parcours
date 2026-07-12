@@ -1585,6 +1585,60 @@ a {
   color: var(--ink-faint);
 }
 
+/* ——— Conjugation · Learn · needs-work list ——— */
+
+.needs-work__lede {
+  margin: -2px 0 10px;
+  color: var(--ink-soft);
+  font-size: 13px;
+  font-style: italic;
+  line-height: 1.45;
+}
+
+.needs-work__row {
+  gap: 9px;
+}
+
+/* A left rule in the tense colour ties each row to its badge. */
+.needs-work__row {
+  border-left: 3px solid var(--tc, var(--rule-strong));
+}
+
+.needs-work__verb {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+  font-size: 16px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.needs-work__meaning {
+  color: var(--ink-soft);
+  font-size: 12px;
+  font-weight: 400;
+  font-style: italic;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.needs-work__tense {
+  flex: none;
+  padding: 2px 9px;
+  font-size: 12.5px;
+}
+
+.needs-work__dots {
+  flex: none;
+  margin-right: 0;
+}
+
+.needs-work__dot--on {
+  background: var(--tc, var(--ink));
+  border-color: var(--tc, var(--ink));
+}
+
 /* ——— Conjugation · tense guide ——— */
 
 .guide-usage {
@@ -2099,6 +2153,36 @@ a {
 .conj-field__tag--soft {
   border-color: var(--level-a1);
   color: var(--level-a1);
+}
+
+/* Wrong-answer correction: blurred until tapped, so the learner has to choose
+   to see it (and gets a beat to retry from memory first). */
+.conj-field__tag--blur {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+  cursor: pointer;
+  pointer-events: auto;
+  font-family: inherit;
+}
+.conj-field__tag--blur .conj-field__tag-text {
+  filter: blur(5px);
+  user-select: none;
+  transition: filter 0.15s ease;
+}
+.conj-field__tag--blur:hover .conj-field__tag-text,
+.conj-field__tag--blur:focus-visible .conj-field__tag-text {
+  filter: blur(4px);
+}
+.conj-field__reveal {
+  flex: none;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  opacity: 0.85;
 }
 
 /* ——— Conjugation · accent keys ——— */

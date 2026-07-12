@@ -19,6 +19,7 @@ import {
 } from '../lib/conjugation';
 import { gradeAnswer, recordRound, type AnswerGrade } from '../lib/practice';
 import { recordDrillResult } from '../lib/struggle';
+import { recordConjResults } from '../lib/conjStruggles';
 import { MIXED_STRIPE, TENSE_THEMES } from '../lib/tenseThemes';
 import { errorBuzz, keyClick, sfxEnabled, successChime } from '../lib/sound';
 import { useAutoSpeak } from '../lib/useAutoSpeak';
@@ -28,6 +29,7 @@ import DrillResults from '../components/DrillResults';
 import SoundPill from '../components/SoundPill';
 
 const BLANK = () => Array(PROMPTS_PER_EXERCISE).fill('') as string[];
+const NO_REVEAL = () => Array(PROMPTS_PER_EXERCISE).fill(false) as boolean[];
 const ACCENT_KEYS = ['à', 'é', 'è', 'ê', 'î', 'û', 'ç'];
 /** Back target: the Conjugation section's Practice tab. */
 const CONJ_BACK = '/conjugation?tab=practice';
@@ -55,6 +57,9 @@ export default function ConjugationDrillPage() {
   const [loading, setLoading] = useState(true);
   const [exIndex, setExIndex] = useState(0);
   const [values, setValues] = useState<string[]>(BLANK());
+  // A wrong answer's correction stays blurred until the learner taps to reveal
+  // it (per prompt), so the answer isn't handed over the moment they slip.
+  const [revealed, setRevealed] = useState<boolean[]>(NO_REVEAL());
   const [grades, setGrades] = useState<AnswerGrade[] | null>(null);
   const [score, setScore] = useState(0);
   const [missed, setMissed] = useState<Miss[]>([]);
@@ -182,6 +187,12 @@ export default function ConjugationDrillPage() {
       // Feed the struggle-weighted verb draw: a verb counts as "got it" only
       // when every prompt for it was right first try.
       void recordDrillResult('verb', ex.verb, newlyMissed.length === 0);
+      // Feed the Learn tab's needs-work list, per verb×tense (accents count as
+      // correct, matching the score above).
+      void recordConjResults(
+        ex.verb,
+        gs.map((g, i) => ({ tense: ex.prompts[i].tense, correct: g !== 'wrong' })),
+      );
     }
     setGrades(gs);
     const stillWrong = gs.findIndex((g) => g === 'wrong');
@@ -200,6 +211,7 @@ export default function ConjugationDrillPage() {
     } else {
       setExIndex((i) => i + 1);
       setValues(BLANK());
+      setRevealed(NO_REVEAL());
       setGrades(null);
       setTyped('');
       setRendering(true);
@@ -356,13 +368,32 @@ export default function ConjugationDrillPage() {
                         {g === 'wrong' ? '✕' : '✓'}
                       </span>
                     )}
-                    {(g === 'wrong' || g === 'accents') && (
-                      <span
-                        className={`conj-field__tag${g === 'accents' ? ' conj-field__tag--soft' : ''}`}
-                      >
+                    {/* Accent slips count as correct, so the corrected form is
+                        shown outright (green). A genuinely wrong answer stays
+                        blurred until the learner taps to reveal it. */}
+                    {g === 'accents' && (
+                      <span className="conj-field__tag conj-field__tag--soft">
                         {p.answers.join(' / ')}
                       </span>
                     )}
+                    {g === 'wrong' &&
+                      (revealed[i] ? (
+                        <span className="conj-field__tag">{p.answers.join(' / ')}</span>
+                      ) : (
+                        <button
+                          type="button"
+                          className="conj-field__tag conj-field__tag--blur"
+                          onClick={() =>
+                            setRevealed((r) => r.map((x, j) => (j === i ? true : x)))
+                          }
+                          aria-label="Reveal the correct answer"
+                        >
+                          <span className="conj-field__tag-text" aria-hidden>
+                            {p.answers.join(' / ')}
+                          </span>
+                          <span className="conj-field__reveal">Reveal</span>
+                        </button>
+                      ))}
                   </div>
                 </div>
               );
