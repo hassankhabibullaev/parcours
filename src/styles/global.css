@@ -1280,6 +1280,25 @@ a {
   border-color: #5d8fbe;
 }
 
+/* One-line explainer of the dot tracker, above the shelf pills. */
+.shelf-lede {
+  margin: 10px 0;
+  color: var(--ink-soft);
+  font-size: 13px;
+  font-style: italic;
+  line-height: 1.45;
+}
+
+.shelf-lede__match {
+  color: #5b9438;
+  font-weight: 600;
+}
+
+.shelf-lede__blank {
+  color: #5d8fbe;
+  font-weight: 600;
+}
+
 /* ——— Vocabulary · practice stage ——— */
 
 .vocab-sentence {
@@ -1629,14 +1648,40 @@ a {
   font-size: 12.5px;
 }
 
-.needs-work__dots {
-  flex: none;
-  margin-right: 0;
+/* The row's primary tap target — opens the verb's focused drill. */
+.needs-work__main {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex: 1;
+  min-width: 0;
+  text-decoration: none;
 }
 
-.needs-work__dot--on {
-  background: var(--tc, var(--ink));
-  border-color: var(--tc, var(--ink));
+.needs-work__remove {
+  flex: none;
+}
+
+/* ——— Focused drill · results note (cleared / still flagged) ——— */
+
+.focus-outcome {
+  margin: 2px 0 6px;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.focus-outcome__line {
+  margin: 4px 0;
+  color: var(--ink-soft);
+}
+
+.focus-outcome__line--cleared {
+  color: #5b9438;
+}
+
+.focus-outcome__study {
+  color: inherit;
+  font-weight: 600;
 }
 
 /* ——— Conjugation · tense guide ——— */

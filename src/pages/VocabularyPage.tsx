@@ -21,7 +21,7 @@ import {
 } from '../components/icons';
 
 type Tab = 'learn' | 'practice';
-type Shelf = 'all' | 'learning' | 'learned';
+type Shelf = 'learning' | 'learned';
 
 interface ModalState {
   request: LookupRequest;
@@ -59,7 +59,7 @@ function LearnTab() {
   const words = useLiveQuery(() => db.savedWords.orderBy('addedAt').reverse().toArray(), []);
 
   const [query, setQuery] = useState('');
-  const [shelf, setShelf] = useState<Shelf>('all');
+  const [shelf, setShelf] = useState<Shelf>('learning');
   const [modal, setModal] = useState<ModalState | null>(null);
 
   // Inline editing of a word's first-line translation. `editingRef` mirrors
@@ -107,7 +107,7 @@ function LearnTab() {
 
   const learning = words.filter((w) => !w.learned);
   const learnt = words.filter((w) => w.learned);
-  const shown = shelf === 'learning' ? learning : shelf === 'learned' ? learnt : words;
+  const shown = shelf === 'learning' ? learning : learnt;
 
   function openSavedWord(w: SavedWord) {
     setModal({
@@ -297,7 +297,6 @@ function LearnTab() {
   }
 
   const shelves: { key: Shelf; label: string; n: number }[] = [
-    { key: 'all', label: 'All', n: words.length },
     { key: 'learning', label: 'Learning', n: learning.length },
     { key: 'learned', label: 'Learned', n: learnt.length },
   ];
@@ -354,6 +353,12 @@ function LearnTab() {
         </div>
       ) : (
         <>
+          <p className="shelf-lede">
+            Each word carries {LEARNT_STREAKS.match + LEARNT_STREAKS.blank} dots — one per day you
+            get it right: <span className="shelf-lede__match">{LEARNT_STREAKS.match} in Word Match</span>{' '}
+            and <span className="shelf-lede__blank">{LEARNT_STREAKS.blank} in Fill in the Blank</span>.
+            Fill them all and it moves to Learned.
+          </p>
           <div className="level-counts" role="group" aria-label="Filter by shelf">
             {shelves.map((s) => (
               <button

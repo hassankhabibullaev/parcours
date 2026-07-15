@@ -3,27 +3,30 @@ import type { TenseKey } from '../data/content';
 
 /**
  * The conjugation "needs work" list: every verb×tense pair the learner has
- * missed in the typing drill, kept until they get that pair right three times
- * in a row. Shown on the Conjugation → Learn tab so practice can target the
- * exact forms that are still shaky.
+ * missed in the typing drill. Shown on the Conjugation → Learn tab so practice
+ * can target the exact forms that are still shaky.
+ *
+ * An entry is cleared in exactly two ways — regular practice sessions never
+ * clear one (they only add or re-flag):
+ *   1. the learner removes it by hand (an accidental slip that means nothing);
+ *   2. the learner passes a short **focused drill** on that verb
+ *      (/conjugation/focus/:infinitive): one verb across several tenses and
+ *      pronouns, its flagged tenses drilled hardest. A flagged tense whose
+ *      prompts are all right on the first attempt of that round is cleared; a
+ *      miss keeps it (and bumps its miss count).
  *
  * Stored as a single JSON blob in the synced `kv` store (key `conjStruggles`)
  * rather than a new table, so it rides the existing last-write-wins kv sync
- * with no schema or server change. One drill exercise is one trial per pair:
- * the pair counts as correct only when every prompt for it was right first try
- * (an accent slip still counts as correct, matching the drill's scoring).
+ * with no schema or server change. Older blobs carried a `streak` field from
+ * the retired three-in-a-row clearing rule; it parses harmlessly and is
+ * dropped on the next write.
  */
 
 const KV_KEY = 'conjStruggles';
 
-/** Consecutive correct trials that clear a verb×tense from the list. */
-export const CONJ_MASTERY_STREAK = 3;
-
 export interface StruggleEntry {
   verb: string;
   tense: TenseKey;
-  /** Consecutive correct trials since the last miss (0…CONJ_MASTERY_STREAK-1). */
-  streak: number;
   /** Total times this pair has been missed — orders the list. */
   misses: number;
   updatedAt: number;
@@ -47,6 +50,10 @@ async function load(): Promise<Store> {
   return parse(await getKV(KV_KEY));
 }
 
+async function save(store: Store): Promise<void> {
+  await setKV(KV_KEY, JSON.stringify(store));
+}
+
 /** The current needs-work list, most-missed first. Reads the synced kv blob;
     call inside a `useLiveQuery(() => …, [])` to re-render as the drill updates it. */
 export async function getStruggles(): Promise<StruggleEntry[]> {
@@ -61,41 +68,101 @@ export function conjStrugglesRow() {
   return db.kv.get(KV_KEY);
 }
 
+/** The tenses currently flagged for one verb — the focused drill's targets. */
+export async function flaggedTensesFor(verb: string): Promise<TenseKey[]> {
+  const store = await load();
+  return Object.values(store)
+    .filter((e) => e.verb === verb)
+    .sort((a, b) => b.misses - a.misses)
+    .map((e) => e.tense);
+}
+
+/** Manual dismissal — the learner judged the flag an accidental slip. */
+export async function removeStruggle(verb: string, tense: TenseKey): Promise<void> {
+  const store = await load();
+  delete store[keyOf(verb, tense)];
+  await save(store);
+}
+
+/** Aggregate one round's first-attempt prompt results per tense: a tense
+    counts as passed only if every one of its prompts was right. */
+function foldByTense(prompts: { tense: TenseKey; correct: boolean }[]): Map<TenseKey, boolean> {
+  const byTense = new Map<TenseKey, boolean>();
+  for (const { tense, correct } of prompts) {
+    byTense.set(tense, (byTense.get(tense) ?? true) && correct);
+  }
+  return byTense;
+}
+
 /**
- * Fold one exercise's first-attempt prompt results into the list. Results are
- * aggregated per tense first (a single-tense drill fires three prompts for the
- * same pair — one wrong makes the whole pair a miss this round), then each
- * verb×tense is advanced: a correct trial bumps the streak and clears the pair
- * at CONJ_MASTERY_STREAK; a miss resets the streak and (re)adds the pair.
+ * Fold one regular-drill exercise's first-attempt results into the list.
+ * Regular practice only ever ADDS to the list: a missed verb×tense is flagged
+ * (or its miss count bumped); a correct one changes nothing — clearing happens
+ * only through the focused drill or manual removal.
  */
 export async function recordConjResults(
   verb: string,
   prompts: { tense: TenseKey; correct: boolean }[],
 ): Promise<void> {
   if (!prompts.length) return;
-  const byTense = new Map<TenseKey, boolean>();
-  for (const { tense, correct } of prompts) {
-    byTense.set(tense, (byTense.get(tense) ?? true) && correct);
-  }
-
   const store = await load();
   const now = Date.now();
-  for (const [tense, correct] of byTense) {
+  let dirty = false;
+  for (const [tense, correct] of foldByTense(prompts)) {
+    if (correct) continue;
+    const k = keyOf(verb, tense);
+    const entry = store[k];
+    if (entry) {
+      entry.misses += 1;
+      entry.updatedAt = now;
+    } else {
+      store[k] = { verb, tense, misses: 1, updatedAt: now };
+    }
+    dirty = true;
+  }
+  if (dirty) await save(store);
+}
+
+export interface FocusOutcome {
+  /** Flagged tenses whose prompts were all right first try — now cleared. */
+  cleared: TenseKey[];
+  /** Tenses still flagged after the round: missed flagged ones, plus any
+      newly flagged by a slip on a tense that wasn't on the list. */
+  kept: TenseKey[];
+}
+
+/**
+ * Resolve a finished focused round for one verb against its flagged tenses.
+ * Every first-attempt prompt of the round is folded per tense, then:
+ * flagged + fully correct → cleared off the list; flagged + missed → kept,
+ * miss count bumped; a miss on a tense that wasn't flagged adds it (a slip in
+ * a focused round is as real as one in a regular session). Flagged tenses the
+ * round didn't cover (it covers all of them by construction) are left alone.
+ */
+export async function resolveFocusResults(
+  verb: string,
+  prompts: { tense: TenseKey; correct: boolean }[],
+): Promise<FocusOutcome> {
+  const store = await load();
+  const now = Date.now();
+  const outcome: FocusOutcome = { cleared: [], kept: [] };
+  for (const [tense, correct] of foldByTense(prompts)) {
     const k = keyOf(verb, tense);
     const entry = store[k];
     if (correct) {
       if (entry) {
-        entry.streak += 1;
-        entry.updatedAt = now;
-        if (entry.streak >= CONJ_MASTERY_STREAK) delete store[k];
+        delete store[k];
+        outcome.cleared.push(tense);
       }
     } else if (entry) {
-      entry.streak = 0;
       entry.misses += 1;
       entry.updatedAt = now;
+      outcome.kept.push(tense);
     } else {
-      store[k] = { verb, tense, streak: 0, misses: 1, updatedAt: now };
+      store[k] = { verb, tense, misses: 1, updatedAt: now };
+      outcome.kept.push(tense);
     }
   }
-  await setKV(KV_KEY, JSON.stringify(store));
+  await save(store);
+  return outcome;
 }

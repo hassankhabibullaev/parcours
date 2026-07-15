@@ -147,6 +147,73 @@ export function buildSession(mode: TenseKey | 'mixed', sessionVerbs: string[]): 
   });
 }
 
+export const FOCUS_EXERCISES = 3;
+
+/**
+ * Build the short focused session that fixes a needs-work verb
+ * (/conjugation/focus/:infinitive): FOCUS_EXERCISES exercises ×
+ * PROMPTS_PER_EXERCISE prompts, every one on the same verb. The verb's flagged
+ * tenses (most-missed first) take as many slots as capacity allows — up to once
+ * per exercise each, so a tense is retried across different pronouns rather
+ * than back-to-back — and the leftover slots draw other tenses for spread.
+ * Tenses never repeat within one exercise; pronouns use the same balanced
+ * picker as the regular drill.
+ */
+export function buildFocusSession(verb: string, flagged: TenseKey[]): Exercise[] {
+  const slots = FOCUS_EXERCISES * PROMPTS_PER_EXERCISE;
+
+  // How often each flagged tense appears: an even split of the slots, capped
+  // at once per exercise, the most-missed tenses taking any remainder first.
+  const counts = new Map<TenseKey, number>();
+  if (flagged.length) {
+    const base = Math.min(FOCUS_EXERCISES, Math.floor(slots / flagged.length));
+    for (const t of flagged) counts.set(t, base);
+    let extra = slots - base * flagged.length;
+    for (const t of flagged) {
+      if (extra <= 0) break;
+      const c = counts.get(t)!;
+      if (c < FOCUS_EXERCISES) {
+        counts.set(t, c + 1);
+        extra -= 1;
+      }
+    }
+  }
+  let used = 0;
+  for (const c of counts.values()) used += c;
+  // Whatever's left is variety: other tenses of the same verb, once each.
+  for (const t of shuffle(ALL_TENSE_KEYS.filter((t) => !counts.has(t))).slice(0, slots - used)) {
+    counts.set(t, 1);
+  }
+
+  // Deal the tense multiset into exercises — highest counts first, each
+  // occurrence into the emptiest exercise that doesn't hold that tense yet
+  // (falling back to any open exercise, though the ≤-once-per-exercise cap
+  // makes that unreachable in practice).
+  const grids: TenseKey[][] = Array.from({ length: FOCUS_EXERCISES }, () => []);
+  const byCount = shuffle([...counts.entries()]).sort((a, b) => b[1] - a[1]);
+  for (const [tense, count] of byCount) {
+    for (let c = 0; c < count; c++) {
+      const open = grids.filter((g) => g.length < PROMPTS_PER_EXERCISE);
+      const target =
+        open.filter((g) => !g.includes(tense)).sort((a, b) => a.length - b.length)[0] ??
+        open.sort((a, b) => a.length - b.length)[0];
+      target?.push(tense);
+    }
+  }
+
+  const usage = new Map(PRONOUN_DEFS.map((p) => [p.label, 0]));
+  return grids.map((tenses) => {
+    const pronouns = pickPronouns(usage);
+    const prompts = pronouns.map((p, i) => ({
+      tense: tenses[i],
+      pronoun: p.label,
+      slot: p.slot,
+      answers: verbs[verb][tenses[i]][p.slot].split('|'),
+    }));
+    return { verb, meaning: verbMeanings[verb] ?? '', prompts: shuffle(prompts) };
+  });
+}
+
 const VOWEL_START = /^[aâàeéèêëiîïoôöuûüh]/i;
 
 /**

@@ -6,9 +6,10 @@ import {
   type FormEvent,
   type KeyboardEvent,
 } from 'react';
-import { Navigate, useParams } from 'react-router-dom';
-import { TENSES, type TenseKey } from '../data/content';
+import { Link, Navigate, useParams } from 'react-router-dom';
+import { TENSES, verbs, type TenseKey } from '../data/content';
 import {
+  buildFocusSession,
   buildSession,
   selectDrillVerbs,
   pronounDisplay,
@@ -19,7 +20,12 @@ import {
 } from '../lib/conjugation';
 import { gradeAnswer, recordRound, type AnswerGrade } from '../lib/practice';
 import { recordDrillResult } from '../lib/struggle';
-import { recordConjResults } from '../lib/conjStruggles';
+import {
+  flaggedTensesFor,
+  recordConjResults,
+  resolveFocusResults,
+  type FocusOutcome,
+} from '../lib/conjStruggles';
 import { MIXED_STRIPE, TENSE_THEMES } from '../lib/tenseThemes';
 import { errorBuzz, keyClick, sfxEnabled, successChime } from '../lib/sound';
 import { useAutoSpeak } from '../lib/useAutoSpeak';
@@ -49,9 +55,17 @@ interface Miss {
 }
 
 export default function ConjugationDrillPage() {
-  const { tense } = useParams();
-  const mode: TenseKey | 'mixed' | undefined =
-    tense === 'mixed' ? 'mixed' : TENSES.find((t) => t.key === tense)?.key;
+  const { tense, infinitive } = useParams();
+  // /conjugation/focus/:infinitive — the needs-work fixing drill: one verb,
+  // its flagged tenses drilled hardest. Renders like the mixed drill (a tense
+  // chip per row) but resolves the needs-work list at the end instead of
+  // feeding it per exercise.
+  const focusVerb = infinitive && verbs[infinitive] ? infinitive : undefined;
+  const mode: TenseKey | 'mixed' | undefined = focusVerb
+    ? 'mixed'
+    : tense === 'mixed'
+      ? 'mixed'
+      : TENSES.find((t) => t.key === tense)?.key;
 
   const [session, setSession] = useState<Exercise[]>([]);
   const [loading, setLoading] = useState(true);
@@ -68,25 +82,41 @@ export default function ConjugationDrillPage() {
   const [rendering, setRendering] = useState(true);
   const [focusedIdx, setFocusedIdx] = useState<number | null>(null);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  // Focus mode: every first-attempt prompt result of the round, resolved
+  // against the needs-work list once at the end (a flagged tense must be clean
+  // across the WHOLE round to clear, even when it spans exercises).
+  const focusLog = useRef<{ tense: TenseKey; correct: boolean }[]>([]);
+  const [outcome, setOutcome] = useState<FocusOutcome | null>(null);
 
   const exercise: Exercise | undefined = session[exIndex];
 
   /* Draw this session's verbs struggle-weighted, then build the exercises.
      Async because the weighting reads per-verb stats from IndexedDB; the
-     cancelled flag keeps StrictMode's double-run from swapping the deck. */
+     cancelled flag keeps StrictMode's double-run from swapping the deck.
+     Focus mode instead reads the verb's flagged tenses and builds its
+     single-verb session from them. */
   useEffect(() => {
     if (!mode) return;
     let cancelled = false;
     setLoading(true);
-    selectDrillVerbs().then((verbs) => {
-      if (cancelled) return;
-      setSession(buildSession(mode, verbs));
-      setLoading(false);
-    });
+    if (focusVerb) {
+      flaggedTensesFor(focusVerb).then((flagged) => {
+        if (cancelled) return;
+        focusLog.current = [];
+        setSession(buildFocusSession(focusVerb, flagged));
+        setLoading(false);
+      });
+    } else {
+      selectDrillVerbs().then((drawn) => {
+        if (cancelled) return;
+        setSession(buildSession(mode, drawn));
+        setLoading(false);
+      });
+    }
     return () => {
       cancelled = true;
     };
-  }, [mode]);
+  }, [mode, focusVerb]);
 
   /* Typewriter reveal of the verb; Check stays disabled until it finishes. */
   useEffect(() => {
@@ -128,12 +158,15 @@ export default function ConjugationDrillPage() {
     return () => window.clearTimeout(timer);
   }, [grades, finished]);
 
-  if (!mode) return <Navigate to={CONJ_BACK} replace />;
+  // An unknown tense — or an unknown verb on the focus route — goes back.
+  if (!mode || (infinitive && !focusVerb)) return <Navigate to={CONJ_BACK} replace />;
 
-  const title = mode === 'mixed' ? 'Mixed drill' : tenseLabel(mode);
+  /** Focus drills return to the Learn tab (where the needs-work list lives). */
+  const backTo = focusVerb ? '/conjugation' : CONJ_BACK;
+  const title = focusVerb ? `Focus · ${focusVerb}` : mode === 'mixed' ? 'Mixed drill' : tenseLabel(mode);
 
   if (loading) {
-    return <DrillHeader title={title} backTo={CONJ_BACK} backLabel="Conjugation" />;
+    return <DrillHeader title={title} backTo={backTo} backLabel="Conjugation" />;
   }
   const total = session.length * PROMPTS_PER_EXERCISE;
   const allFilled = values.every((v) => v.trim() !== '');
@@ -187,12 +220,18 @@ export default function ConjugationDrillPage() {
       // Feed the struggle-weighted verb draw: a verb counts as "got it" only
       // when every prompt for it was right first try.
       void recordDrillResult('verb', ex.verb, newlyMissed.length === 0);
-      // Feed the Learn tab's needs-work list, per verb×tense (accents count as
-      // correct, matching the score above).
-      void recordConjResults(
-        ex.verb,
-        gs.map((g, i) => ({ tense: ex.prompts[i].tense, correct: g !== 'wrong' })),
-      );
+      const tenseResults = gs.map((g, i) => ({
+        tense: ex.prompts[i].tense,
+        correct: g !== 'wrong', // accents count as correct, matching the score
+      }));
+      if (focusVerb) {
+        // Focus mode holds its results until the round ends (see next()) —
+        // a flagged tense must be clean across all its prompts to clear.
+        focusLog.current.push(...tenseResults);
+      } else {
+        // Feed the Learn tab's needs-work list, per verb×tense.
+        void recordConjResults(ex.verb, tenseResults);
+      }
     }
     setGrades(gs);
     const stillWrong = gs.findIndex((g) => g === 'wrong');
@@ -206,7 +245,14 @@ export default function ConjugationDrillPage() {
 
   function next() {
     if (isLast) {
-      recordRound('conjugation', 'typing', score, total, mode!);
+      if (focusVerb) {
+        // Settle the needs-work list from the whole round's first attempts;
+        // the results screen reports what cleared and what stayed.
+        void resolveFocusResults(focusVerb, focusLog.current).then(setOutcome);
+        recordRound('conjugation', 'focus', score, total);
+      } else {
+        recordRound('conjugation', 'typing', score, total, mode!);
+      }
       setFinished(true);
     } else {
       setExIndex((i) => i + 1);
@@ -260,7 +306,7 @@ export default function ConjugationDrillPage() {
   if (finished) {
     return (
       <>
-        <DrillHeader title={title} backTo={CONJ_BACK} backLabel="Conjugation" />
+        <DrillHeader title={title} backTo={backTo} backLabel="Conjugation" />
         <div style={themeVars}>
           <DrillResults
             score={score}
@@ -277,7 +323,28 @@ export default function ConjugationDrillPage() {
               correct: m.correct,
               color: TENSE_THEMES[m.tense].color,
             }))}
-            backTo={CONJ_BACK}
+            note={
+              focusVerb && outcome ? (
+                <div className="focus-outcome">
+                  {outcome.cleared.length > 0 && (
+                    <p className="focus-outcome__line focus-outcome__line--cleared">
+                      ✓ Cleared from needs-work:{' '}
+                      <strong>{outcome.cleared.map(tenseLabel).join(' · ')}</strong>
+                    </p>
+                  )}
+                  {outcome.kept.length > 0 && (
+                    <p className="focus-outcome__line">
+                      Still flagged: <strong>{outcome.kept.map(tenseLabel).join(' · ')}</strong> —{' '}
+                      <Link className="focus-outcome__study" to={`/conjugation/verb/${encodeURIComponent(focusVerb)}`}>
+                        study {focusVerb}
+                      </Link>{' '}
+                      and take another run.
+                    </p>
+                  )}
+                </div>
+              ) : undefined
+            }
+            backTo={backTo}
             backLabel="Back to conjugation"
           />
         </div>
@@ -289,7 +356,7 @@ export default function ConjugationDrillPage() {
 
   return (
     <div className="conj-drill" style={themeVars}>
-      <DrillTopline backTo={CONJ_BACK} backLabel="Conjugation" title={title}>
+      <DrillTopline backTo={backTo} backLabel="Conjugation" title={title}>
         <span className="hud-pill hud-pill--live" key={`score-${score}`}>
           ✓ <strong>{score}</strong>
         </span>

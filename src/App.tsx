@@ -31,6 +31,7 @@ export default function App() {
         <Route path="conjugation" element={<ConjugationPage />} />
         <Route path="conjugation/guide/:tense" element={<TenseGuidePage />} />
         <Route path="conjugation/verb/:infinitive" element={<VerbPage />} />
+        <Route path="conjugation/focus/:infinitive" element={<ConjugationDrillPage />} />
         <Route path="conjugation/:tense" element={<ConjugationDrillPage />} />
         <Route path="profile" element={<ProfilePage />} />
         {/* Legacy routes from the pre-rename layout. */}

@@ -5,9 +5,10 @@ import { TENSES, verbList, verbMeanings } from '../data/content';
 import { TENSE_THEMES } from '../lib/tenseThemes';
 import { foldAccents } from '../lib/practice';
 import { tenseLabel } from '../lib/conjugation';
-import { getStruggles, CONJ_MASTERY_STREAK } from '../lib/conjStruggles';
+import { getStruggles, removeStruggle } from '../lib/conjStruggles';
 import SectionTabs from '../components/SectionTabs';
 import ConjugationPicker from '../components/ConjugationPicker';
+import { CloseIcon } from '../components/icons';
 
 type Tab = 'learn' | 'practice';
 
@@ -109,11 +110,12 @@ function LearnTab() {
 }
 
 /**
- * The needs-work list: verb×tense pairs missed in the typing drill, each kept
- * until three consecutive correct trials (see lib/conjStruggles.ts). Hidden
- * when there's nothing outstanding. A row links to the verb's full conjugation
- * so the learner can study the exact tense flagged; the dots show progress
- * toward clearing it.
+ * The needs-work list: verb×tense pairs missed in the typing drill (see
+ * lib/conjStruggles.ts). Hidden when there's nothing outstanding. Regular
+ * practice never clears an entry — each is fixed in one of two ways: tapping
+ * the row starts a short **focused drill** on that verb (its flagged tenses
+ * drilled across different pronouns; getting a flagged tense fully right
+ * clears it), and the ✕ dismisses a flag that was just an accidental slip.
  */
 function NeedsWorkSection() {
   const struggles = useLiveQuery(() => getStruggles(), []);
@@ -123,36 +125,43 @@ function NeedsWorkSection() {
     <>
       <div className="section-label">Needs work · {struggles.length}</div>
       <p className="needs-work__lede">
-        Verbs and tenses you've slipped on in practice. Each stays here until you
-        get it right {CONJ_MASTERY_STREAK} times in a row.
+        Tenses you've slipped on in practice. Tap one for a short focused drill on
+        that verb — get the tense right to clear it — or dismiss a flag that was
+        just a slip.
       </p>
       <div className="learn-list">
         {struggles.map((s) => {
           const theme = TENSE_THEMES[s.tense];
           return (
-            <Link
+            <div
               key={`${s.verb}|${s.tense}`}
               className="learn-row needs-work__row"
-              to={`/conjugation/verb/${encodeURIComponent(s.verb)}`}
               style={{ '--tc': theme.color, '--tc-wash': theme.wash } as CSSProperties}
             >
-              <span className="needs-work__verb">
-                {s.verb}
-                <span className="needs-work__meaning">{verbMeanings[s.verb]}</span>
-              </span>
-              <span className="conj-tense-badge needs-work__tense">{tenseLabel(s.tense)}</span>
-              <span
-                className="word-dots needs-work__dots"
-                aria-label={`${s.streak} of ${CONJ_MASTERY_STREAK} correct in a row`}
+              <Link
+                className="needs-work__main"
+                to={`/conjugation/focus/${encodeURIComponent(s.verb)}`}
+                aria-label={`Focused drill on ${s.verb} — ${tenseLabel(s.tense)}`}
               >
-                {Array.from({ length: CONJ_MASTERY_STREAK }, (_, i) => (
-                  <span
-                    key={i}
-                    className={`word-dot needs-work__dot${i < s.streak ? ' needs-work__dot--on' : ''}`}
-                  />
-                ))}
-              </span>
-            </Link>
+                <span className="needs-work__verb">
+                  {s.verb}
+                  <span className="needs-work__meaning">{verbMeanings[s.verb]}</span>
+                </span>
+                <span className="conj-tense-badge needs-work__tense">{tenseLabel(s.tense)}</span>
+                <span className="learn-row__chev" aria-hidden>
+                  →
+                </span>
+              </Link>
+              <button
+                type="button"
+                className="icon-btn needs-work__remove"
+                onClick={() => removeStruggle(s.verb, s.tense)}
+                aria-label={`Dismiss ${s.verb} — ${tenseLabel(s.tense)} (accidental mistake)`}
+                title="Dismiss — it was just a slip"
+              >
+                <CloseIcon />
+              </button>
+            </div>
           );
         })}
       </div>

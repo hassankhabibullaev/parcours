@@ -24,6 +24,8 @@ interface DrillResultsProps {
   backLabel?: string;
   /** What one review item is called: « form » for conjugation, « word » here. */
   unit?: string;
+  /** Extra block under the message — the focus drill reports its outcome here. */
+  note?: ReactNode;
 }
 
 function summaryLines(pct: number): { headline: string; message: string } {
@@ -49,6 +51,7 @@ export default function DrillResults({
   backTo = '/vocabulary',
   backLabel = 'Back to vocabulary',
   unit = 'word',
+  note,
 }: DrillResultsProps) {
   useEffect(() => {
     fanfare();
@@ -66,6 +69,7 @@ export default function DrillResults({
         <span> / {total}</span>
       </p>
       <p className="conj-results__msg">{message}</p>
+      {note}
 
       {items.length > 0 ? (
         <div className="conj-review">

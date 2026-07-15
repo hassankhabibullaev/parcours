@@ -114,7 +114,7 @@ src/
 | Save a word to the lexicon (single write path) | `vocab.ts` |
 | Practice drawing, grading, session sizing, streak/shelf progression | `practice.ts` |
 | Conjugation session generator + pronoun display | `conjugation.ts` |
-| Conjugation needs-work list (verb×tense mistakes → mastery) | `conjStruggles.ts` |
+| Conjugation needs-work list (verb×tense mistakes → focused drill / dismiss) | `conjStruggles.ts` |
 | Per-tense / per-mode color identities | `tenseThemes.ts` · `vocabThemes.ts` |
 | Sound effects · confetti · French speech (TTS) | `sound.ts` · `confetti.ts` · `speech.ts` |
 
@@ -134,11 +134,12 @@ displays (the tabs and filter chips themselves carry no counts).
 |---|---|
 | `/` | HomePage (read-next suggestion + vocab shortcut + practice quick-launch) |
 | `/reading` · `/reading/:id` | article library (Not read/Read tabs + level filter) · article view |
-| `/vocabulary` | Learn (word lookup + lexicon w/ All·Learning·Learned pills) / Practice (3 drills) tabs |
+| `/vocabulary` | Learn (word lookup + lexicon w/ Learning·Learned pills) / Practice (3 drills) tabs |
 | `/vocabulary/learn` · `/vocabulary/practice` · `/vocabulary/remember` | the three vocab drills |
 | `/conjugation` | Learn (tense rules + verb reference) / Practice (tense picker) tabs |
 | `/conjugation/guide/:tense` | one tense's rules, endings, examples, live tables |
 | `/conjugation/verb/:infinitive` | one verb's full conjugation across all 9 tenses |
+| `/conjugation/focus/:infinitive` | focused needs-work drill (one verb, flagged tenses drilled hardest) |
 | `/conjugation/:tense` | conjugation typing drill (`:tense` is a `TenseKey` or `mixed`) |
 | `/profile` | Profile (email, stats, log out) / Settings (level + audio toggles + kudos) tabs |
 | `/signin` | unified email + one-time-code sign-in |
@@ -205,9 +206,10 @@ translations and splitting the legacy single `streak` into the per-exercise coun
   `articleProgress.ts` and are skipped for guests.
 - **Vocabulary** — two tabs. **Learn**: the word lookup (offline lemma search; each result
   shows its short translation inline and opens the article-style `WordModal` with an
-  add action) and the lexicon (All/Learning/Learned pill filters; tapping a word opens the
-  same modal fed from its stored content, no add action; the first-line translation is
-  inline-editable). A learning word's row carries five progress dots — one per required
+  add action) and the lexicon (Learning/Learned pill filters — no "All" shelf; tapping a
+  word opens the same modal fed from its stored content, no add action; the first-line
+  translation is inline-editable). A one-line lede above the pills explains the dot
+  tracker. A learning word's row carries five progress dots — one per required
   correct day: 3 green (Word Match) + 2 blue (Fill in the Blank), lit from the per-exercise
   streaks (which count distinct days, capped at one advance per calendar day). **Practice**: the three drills. Translations follow **one template per
   part of speech** (`normalizeGloss` in `dictionary.ts`: verbs always "to …", qualifiers
@@ -237,14 +239,20 @@ translations and splitting the legacy single `streak` into the per-exercise coun
   gets a beat to recall it from memory rather than being handed the answer; an accent slip
   (graded correct) still shows its corrected form outright in green.
 - **Needs-work list** (`lib/conjStruggles.ts`) — every verb×tense pair missed in the typing
-  drill, shown at the top of Conjugation → Learn with a tense badge and progress dots, kept
-  until the learner gets that pair right **3 consecutive trials** (`CONJ_MASTERY_STREAK`; a
-  row links to the verb's full conjugation to study the flagged tense). One exercise is one
-  trial per pair — the pair counts correct only when every prompt for it was right first try
-  (accent slips count as correct, matching the drill's score); a miss resets the streak and
-  re-adds it. Stored as one JSON blob in the **synced `kv`** store (key `conjStruggles`), so
-  it rides the existing last-write-wins kv sync with no schema or server change. The drill
-  records it from `check()` on the first attempt, alongside the per-verb struggle stat.
+  drill, shown at the top of Conjugation → Learn with a tense badge. Regular practice only
+  ever **adds** to the list (a miss flags the pair or bumps its miss count; correct answers
+  change nothing) — an entry is fixed in exactly **two ways**: the row's ✕ dismisses it (an
+  accidental slip), or the learner passes the row's **focused drill**
+  (`/conjugation/focus/:infinitive`, tapping the row): 3 exercises × 3 prompts all on that
+  one verb, its flagged tenses filling most slots (`buildFocusSession` — each up to once per
+  exercise so a tense is retried across different pronouns, other tenses drawn for spread).
+  The round's first-attempt results are folded per tense at the end
+  (`resolveFocusResults`): a flagged tense clean across the **whole round** clears; a miss
+  keeps it (misses+1); a slip on an unflagged tense flags it. The results card reports what
+  cleared and what stayed (with a study link to the verb's conjugation). Accent slips count
+  as correct throughout, matching the drill's score. Stored as one JSON blob in the
+  **synced `kv`** store (key `conjStruggles`) so it rides the existing last-write-wins kv
+  sync; old blobs' retired `streak` field parses harmlessly.
 - **Profile** — two tabs. **Profile**: email, progress stats, Log Out (guests get a
   sign-in card). **Settings** (`lib/settings.ts`): the **current level** (empty by default;
   when set it drives Home's read-next suggestion and Reading's default filter — exact-level
