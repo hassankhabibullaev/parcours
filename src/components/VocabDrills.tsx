@@ -102,8 +102,8 @@ export default function VocabDrills() {
         })}
       </div>
       <p className="drill-note">
-        Words graduate after you get them right on {LEARNT_STREAKS.match} separate days in Word
-        Match or {LEARNT_STREAKS.blank} in Fill in the Blank — each day counts once, one slip is
+        Words graduate once you get them right on {LEARNT_STREAKS.match} separate days in Word
+        Match and {LEARNT_STREAKS.blank} in Fill in the Blank — each day counts once, one slip is
         forgiven, two in a row reset the run.
       </p>
     </>

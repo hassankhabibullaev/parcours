@@ -217,15 +217,17 @@ translations and splitting the legacy single `streak` into the per-exercise coun
   Fill in the Blank: 1 word/session, `sessions = clamp(pool, 5, 10)`; a wrong answer allows
   retrying without showing the solution (separate « Reveal answer » button; the English
   hint button reads « Show hint in English »). A fully-correct session **auto-advances**
-  after a short pause with every control frozen. Words graduate at **3 correct *days* in
-  Word Match/Remember? or 2 in Fill in the Blank** (independent counters; hitting either
-  promotes) — a streak advances **at most once per calendar day** (`matchStreakDay` /
-  `blankStreakDay` gate it), so it counts distinct days the word was answered right, not
-  repeat answers within a single day; one miss is forgiven, **two consecutive misses** reset
-  that exercise's streak (clearing its day) and demote a learnt word. Manual
-  mark-learnt/unlearnt aligns both counters. Draws are
+  after a short pause with every control frozen. A word graduates only once **both** exercises
+  are cleared — **3 correct *days* in Word Match AND 2 in Fill in the Blank** (5 checks in all;
+  `hasGraduated`), never on one drill alone. A streak advances **at most once per calendar day**
+  (`matchStreakDay` / `blankStreakDay` gate it), so it counts distinct days the word was answered
+  right, not repeat answers within a single day; one miss is forgiven, **two consecutive misses**
+  reset that exercise's streak (clearing its day) and demote the word (it now fails the
+  both-exercises test). Manual mark-learnt/unlearnt aligns both counters. Draws are
   struggle-weighted (`struggle.ts`): each answer updates a `drillStats` row (EWMA error
-  rate + last-seen), and the draw favours high-error, not-recently-seen items.
+  rate + last-seen), and the draw favours high-error, not-recently-seen items — the **vocabulary**
+  draw multiplies that by `progressBoost` so words with the fewest progress dots (furthest from
+  graduating) come up more often than ones about to be learnt.
 - **Conjugation** — two tabs. **Learn**: a **needs-work list** (see below), then nine tense
   guides (`/conjugation/guide/:tense`) and a searchable list of all 100 drilled verbs, each
   opening its complete conjugation (`/conjugation/verb/:infinitive`). **Practice**: the tense

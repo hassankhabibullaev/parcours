@@ -373,7 +373,7 @@ function LearnTab() {
           ) : (
             <p className="lex-group__empty">
               {shelf === 'learned'
-                ? `Words land here after you get them right on ${LEARNT_STREAKS.match} separate days in Word Match or ${LEARNT_STREAKS.blank} in Fill in the Blank — or mark one learnt yourself.`
+                ? `Words land here once you get them right on ${LEARNT_STREAKS.match} separate days in Word Match and ${LEARNT_STREAKS.blank} in Fill in the Blank — or mark one learnt yourself.`
                 : 'Nothing in rotation — save words while you read.'}
             </p>
           )}

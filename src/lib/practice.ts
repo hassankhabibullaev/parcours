@@ -33,10 +33,13 @@ export async function loadPracticePool({
 /**
  * Draw `limit` words from a pool, struggle-weighted (the words missed most
  * often and seen least recently come up first) — the same algorithm the
- * conjugation drill uses to pick verbs. See lib/struggle.ts.
+ * conjugation drill uses to pick verbs (see lib/struggle.ts) — and additionally
+ * biased toward words far from graduating (progressBoost), so practice
+ * concentrates on the ones with the fewest progress dots rather than the ones
+ * about to be learnt.
  */
 export function drawFromPool(pool: SavedWord[], limit: number): Promise<SavedWord[]> {
-  return drawWeighted('word', pool, (w) => w.id, limit);
+  return drawWeighted('word', pool, (w) => w.id, limit, progressBoost);
 }
 
 /** Case-normalize but keep accents (exact match check). */
@@ -100,13 +103,41 @@ export function blankSessionCount(poolSize: number): number {
 
 export type DrillKind = 'match' | 'blank';
 
-/** Consecutive correct answers that promote a word, per exercise family. */
+/** Correct *days* that clear each exercise, per exercise family. A word must
+ *  clear BOTH to graduate (3 in Word Match AND 2 in Fill in the Blank). */
 export const LEARNT_STREAKS: Record<DrillKind, number> = { match: 3, blank: 2 };
+/** Total progress dots a word shows (match + blank), used for draw biasing. */
+export const TOTAL_DOTS = LEARNT_STREAKS.match + LEARNT_STREAKS.blank;
 /** A streak survives one miss; it resets after this many consecutive misses. */
 export const MISS_RUN_RESET = 2;
 
 export const matchStreakOf = (w: SavedWord): number => w.matchStreak ?? w.streak ?? 0;
 export const blankStreakOf = (w: SavedWord): number => w.blankStreak ?? 0;
+
+/**
+ * A word is learnt only once BOTH exercises are cleared — 3 correct days in
+ * Word Match AND 2 in Fill in the Blank (5 checks in all). Clearing just one
+ * exercise is not enough.
+ */
+export function hasGraduated(matchStreak: number, blankStreak: number): boolean {
+  return matchStreak >= LEARNT_STREAKS.match && blankStreak >= LEARNT_STREAKS.blank;
+}
+
+/** How strongly the draw favours words with fewer progress dots (0 = off). */
+export const PROGRESS_BIAS = 2;
+
+/**
+ * Draw-weight multiplier that concentrates practice on words far from
+ * graduating: a word with no lit dots is favoured most (1 + PROGRESS_BIAS×), one
+ * about to be learnt least (≈1×). It multiplies the struggle weight — struggle
+ * and spacing still apply on top.
+ */
+export function progressBoost(w: SavedWord): number {
+  const lit =
+    Math.min(matchStreakOf(w), LEARNT_STREAKS.match) +
+    Math.min(blankStreakOf(w), LEARNT_STREAKS.blank);
+  return 1 + PROGRESS_BIAS * ((TOTAL_DOTS - lit) / TOTAL_DOTS);
+}
 
 /**
  * Local calendar day (YYYY-MM-DD) used to day-gate streak progression, so a
@@ -124,16 +155,16 @@ export function dayStamp(ts: number = Date.now()): string {
 /**
  * Update a word's learning progress after one practice answer.
  *
- * Word Match / Remember? and Fill in the Blank keep independent streaks
- * (promoting at 3 and 2 respectively — hitting either threshold promotes).
- * A streak counts distinct *days* the word was answered right, not answers
- * within a day: a correct answer advances the streak only the first time that
- * exercise is cleared on a given calendar day; further correct answers the same
- * day hold it steady. So a word graduates only after 3 (Word Match) and 2
- * (Fill in the Blank) separate days of getting it right. One wrong answer is
- * forgiven — the streak holds; two consecutive wrong answers reset that
- * exercise's streak (clearing its day so the same day can start fresh) and send
- * a learnt word back to the learning shelf.
+ * Word Match / Remember? and Fill in the Blank keep independent streaks that
+ * count distinct *days* the word was answered right, not answers within a day:
+ * a correct answer advances a streak only the first time that exercise is
+ * cleared on a given calendar day; further correct answers the same day hold it
+ * steady. A word graduates to the learnt shelf only once BOTH exercises are
+ * cleared — 3 correct days in Word Match AND 2 in Fill in the Blank (see
+ * hasGraduated). One wrong answer is forgiven — the streak holds; two
+ * consecutive wrong answers reset that exercise's streak (clearing its day so
+ * the same day can start fresh) and, since a learnt word now fails the
+ * both-exercises test, send it back to the learning shelf.
  */
 export async function recordWordResult(
   word: SavedWord,
@@ -143,9 +174,12 @@ export async function recordWordResult(
   const streakKey = kind === 'match' ? 'matchStreak' : 'blankStreak';
   const missKey = kind === 'match' ? 'matchMissRun' : 'blankMissRun';
   const dayKey = kind === 'match' ? 'matchStreakDay' : 'blankStreakDay';
-  const streak = kind === 'match' ? matchStreakOf(word) : blankStreakOf(word);
   const missRun = word[missKey] ?? 0;
   const today = dayStamp();
+
+  // Resulting per-exercise streaks after this answer (start from current).
+  let matchStreak = matchStreakOf(word);
+  let blankStreak = blankStreakOf(word);
 
   const patch: Partial<SavedWord> = { updatedAt: Date.now() };
   if (correct) {
@@ -153,10 +187,13 @@ export async function recordWordResult(
     // At most one advance per calendar day: only count this correct answer if
     // the streak hasn't already ticked up today.
     if (word[dayKey] !== today) {
-      const next = streak + 1;
+      const next = (kind === 'match' ? matchStreak : blankStreak) + 1;
       patch[streakKey] = next;
       patch[dayKey] = today;
-      if (next >= LEARNT_STREAKS[kind]) patch.learned = 1;
+      if (kind === 'match') matchStreak = next;
+      else blankStreak = next;
+      // Graduate only when BOTH exercises are cleared, never on one alone.
+      if (hasGraduated(matchStreak, blankStreak)) patch.learned = 1;
     }
   } else {
     const run = missRun + 1;
@@ -165,7 +202,7 @@ export async function recordWordResult(
       patch[streakKey] = 0;
       patch[missKey] = 0; // the reset consumed the run
       patch[dayKey] = ''; // clear the day so a later correct today restarts at 1
-      patch.learned = 0;
+      patch.learned = 0; // dropping either exercise below threshold un-learns it
     }
   }
   await db.savedWords.update(word.id, patch);

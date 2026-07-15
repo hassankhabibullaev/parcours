@@ -85,14 +85,26 @@ export async function recordDrillResult(
   });
 }
 
-/** Draw `count` items (of one kind) from `items`, struggle-weighted. */
+/**
+ * Draw `count` items (of one kind) from `items`, struggle-weighted. An optional
+ * `boostOf` multiplies each item's struggle weight — the vocabulary draw uses it
+ * to favour words far from graduating; conjugation passes none (unchanged).
+ */
 export async function drawWeighted<T>(
   kind: StatKind,
   items: T[],
   idOf: (t: T) => string,
   count: number,
+  boostOf?: (t: T) => number,
 ): Promise<T[]> {
   const stats = await loadStats(kind);
   const now = Date.now();
-  return weightedSample(items, (item) => struggleWeight(stats.get(idOf(item)), now), count);
+  return weightedSample(
+    items,
+    (item) => {
+      const base = struggleWeight(stats.get(idOf(item)), now);
+      return boostOf ? base * boostOf(item) : base;
+    },
+    count,
+  );
 }
