@@ -167,7 +167,7 @@ function LearnTab() {
 
   function wordRow(w: SavedWord) {
     const editing = editingId === w.id;
-    // One dot per required consecutive correct answer, split by exercise:
+    // One dot per required correct day, split by exercise:
     // 3 green for Word Match, 2 blue for Fill in the Blank.
     const matchOn = Math.min(matchStreakOf(w), LEARNT_STREAKS.match);
     const blankOn = Math.min(blankStreakOf(w), LEARNT_STREAKS.blank);
@@ -373,7 +373,7 @@ function LearnTab() {
           ) : (
             <p className="lex-group__empty">
               {shelf === 'learned'
-                ? `Words land here after ${LEARNT_STREAKS.match} correct in a row in Word Match or ${LEARNT_STREAKS.blank} in Fill in the Blank — or mark one learnt yourself.`
+                ? `Words land here after you get them right on ${LEARNT_STREAKS.match} separate days in Word Match or ${LEARNT_STREAKS.blank} in Fill in the Blank — or mark one learnt yourself.`
                 : 'Nothing in rotation — save words while you read.'}
             </p>
           )}

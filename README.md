@@ -208,8 +208,8 @@ translations and splitting the legacy single `streak` into the per-exercise coun
   add action) and the lexicon (All/Learning/Learned pill filters; tapping a word opens the
   same modal fed from its stored content, no add action; the first-line translation is
   inline-editable). A learning word's row carries five progress dots — one per required
-  consecutive correct answer: 3 green (Word Match) + 2 blue (Fill in the Blank), lit from
-  the per-exercise streaks. **Practice**: the three drills. Translations follow **one template per
+  correct day: 3 green (Word Match) + 2 blue (Fill in the Blank), lit from the per-exercise
+  streaks (which count distinct days, capped at one advance per calendar day). **Practice**: the three drills. Translations follow **one template per
   part of speech** (`normalizeGloss` in `dictionary.ts`: verbs always "to …", qualifiers
   stripped, first sense only), applied at fetch time and to stored words by migration.
 - **Practice rules** (`practice.ts`) — every drill needs **5 words** in its pool.
@@ -217,10 +217,13 @@ translations and splitting the legacy single `streak` into the per-exercise coun
   Fill in the Blank: 1 word/session, `sessions = clamp(pool, 5, 10)`; a wrong answer allows
   retrying without showing the solution (separate « Reveal answer » button; the English
   hint button reads « Show hint in English »). A fully-correct session **auto-advances**
-  after a short pause with every control frozen. Words graduate at **3 consecutive correct
-  in Word Match/Remember? or 2 in Fill in the Blank** (independent counters; hitting either
-  promotes); one miss is forgiven, **two consecutive misses** reset that exercise's streak
-  (and demote a learnt word). Manual mark-learnt/unlearnt aligns both counters. Draws are
+  after a short pause with every control frozen. Words graduate at **3 correct *days* in
+  Word Match/Remember? or 2 in Fill in the Blank** (independent counters; hitting either
+  promotes) — a streak advances **at most once per calendar day** (`matchStreakDay` /
+  `blankStreakDay` gate it), so it counts distinct days the word was answered right, not
+  repeat answers within a single day; one miss is forgiven, **two consecutive misses** reset
+  that exercise's streak (clearing its day) and demote a learnt word. Manual
+  mark-learnt/unlearnt aligns both counters. Draws are
   struggle-weighted (`struggle.ts`): each answer updates a `drillStats` row (EWMA error
   rate + last-seen), and the draw favours high-error, not-recently-seen items.
 - **Conjugation** — two tabs. **Learn**: a **needs-work list** (see below), then nine tense

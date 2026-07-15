@@ -26,16 +26,21 @@ export interface SavedWord {
   streak?: number;
   /**
    * Per-exercise progression, driving the automatic move to the learnt shelf:
-   * Word Match / Remember? promote at 3 consecutive correct, Fill in the
-   * Blank at 2 — two independent counters (hitting either promotes). A single
-   * miss is forgiven; a streak only resets (and a learnt word only demotes)
-   * after two consecutive misses, tracked by the missRun counters.
-   * None are indexed; absent on old records (read as 0).
+   * Word Match / Remember? promote at 3 consecutive correct *days*, Fill in the
+   * Blank at 2 — two independent counters (hitting either promotes). A streak
+   * advances at most once per calendar day, so it counts distinct days the word
+   * was answered right, not repeat answers within one day (matchStreakDay /
+   * blankStreakDay hold the last day each counter advanced, a local YYYY-MM-DD).
+   * A single miss is forgiven; a streak only resets (and a learnt word only
+   * demotes) after two consecutive misses, tracked by the missRun counters.
+   * None are indexed; absent on old records (read as 0 / no day yet).
    */
   matchStreak?: number;
   matchMissRun?: number;
+  matchStreakDay?: string;
   blankStreak?: number;
   blankMissRun?: number;
+  blankStreakDay?: string;
   addedAt: number;
   updatedAt: number;
 }

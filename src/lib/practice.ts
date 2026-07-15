@@ -109,13 +109,31 @@ export const matchStreakOf = (w: SavedWord): number => w.matchStreak ?? w.streak
 export const blankStreakOf = (w: SavedWord): number => w.blankStreak ?? 0;
 
 /**
+ * Local calendar day (YYYY-MM-DD) used to day-gate streak progression, so a
+ * word can advance at most once per day. Local time on purpose: "a new day"
+ * should mean the learner's day, not UTC.
+ */
+export function dayStamp(ts: number = Date.now()): string {
+  const d = new Date(ts);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+/**
  * Update a word's learning progress after one practice answer.
  *
  * Word Match / Remember? and Fill in the Blank keep independent streaks
- * (promoting at 3 and 2 consecutive correct respectively — hitting either
- * threshold promotes). One wrong answer is forgiven — the streak holds; two
- * consecutive wrong answers reset that exercise's streak and send a learnt
- * word back to the learning shelf.
+ * (promoting at 3 and 2 respectively — hitting either threshold promotes).
+ * A streak counts distinct *days* the word was answered right, not answers
+ * within a day: a correct answer advances the streak only the first time that
+ * exercise is cleared on a given calendar day; further correct answers the same
+ * day hold it steady. So a word graduates only after 3 (Word Match) and 2
+ * (Fill in the Blank) separate days of getting it right. One wrong answer is
+ * forgiven — the streak holds; two consecutive wrong answers reset that
+ * exercise's streak (clearing its day so the same day can start fresh) and send
+ * a learnt word back to the learning shelf.
  */
 export async function recordWordResult(
   word: SavedWord,
@@ -124,21 +142,29 @@ export async function recordWordResult(
 ): Promise<void> {
   const streakKey = kind === 'match' ? 'matchStreak' : 'blankStreak';
   const missKey = kind === 'match' ? 'matchMissRun' : 'blankMissRun';
+  const dayKey = kind === 'match' ? 'matchStreakDay' : 'blankStreakDay';
   const streak = kind === 'match' ? matchStreakOf(word) : blankStreakOf(word);
   const missRun = word[missKey] ?? 0;
+  const today = dayStamp();
 
   const patch: Partial<SavedWord> = { updatedAt: Date.now() };
   if (correct) {
-    const next = streak + 1;
-    patch[streakKey] = next;
     patch[missKey] = 0;
-    if (next >= LEARNT_STREAKS[kind]) patch.learned = 1;
+    // At most one advance per calendar day: only count this correct answer if
+    // the streak hasn't already ticked up today.
+    if (word[dayKey] !== today) {
+      const next = streak + 1;
+      patch[streakKey] = next;
+      patch[dayKey] = today;
+      if (next >= LEARNT_STREAKS[kind]) patch.learned = 1;
+    }
   } else {
     const run = missRun + 1;
     patch[missKey] = run;
     if (run >= MISS_RUN_RESET) {
       patch[streakKey] = 0;
       patch[missKey] = 0; // the reset consumed the run
+      patch[dayKey] = ''; // clear the day so a later correct today restarts at 1
       patch.learned = 0;
     }
   }
