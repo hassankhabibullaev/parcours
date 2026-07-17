@@ -5,7 +5,7 @@ import { TENSES, verbList, verbMeanings } from '../data/content';
 import { TENSE_THEMES } from '../lib/tenseThemes';
 import { foldAccents } from '../lib/practice';
 import { tenseLabel } from '../lib/conjugation';
-import { getStruggles, removeStruggle } from '../lib/conjStruggles';
+import { clearVerb, getStruggles, type StruggleEntry } from '../lib/conjStruggles';
 import SectionTabs from '../components/SectionTabs';
 import ConjugationPicker from '../components/ConjugationPicker';
 import { CloseIcon } from '../components/icons';
@@ -110,44 +110,62 @@ function LearnTab() {
 }
 
 /**
- * The needs-work list: verb×tense pairs missed in the typing drill (see
- * lib/conjStruggles.ts). Hidden when there's nothing outstanding. Regular
- * practice never clears an entry — each is fixed in one of two ways: tapping
- * the row starts a short **focused drill** on that verb (its flagged tenses
- * drilled across different pronouns; getting a flagged tense fully right
- * clears it), and the ✕ dismisses a flag that was just an accidental slip.
+ * The needs-work list: the verbs the learner chose to keep after slipping on
+ * them in the typing drill (the « Keep » button on a round's results — see
+ * lib/conjStruggles.ts). Hidden when there's nothing kept. One row per verb,
+ * wearing a badge per flagged tense; tapping it opens the verb's **study
+ * page** (rules for the shaky tenses + a short focused drill + « Mark as
+ * learned »). The ✕ drops the verb without ceremony.
  */
 function NeedsWorkSection() {
   const struggles = useLiveQuery(() => getStruggles(), []);
   if (!struggles || struggles.length === 0) return null;
 
+  // Group per verb, preserving the most-kept-first ordering of the entries.
+  const byVerb = new Map<string, StruggleEntry[]>();
+  for (const s of struggles) {
+    const list = byVerb.get(s.verb);
+    if (list) list.push(s);
+    else byVerb.set(s.verb, [s]);
+  }
+
   return (
     <>
-      <div className="section-label">Needs work · {struggles.length}</div>
+      <div className="section-label">Needs work · {byVerb.size}</div>
       <p className="needs-work__lede">
-        Tenses you've slipped on in practice. Tap one for a short focused drill on
-        that verb — get the tense right to clear it — or dismiss a flag that was
-        just a slip.
+        Verbs you kept after practice. Tap one to read its rules with the shaky
+        tenses front and centre, take a short drill, and mark it learned once it
+        sticks — or ✕ to drop it.
       </p>
       <div className="learn-list">
-        {struggles.map((s) => {
-          const theme = TENSE_THEMES[s.tense];
+        {[...byVerb.entries()].map(([verb, entries]) => {
+          const theme = TENSE_THEMES[entries[0].tense];
           return (
             <div
-              key={`${s.verb}|${s.tense}`}
+              key={verb}
               className="learn-row needs-work__row"
               style={{ '--tc': theme.color, '--tc-wash': theme.wash } as CSSProperties}
             >
               <Link
                 className="needs-work__main"
-                to={`/conjugation/focus/${encodeURIComponent(s.verb)}`}
-                aria-label={`Focused drill on ${s.verb} — ${tenseLabel(s.tense)}`}
+                to={`/conjugation/study/${encodeURIComponent(verb)}`}
+                aria-label={`Study ${verb} — ${entries.map((e) => tenseLabel(e.tense)).join(', ')}`}
               >
                 <span className="needs-work__verb">
-                  {s.verb}
-                  <span className="needs-work__meaning">{verbMeanings[s.verb]}</span>
+                  {verb}
+                  <span className="needs-work__meaning">{verbMeanings[verb]}</span>
                 </span>
-                <span className="conj-tense-badge needs-work__tense">{tenseLabel(s.tense)}</span>
+                <span className="needs-work__badges">
+                  {entries.map((e) => (
+                    <span
+                      key={e.tense}
+                      className="conj-tense-badge needs-work__tense"
+                      style={{ '--tc': TENSE_THEMES[e.tense].color } as CSSProperties}
+                    >
+                      {tenseLabel(e.tense)}
+                    </span>
+                  ))}
+                </span>
                 <span className="learn-row__chev" aria-hidden>
                   →
                 </span>
@@ -155,9 +173,9 @@ function NeedsWorkSection() {
               <button
                 type="button"
                 className="icon-btn needs-work__remove"
-                onClick={() => removeStruggle(s.verb, s.tense)}
-                aria-label={`Dismiss ${s.verb} — ${tenseLabel(s.tense)} (accidental mistake)`}
-                title="Dismiss — it was just a slip"
+                onClick={() => clearVerb(verb)}
+                aria-label={`Drop ${verb} from the needs-work list`}
+                title="Drop from the list"
               >
                 <CloseIcon />
               </button>

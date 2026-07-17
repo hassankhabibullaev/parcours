@@ -79,8 +79,8 @@ export const MATCH_WORDS_PER_SESSION = 5;
 export const MATCH_MAX_SESSIONS = 6;
 
 /**
- * Word Match & Remember?: 5 words per session, up to 6 sessions, the word
- * count rounded down to the nearest multiple of 5 —
+ * Word Match: 5 words per session, up to 6 sessions, the word count rounded
+ * down to the nearest multiple of 5 —
  * `sessions = min(6, floor(pool / 5))`. 0 means the drill is gated.
  */
 export function matchSessionCount(poolSize: number): number {
@@ -91,7 +91,8 @@ export const BLANK_MIN_SESSIONS = 5;
 export const BLANK_MAX_SESSIONS = 10;
 
 /**
- * Fill in the Blank: one word per session, `sessions = clamp(pool, 5, 10)`.
+ * One-word-per-session drills (Fill in the Blank, Listen & Type,
+ * Listen & Choose): `sessions = clamp(pool, 5, 10)`.
  * Below 5 words the drill is gated (returns 0).
  */
 export function blankSessionCount(poolSize: number): number {
@@ -101,26 +102,57 @@ export function blankSessionCount(poolSize: number): number {
 
 /* ——— Learnt-shelf progression ——— */
 
-export type DrillKind = 'match' | 'blank';
+/** The four practice modes. Every mode runs on BOTH shelves (learning and
+ *  learned) — the shelf picks the pool, the mode picks the streak it feeds. */
+export type DrillKind = 'match' | 'blank' | 'listen' | 'choose';
+export const DRILL_KINDS: DrillKind[] = ['match', 'blank', 'listen', 'choose'];
 
-/** Correct *days* that clear each exercise, per exercise family. A word must
- *  clear BOTH to graduate (3 in Word Match AND 2 in Fill in the Blank). */
-export const LEARNT_STREAKS: Record<DrillKind, number> = { match: 3, blank: 2 };
-/** Total progress dots a word shows (match + blank), used for draw biasing. */
-export const TOTAL_DOTS = LEARNT_STREAKS.match + LEARNT_STREAKS.blank;
+/** Which shelf a drill route runs on (`/vocabulary/:mode/:shelf`). */
+export type VocabShelf = 'learning' | 'learned';
+export const SHELF_FLAG: Record<VocabShelf, 0 | 1> = { learning: 0, learned: 1 };
+
+export function parseShelf(raw: string | undefined): VocabShelf | null {
+  return raw === 'learning' || raw === 'learned' ? raw : null;
+}
+
+/** The `practiceResults.mode` string for one round: mode key, with a
+ *  '-learned' suffix when the round ran on the learnt shelf. */
+export function roundMode(kind: DrillKind, shelf: VocabShelf): string {
+  return shelf === 'learned' ? `${kind}-learned` : kind;
+}
+
+/** Correct *days* that clear each mode. A word must clear EVERY mode — pass
+ *  it at least twice in each of the four — to graduate to the learnt shelf. */
+export const PASSES_PER_MODE = 2;
+export const LEARNT_STREAKS: Record<DrillKind, number> = {
+  match: PASSES_PER_MODE,
+  blank: PASSES_PER_MODE,
+  listen: PASSES_PER_MODE,
+  choose: PASSES_PER_MODE,
+};
+/** Total progress dots a word shows (all modes), used for draw biasing. */
+export const TOTAL_DOTS = DRILL_KINDS.reduce((n, k) => n + LEARNT_STREAKS[k], 0);
 /** A streak survives one miss; it resets after this many consecutive misses. */
 export const MISS_RUN_RESET = 2;
 
-export const matchStreakOf = (w: SavedWord): number => w.matchStreak ?? w.streak ?? 0;
-export const blankStreakOf = (w: SavedWord): number => w.blankStreak ?? 0;
+/** The SavedWord field names backing one mode's counters. */
+export const streakKey = (k: DrillKind) => `${k}Streak` as const;
+export const missKey = (k: DrillKind) => `${k}MissRun` as const;
+const dayKey = (k: DrillKind) => `${k}StreakDay` as const;
+
+/** One mode's correct-day streak (match falls back to the legacy counter). */
+export function streakOf(w: SavedWord, kind: DrillKind): number {
+  if (kind === 'match') return w.matchStreak ?? w.streak ?? 0;
+  return w[streakKey(kind)] ?? 0;
+}
 
 /**
- * A word is learnt only once BOTH exercises are cleared — 3 correct days in
- * Word Match AND 2 in Fill in the Blank (5 checks in all). Clearing just one
- * exercise is not enough.
+ * A word is learnt only once EVERY mode is cleared — at least two correct
+ * days in each of Word Match, Fill in the Blank, Listen & Type and
+ * Listen & Choose. Clearing some modes but not others is not enough.
  */
-export function hasGraduated(matchStreak: number, blankStreak: number): boolean {
-  return matchStreak >= LEARNT_STREAKS.match && blankStreak >= LEARNT_STREAKS.blank;
+export function hasGraduated(streaks: Record<DrillKind, number>): boolean {
+  return DRILL_KINDS.every((k) => streaks[k] >= LEARNT_STREAKS[k]);
 }
 
 /** How strongly the draw favours words with fewer progress dots (0 = off). */
@@ -133,9 +165,10 @@ export const PROGRESS_BIAS = 2;
  * and spacing still apply on top.
  */
 export function progressBoost(w: SavedWord): number {
-  const lit =
-    Math.min(matchStreakOf(w), LEARNT_STREAKS.match) +
-    Math.min(blankStreakOf(w), LEARNT_STREAKS.blank);
+  const lit = DRILL_KINDS.reduce(
+    (n, k) => n + Math.min(streakOf(w, k), LEARNT_STREAKS[k]),
+    0,
+  );
   return 1 + PROGRESS_BIAS * ((TOTAL_DOTS - lit) / TOTAL_DOTS);
 }
 
@@ -155,54 +188,52 @@ export function dayStamp(ts: number = Date.now()): string {
 /**
  * Update a word's learning progress after one practice answer.
  *
- * Word Match / Remember? and Fill in the Blank keep independent streaks that
- * count distinct *days* the word was answered right, not answers within a day:
- * a correct answer advances a streak only the first time that exercise is
- * cleared on a given calendar day; further correct answers the same day hold it
- * steady. A word graduates to the learnt shelf only once BOTH exercises are
- * cleared — 3 correct days in Word Match AND 2 in Fill in the Blank (see
- * hasGraduated). One wrong answer is forgiven — the streak holds; two
- * consecutive wrong answers reset that exercise's streak (clearing its day so
- * the same day can start fresh) and, since a learnt word now fails the
- * both-exercises test, send it back to the learning shelf.
+ * Every mode keeps an independent streak that counts distinct *days* the word
+ * was answered right, not answers within a day: a correct answer advances a
+ * streak only the first time that mode is cleared on a given calendar day;
+ * further correct answers the same day hold it steady. A word graduates to
+ * the learnt shelf only once EVERY mode is cleared — at least two correct
+ * days in each (see hasGraduated). One wrong answer is forgiven — the streak
+ * holds; two consecutive wrong answers reset that mode's streak (clearing its
+ * day so the same day can start fresh) and, since a learnt word now fails the
+ * every-mode test, send it back to the learning shelf.
  */
 export async function recordWordResult(
   word: SavedWord,
   correct: boolean,
   kind: DrillKind,
 ): Promise<void> {
-  const streakKey = kind === 'match' ? 'matchStreak' : 'blankStreak';
-  const missKey = kind === 'match' ? 'matchMissRun' : 'blankMissRun';
-  const dayKey = kind === 'match' ? 'matchStreakDay' : 'blankStreakDay';
-  const missRun = word[missKey] ?? 0;
+  const sKey = streakKey(kind);
+  const mKey = missKey(kind);
+  const dKey = dayKey(kind);
+  const missRun = word[mKey] ?? 0;
   const today = dayStamp();
 
-  // Resulting per-exercise streaks after this answer (start from current).
-  let matchStreak = matchStreakOf(word);
-  let blankStreak = blankStreakOf(word);
+  // Resulting per-mode streaks after this answer (start from current).
+  const streaks = Object.fromEntries(
+    DRILL_KINDS.map((k) => [k, streakOf(word, k)]),
+  ) as Record<DrillKind, number>;
 
   const patch: Partial<SavedWord> = { updatedAt: Date.now() };
   if (correct) {
-    patch[missKey] = 0;
+    patch[mKey] = 0;
     // At most one advance per calendar day: only count this correct answer if
     // the streak hasn't already ticked up today.
-    if (word[dayKey] !== today) {
-      const next = (kind === 'match' ? matchStreak : blankStreak) + 1;
-      patch[streakKey] = next;
-      patch[dayKey] = today;
-      if (kind === 'match') matchStreak = next;
-      else blankStreak = next;
-      // Graduate only when BOTH exercises are cleared, never on one alone.
-      if (hasGraduated(matchStreak, blankStreak)) patch.learned = 1;
+    if (word[dKey] !== today) {
+      streaks[kind] += 1;
+      patch[sKey] = streaks[kind];
+      patch[dKey] = today;
+      // Graduate only when EVERY mode is cleared, never on some alone.
+      if (hasGraduated(streaks)) patch.learned = 1;
     }
   } else {
     const run = missRun + 1;
-    patch[missKey] = run;
+    patch[mKey] = run;
     if (run >= MISS_RUN_RESET) {
-      patch[streakKey] = 0;
-      patch[missKey] = 0; // the reset consumed the run
-      patch[dayKey] = ''; // clear the day so a later correct today restarts at 1
-      patch.learned = 0; // dropping either exercise below threshold un-learns it
+      patch[sKey] = 0;
+      patch[mKey] = 0; // the reset consumed the run
+      patch[dKey] = ''; // clear the day so a later correct today restarts at 1
+      patch.learned = 0; // dropping any mode below threshold un-learns it
     }
   }
   await db.savedWords.update(word.id, patch);

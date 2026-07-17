@@ -25,14 +25,16 @@ export interface SavedWord {
    */
   streak?: number;
   /**
-   * Per-exercise progression, driving the automatic move to the learnt shelf:
-   * Word Match / Remember? promote at 3 consecutive correct *days*, Fill in the
-   * Blank at 2 — two independent counters (hitting either promotes). A streak
-   * advances at most once per calendar day, so it counts distinct days the word
-   * was answered right, not repeat answers within one day (matchStreakDay /
-   * blankStreakDay hold the last day each counter advanced, a local YYYY-MM-DD).
-   * A single miss is forgiven; a streak only resets (and a learnt word only
-   * demotes) after two consecutive misses, tracked by the missRun counters.
+   * Per-mode progression, driving the automatic move to the learnt shelf:
+   * each practice mode (Word Match / Fill in the Blank / Listen & Type /
+   * Listen & Choose) keeps an independent counter of correct *days*, and a
+   * word graduates only once EVERY mode reaches its threshold (see
+   * LEARNT_STREAKS / hasGraduated in lib/practice.ts). A streak advances at
+   * most once per calendar day, so it counts distinct days the word was
+   * answered right, not repeat answers within one day (the *StreakDay fields
+   * hold the last day each counter advanced, a local YYYY-MM-DD). A single
+   * miss is forgiven; a streak only resets (and a learnt word only demotes)
+   * after two consecutive misses, tracked by the *MissRun counters.
    * None are indexed; absent on old records (read as 0 / no day yet).
    */
   matchStreak?: number;
@@ -41,6 +43,12 @@ export interface SavedWord {
   blankStreak?: number;
   blankMissRun?: number;
   blankStreakDay?: string;
+  listenStreak?: number;
+  listenMissRun?: number;
+  listenStreakDay?: string;
+  chooseStreak?: number;
+  chooseMissRun?: number;
+  chooseStreakDay?: string;
   addedAt: number;
   updatedAt: number;
 }
@@ -57,7 +65,9 @@ export interface ArticleProgress {
 export interface PracticeResult {
   id: string;
   tool: 'vocabulary' | 'conjugation';
-  /** e.g. 'learn', 'practice', 'remember', 'typing' */
+  /** Vocabulary: the mode key ('match', 'blank', 'listen', 'choose'), with a
+      '-learned' suffix on learnt-shelf rounds; conjugation: 'typing' | 'focus'.
+      Older rows carry the retired 'learn'/'practice'/'remember' names. */
   mode: string;
   /** Conjugation only: which tense the round covered ('mixed' allowed). */
   tense: string | null;

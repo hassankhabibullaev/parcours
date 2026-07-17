@@ -6,7 +6,17 @@ import { lookup } from '../lib/dictionary';
 import { searchDictionary } from '../lib/dictionarySearch';
 import { deleteSavedWord } from '../lib/db';
 import { canSpeak, speakFrench } from '../lib/speech';
-import { LEARNT_STREAKS, blankStreakOf, matchStreakOf } from '../lib/practice';
+import {
+  DRILL_KINDS,
+  LEARNT_STREAKS,
+  PASSES_PER_MODE,
+  TOTAL_DOTS,
+  missKey,
+  streakKey,
+  streakOf,
+  type DrillKind,
+} from '../lib/practice';
+import { VOCAB_MODE_NAMES } from '../lib/vocabThemes';
 import SectionTabs from '../components/SectionTabs';
 import VocabDrills from '../components/VocabDrills';
 import WordModal, { type LookupRequest } from '../components/WordModal';
@@ -30,9 +40,9 @@ interface ModalState {
 
 /**
  * Vocabulary — two tabs. Learn holds the dictionary search and the lexicon
- * (Learning/Learned as pill filters); Practice lists the three word drills.
- * The active tab lives in the URL (`?tab=practice`) so drill back links can
- * return here.
+ * (Learning/Learned as pill filters); Practice lists the four modes, mirrored
+ * for both shelves. The active tab lives in the URL (`?tab=practice`) so
+ * drill back links can return here.
  */
 export default function VocabularyPage() {
   const [params, setParams] = useSearchParams();
@@ -125,16 +135,17 @@ function LearnTab() {
   }
 
   function toggleLearned(w: SavedWord) {
-    // Manual override of the automatic progression — align both exercise
-    // streaks so the dots (and the next practice answer) agree with the shelf.
-    db.savedWords.update(w.id, {
+    // Manual override of the automatic progression — align every mode's
+    // streak so the dots (and the next practice answer) agree with the shelf.
+    const patch: Partial<SavedWord> = {
       learned: w.learned ? 0 : 1,
-      matchStreak: w.learned ? 0 : LEARNT_STREAKS.match,
-      blankStreak: w.learned ? 0 : LEARNT_STREAKS.blank,
-      matchMissRun: 0,
-      blankMissRun: 0,
       updatedAt: Date.now(),
-    });
+    };
+    for (const k of DRILL_KINDS) {
+      patch[streakKey(k)] = w.learned ? 0 : LEARNT_STREAKS[k];
+      patch[missKey(k)] = 0;
+    }
+    db.savedWords.update(w.id, patch);
   }
 
   function remove(w: SavedWord) {
@@ -167,10 +178,9 @@ function LearnTab() {
 
   function wordRow(w: SavedWord) {
     const editing = editingId === w.id;
-    // One dot per required correct day, split by exercise:
-    // 3 green for Word Match, 2 blue for Fill in the Blank.
-    const matchOn = Math.min(matchStreakOf(w), LEARNT_STREAKS.match);
-    const blankOn = Math.min(blankStreakOf(w), LEARNT_STREAKS.blank);
+    // One dot per required correct day, grouped by mode (two per mode), each
+    // group in its mode's identity color (VOCAB_THEMES / .word-dot--*).
+    const litOf = (k: DrillKind) => Math.min(streakOf(w, k), LEARNT_STREAKS[k]);
     return (
       <div key={w.id} className={`word-row${w.learned ? ' word-row--learned' : ''}`}>
         {editing ? (
@@ -238,20 +248,18 @@ function LearnTab() {
             {!w.learned && (
               <span
                 className="word-dots"
-                title={`Word Match ${matchOn}/${LEARNT_STREAKS.match} · Fill in the Blank ${blankOn}/${LEARNT_STREAKS.blank}`}
+                title={DRILL_KINDS.map(
+                  (k) => `${VOCAB_MODE_NAMES[k]} ${litOf(k)}/${LEARNT_STREAKS[k]}`,
+                ).join(' · ')}
               >
-                {Array.from({ length: LEARNT_STREAKS.match }, (_, i) => (
-                  <span
-                    key={`m${i}`}
-                    className={`word-dot word-dot--match${i < matchOn ? ' word-dot--on' : ''}`}
-                  />
-                ))}
-                {Array.from({ length: LEARNT_STREAKS.blank }, (_, i) => (
-                  <span
-                    key={`b${i}`}
-                    className={`word-dot word-dot--blank${i < blankOn ? ' word-dot--on' : ''}`}
-                  />
-                ))}
+                {DRILL_KINDS.flatMap((k) =>
+                  Array.from({ length: LEARNT_STREAKS[k] }, (_, i) => (
+                    <span
+                      key={`${k}${i}`}
+                      className={`word-dot word-dot--${k}${i < litOf(k) ? ' word-dot--on' : ''}`}
+                    />
+                  )),
+                )}
               </span>
             )}
             <div className="word-row__icons">
@@ -354,10 +362,12 @@ function LearnTab() {
       ) : (
         <>
           <p className="shelf-lede">
-            Each word carries {LEARNT_STREAKS.match + LEARNT_STREAKS.blank} dots — one per day you
-            get it right: <span className="shelf-lede__match">{LEARNT_STREAKS.match} in Word Match</span>{' '}
-            and <span className="shelf-lede__blank">{LEARNT_STREAKS.blank} in Fill in the Blank</span>.
-            Fill them all and it moves to Learned.
+            Each word carries {TOTAL_DOTS} dots — {PASSES_PER_MODE} per practice mode, one per
+            day you get it right: <span className="shelf-lede__match">Word Match</span>,{' '}
+            <span className="shelf-lede__blank">Fill in the Blank</span>,{' '}
+            <span className="shelf-lede__listen">Listen &amp; Type</span> and{' '}
+            <span className="shelf-lede__choose">Listen &amp; Choose</span>. Fill them all and
+            it moves to Learned.
           </p>
           <div className="level-counts" role="group" aria-label="Filter by shelf">
             {shelves.map((s) => (
@@ -378,7 +388,7 @@ function LearnTab() {
           ) : (
             <p className="lex-group__empty">
               {shelf === 'learned'
-                ? `Words land here once you get them right on ${LEARNT_STREAKS.match} separate days in Word Match and ${LEARNT_STREAKS.blank} in Fill in the Blank — or mark one learnt yourself.`
+                ? `Words land here once you clear every practice mode on ${PASSES_PER_MODE} separate days each — or mark one learnt yourself.`
                 : 'Nothing in rotation — save words while you read.'}
             </p>
           )}

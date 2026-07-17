@@ -6,7 +6,8 @@ import {
   type FormEvent,
   type KeyboardEvent,
 } from 'react';
-import { Link, Navigate, useParams } from 'react-router-dom';
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
+import { useLiveQuery } from 'dexie-react-hooks';
 import { TENSES, verbs, type TenseKey } from '../data/content';
 import {
   buildFocusSession,
@@ -20,14 +21,9 @@ import {
 } from '../lib/conjugation';
 import { gradeAnswer, recordRound, type AnswerGrade } from '../lib/practice';
 import { recordDrillResult } from '../lib/struggle';
-import {
-  flaggedTensesFor,
-  recordConjResults,
-  resolveFocusResults,
-  type FocusOutcome,
-} from '../lib/conjStruggles';
+import { addStruggle, clearVerb, flaggedTensesFor, getStruggles } from '../lib/conjStruggles';
 import { MIXED_STRIPE, TENSE_THEMES } from '../lib/tenseThemes';
-import { errorBuzz, keyClick, sfxEnabled, successChime } from '../lib/sound';
+import { confirmTock, errorBuzz, keyClick, sfxEnabled, successChime } from '../lib/sound';
 import { useAutoSpeak } from '../lib/useAutoSpeak';
 import DrillHeader from '../components/DrillHeader';
 import DrillTopline from '../components/DrillTopline';
@@ -52,6 +48,13 @@ interface Miss {
   pronoun: string;
   user: string;
   correct: string;
+}
+
+/** How a focus round went, per flagged tense — display only: the round never
+    edits the needs-work list itself (the learner marks the verb learned). */
+interface FocusSummary {
+  clean: TenseKey[];
+  shaky: TenseKey[];
 }
 
 export default function ConjugationDrillPage() {
@@ -82,11 +85,12 @@ export default function ConjugationDrillPage() {
   const [rendering, setRendering] = useState(true);
   const [focusedIdx, setFocusedIdx] = useState<number | null>(null);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  // Focus mode: every first-attempt prompt result of the round, resolved
-  // against the needs-work list once at the end (a flagged tense must be clean
-  // across the WHOLE round to clear, even when it spans exercises).
+  // Focus mode: every first-attempt prompt result of the round, folded per
+  // tense at the end into a report (a flagged tense must be clean across the
+  // WHOLE round to count as clean, even when it spans exercises).
   const focusLog = useRef<{ tense: TenseKey; correct: boolean }[]>([]);
-  const [outcome, setOutcome] = useState<FocusOutcome | null>(null);
+  const [flagged, setFlagged] = useState<TenseKey[]>([]);
+  const [outcome, setOutcome] = useState<FocusSummary | null>(null);
 
   const exercise: Exercise | undefined = session[exIndex];
 
@@ -100,10 +104,11 @@ export default function ConjugationDrillPage() {
     let cancelled = false;
     setLoading(true);
     if (focusVerb) {
-      flaggedTensesFor(focusVerb).then((flagged) => {
+      flaggedTensesFor(focusVerb).then((tenses) => {
         if (cancelled) return;
         focusLog.current = [];
-        setSession(buildFocusSession(focusVerb, flagged));
+        setFlagged(tenses);
+        setSession(buildFocusSession(focusVerb, tenses));
         setLoading(false);
       });
     } else {
@@ -220,18 +225,18 @@ export default function ConjugationDrillPage() {
       // Feed the struggle-weighted verb draw: a verb counts as "got it" only
       // when every prompt for it was right first try.
       void recordDrillResult('verb', ex.verb, newlyMissed.length === 0);
-      const tenseResults = gs.map((g, i) => ({
-        tense: ex.prompts[i].tense,
-        correct: g !== 'wrong', // accents count as correct, matching the score
-      }));
       if (focusVerb) {
         // Focus mode holds its results until the round ends (see next()) —
-        // a flagged tense must be clean across all its prompts to clear.
-        focusLog.current.push(...tenseResults);
-      } else {
-        // Feed the Learn tab's needs-work list, per verb×tense.
-        void recordConjResults(ex.verb, tenseResults);
+        // a flagged tense must be clean across all its prompts to report clean.
+        focusLog.current.push(
+          ...gs.map((g, i) => ({
+            tense: ex.prompts[i].tense,
+            correct: g !== 'wrong', // accents count as correct, matching the score
+          })),
+        );
       }
+      // Regular rounds no longer feed the needs-work list automatically — the
+      // results screen offers a « Keep » button per miss instead (RetainNote).
     }
     setGrades(gs);
     const stillWrong = gs.findIndex((g) => g === 'wrong');
@@ -246,9 +251,17 @@ export default function ConjugationDrillPage() {
   function next() {
     if (isLast) {
       if (focusVerb) {
-        // Settle the needs-work list from the whole round's first attempts;
-        // the results screen reports what cleared and what stayed.
-        void resolveFocusResults(focusVerb, focusLog.current).then(setOutcome);
+        // Fold the whole round's first attempts per tense for the report —
+        // display only, the list itself is the learner's to edit.
+        const byTense = new Map<TenseKey, boolean>();
+        for (const { tense, correct } of focusLog.current) {
+          byTense.set(tense, (byTense.get(tense) ?? true) && correct);
+        }
+        const drilled = flagged.filter((t) => byTense.has(t));
+        setOutcome({
+          clean: drilled.filter((t) => byTense.get(t)),
+          shaky: [...byTense.keys()].filter((t) => !byTense.get(t)),
+        });
         recordRound('conjugation', 'focus', score, total);
       } else {
         recordRound('conjugation', 'typing', score, total, mode!);
@@ -324,25 +337,11 @@ export default function ConjugationDrillPage() {
               color: TENSE_THEMES[m.tense].color,
             }))}
             note={
-              focusVerb && outcome ? (
-                <div className="focus-outcome">
-                  {outcome.cleared.length > 0 && (
-                    <p className="focus-outcome__line focus-outcome__line--cleared">
-                      ✓ Cleared from needs-work:{' '}
-                      <strong>{outcome.cleared.map(tenseLabel).join(' · ')}</strong>
-                    </p>
-                  )}
-                  {outcome.kept.length > 0 && (
-                    <p className="focus-outcome__line">
-                      Still flagged: <strong>{outcome.kept.map(tenseLabel).join(' · ')}</strong> —{' '}
-                      <Link className="focus-outcome__study" to={`/conjugation/verb/${encodeURIComponent(focusVerb)}`}>
-                        study {focusVerb}
-                      </Link>{' '}
-                      and take another run.
-                    </p>
-                  )}
-                </div>
-              ) : undefined
+              focusVerb ? (
+                outcome && <FocusNote verb={focusVerb} outcome={outcome} />
+              ) : (
+                <RetainNote misses={missed} />
+              )
             }
             backTo={backTo}
             backLabel="Back to conjugation"
@@ -510,6 +509,106 @@ export default function ConjugationDrillPage() {
           </div>
         </form>
       </div>
+    </div>
+  );
+}
+
+/**
+ * « Keep » buttons for a regular round's misses — the only way a verb×tense
+ * pair gets onto the needs-work list. Pairs are deduplicated (a verb missed
+ * on two pronouns of one tense is one row); a pair already on the list shows
+ * as kept. Keeping is quiet and reversible — the list lives on
+ * Conjugation → Learn, where each verb opens its study page.
+ */
+function RetainNote({ misses }: { misses: Miss[] }) {
+  const struggles = useLiveQuery(() => getStruggles(), []);
+  const pairs: { verb: string; tense: TenseKey }[] = [];
+  const seen = new Set<string>();
+  for (const m of misses) {
+    const k = `${m.verb}|${m.tense}`;
+    if (seen.has(k)) continue;
+    seen.add(k);
+    pairs.push({ verb: m.verb, tense: m.tense });
+  }
+  if (pairs.length === 0) return null;
+
+  const kept = new Set((struggles ?? []).map((s) => `${s.verb}|${s.tense}`));
+
+  return (
+    <div className="retain">
+      <p className="retain__lede">
+        Worth working on? Keep a verb and it lands under Conjugation → Learn,
+        with its rules and a short focused drill.
+      </p>
+      {pairs.map(({ verb, tense }) => {
+        const isKept = kept.has(`${verb}|${tense}`);
+        const theme = TENSE_THEMES[tense];
+        return (
+          <div
+            className="retain__row"
+            key={`${verb}|${tense}`}
+            style={{ '--tc': theme.color, '--tc-wash': theme.wash } as CSSProperties}
+          >
+            <span className="retain__verb">{verb}</span>
+            <span className="conj-tense-badge">{tenseLabel(tense)}</span>
+            <button
+              type="button"
+              className={`retain__btn${isKept ? ' retain__btn--kept' : ''}`}
+              disabled={isKept}
+              onClick={() => {
+                confirmTock();
+                void addStruggle(verb, tense);
+              }}
+            >
+              {isKept ? '✓ Kept' : '+ Keep'}
+            </button>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/**
+ * A focus round's report: which flagged tenses came out clean this round and
+ * which still wobbled — plus the one decision that's the learner's alone,
+ * marking the verb learned (clears it off the needs-work list).
+ */
+function FocusNote({ verb, outcome }: { verb: string; outcome: FocusSummary }) {
+  const navigate = useNavigate();
+  return (
+    <div className="focus-outcome">
+      {outcome.clean.length > 0 && (
+        <p className="focus-outcome__line focus-outcome__line--cleared">
+          ✓ Clean this round: <strong>{outcome.clean.map(tenseLabel).join(' · ')}</strong>
+        </p>
+      )}
+      {outcome.shaky.length > 0 && (
+        <p className="focus-outcome__line">
+          Still shaky: <strong>{outcome.shaky.map(tenseLabel).join(' · ')}</strong> —{' '}
+          <Link
+            className="focus-outcome__study"
+            to={`/conjugation/study/${encodeURIComponent(verb)}`}
+          >
+            reread the rules
+          </Link>{' '}
+          and take another run.
+        </p>
+      )}
+      <p className="focus-outcome__line focus-outcome__line--hint">
+        You decide when it's stuck — marking it learned clears {verb} from the list.
+      </p>
+      <button
+        type="button"
+        className="btn btn--primary btn--full"
+        onClick={() => {
+          void clearVerb(verb);
+          confirmTock();
+          navigate('/conjugation');
+        }}
+      >
+        Mark {verb} as learned
+      </button>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react';
+import type { DrillKind } from './practice';
 
 /**
  * Visual identities for the vocabulary practice modes, mirroring the
@@ -6,9 +7,13 @@ import type { CSSProperties } from 'react';
  * language: `color` is the saturated identity (stripes, badges, focus rings),
  * `blob` the pale gradient tint on launcher cards, `wash` a translucent
  * background tint, `stripe` the progress-bar / card-top gradient.
+ *
+ * The mode keys are the DrillKinds from lib/practice.ts; the lexicon's
+ * progress dots hardcode the same colors in global.css (.word-dot--*) —
+ * keep them in step.
  */
 
-export type VocabMode = 'learn' | 'practice' | 'remember';
+export type VocabMode = DrillKind;
 
 export interface VocabTheme {
   color: string;
@@ -34,9 +39,18 @@ function theme(color: string, blob: string): VocabTheme {
 }
 
 export const VOCAB_THEMES: Record<VocabMode, VocabTheme> = {
-  learn: theme('#5b9438', '#bcdca0'),
-  practice: theme('#5d8fbe', '#d4e4f4'),
-  remember: theme('#c89018', '#f5d878'),
+  match: theme('#5b9438', '#bcdca0'),
+  blank: theme('#5d8fbe', '#d4e4f4'),
+  listen: theme('#8a63b8', '#ddc9ee'),
+  choose: theme('#c89018', '#f5d878'),
+};
+
+/** Display names, used on launcher cards, drill headers and the dot legend. */
+export const VOCAB_MODE_NAMES: Record<VocabMode, string> = {
+  match: 'Word Match',
+  blank: 'Fill in the Blank',
+  listen: 'Listen & Type',
+  choose: 'Listen & Choose',
 };
 
 /** The CSS vars the drill pages set inline (same contract as conjugation). */

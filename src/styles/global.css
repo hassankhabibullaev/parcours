@@ -1247,26 +1247,28 @@ a {
   font-size: 13px;
 }
 
-/* Progress dots — one per consecutive correct answer required to graduate:
-   3 for Word Match, 2 for Fill in the Blank. Each group wears its drill's
-   identity color (VOCAB_THEMES in lib/vocabThemes.ts — keep in step). */
+/* Progress dots — one per correct day required to graduate: two per practice
+   mode (match · blank · listen · choose). Each pair wears its mode's identity
+   color (VOCAB_THEMES in lib/vocabThemes.ts — keep in step). */
 .word-dots {
   display: inline-flex;
-  gap: 3px;
+  gap: 2px;
   flex-shrink: 0;
   margin-right: 4px;
 }
 
 .word-dot {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: var(--paper-sunken);
   border: 1px solid var(--rule-strong);
 }
 
-/* A breath between the two exercise groups. */
-.word-dot--match + .word-dot--blank {
+/* A breath between the mode pairs. */
+.word-dot--match + .word-dot--blank,
+.word-dot--blank + .word-dot--listen,
+.word-dot--listen + .word-dot--choose {
   margin-left: 4px;
 }
 
@@ -1278,6 +1280,16 @@ a {
 .word-dot--blank.word-dot--on {
   background: #5d8fbe;
   border-color: #5d8fbe;
+}
+
+.word-dot--listen.word-dot--on {
+  background: #8a63b8;
+  border-color: #8a63b8;
+}
+
+.word-dot--choose.word-dot--on {
+  background: #c89018;
+  border-color: #c89018;
 }
 
 /* One-line explainer of the dot tracker, above the shelf pills. */
@@ -1296,6 +1308,16 @@ a {
 
 .shelf-lede__blank {
   color: #5d8fbe;
+  font-weight: 600;
+}
+
+.shelf-lede__listen {
+  color: #8a63b8;
+  font-weight: 600;
+}
+
+.shelf-lede__choose {
+  color: #c89018;
   font-weight: 600;
 }
 
@@ -1391,6 +1413,101 @@ a {
 
 .vocab-board {
   margin-top: 14px;
+}
+
+/* ——— Vocabulary · audio drills (Listen & Type / Listen & Choose) ——— */
+
+.listen-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 18px 0 4px;
+  text-align: center;
+}
+
+/* The prompt is the sound — a big replayable speaker in the mode's color. */
+.listen-play {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 2px solid var(--tc);
+  background: var(--tc-wash);
+  color: var(--tc);
+  transition: transform 0.15s ease, background 0.15s;
+}
+
+.listen-play svg {
+  width: 30px;
+  height: 30px;
+}
+
+.listen-play:active {
+  transform: scale(0.92);
+}
+
+.listen-stage__sub {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 13.5px;
+  font-style: italic;
+}
+
+/* The solved/revealed word + its meaning, confirmed under the speaker. */
+.listen-answer {
+  margin: 6px 0 0;
+  font-size: 18px;
+  font-weight: 700;
+  animation: tag-in 0.25s ease backwards;
+}
+
+.listen-answer span {
+  color: var(--ink-soft);
+  font-weight: 400;
+  font-style: italic;
+  font-size: 15px;
+}
+
+.choice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.choice {
+  padding: 12px 14px;
+  background: var(--paper-raised);
+  border: 1px solid var(--rule-strong);
+  border-radius: 9px;
+  font-size: 15.5px;
+  line-height: 1.35;
+  text-align: left;
+  transition: transform 0.15s ease, border-color 0.15s, background 0.15s, opacity 0.2s;
+}
+
+.choice:active {
+  transform: scale(0.98);
+}
+
+.choice--wrong {
+  border-color: var(--accent);
+  background: var(--accent-wash);
+  color: var(--ink-soft);
+  text-decoration: line-through;
+  opacity: 0.65;
+  pointer-events: none;
+  animation: input-shake 0.3s ease;
+}
+
+.choice--correct {
+  border-color: var(--level-a1);
+  background: rgba(62, 122, 69, 0.14);
+  font-weight: 700;
+  animation: match-pop 0.4s ease;
 }
 
 /* ——— Conjugation · tense picker ———
@@ -1648,7 +1765,7 @@ a {
   font-size: 12.5px;
 }
 
-/* The row's primary tap target — opens the verb's focused drill. */
+/* The row's primary tap target — opens the verb's study page. */
 .needs-work__main {
   display: flex;
   align-items: center;
@@ -1658,11 +1775,84 @@ a {
   text-decoration: none;
 }
 
+/* One badge per flagged tense, each in its own tense color. */
+.needs-work__badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px;
+  min-width: 0;
+}
+
 .needs-work__remove {
   flex: none;
 }
 
-/* ——— Focused drill · results note (cleared / still flagged) ——— */
+/* ——— Regular drill · results « Keep » rows ——— */
+
+.retain {
+  margin: 14px 0 4px;
+  text-align: left;
+}
+
+.retain__lede {
+  margin: 0 0 6px;
+  color: var(--ink-soft);
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.retain__row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 0 8px 9px;
+  border-top: 1px solid var(--rule);
+  border-left: 3px solid var(--tc, var(--rule-strong));
+}
+
+.retain__verb {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 15.5px;
+  font-weight: 700;
+}
+
+.retain__row .conj-tense-badge {
+  flex: none;
+  padding: 2px 9px;
+  font-size: 12px;
+}
+
+.retain__btn {
+  flex: none;
+  padding: 5px 12px;
+  border: 1.5px solid var(--tc, var(--ink));
+  border-radius: 999px;
+  background: transparent;
+  color: var(--tc, var(--ink));
+  font-family: var(--sans);
+  font-size: 12.5px;
+  font-weight: 700;
+  transition: background 0.15s, transform 0.15s ease;
+}
+
+.retain__btn:active {
+  transform: scale(0.94);
+}
+
+.retain__btn--kept {
+  border-style: dashed;
+  border-color: var(--rule-strong);
+  background: var(--paper-sunken);
+  color: var(--ink-soft);
+}
+
+/* ——— Focused drill · results note (round report + mark learned) ——— */
 
 .focus-outcome {
   margin: 2px 0 6px;
@@ -1679,9 +1869,64 @@ a {
   color: #5b9438;
 }
 
+.focus-outcome__line--hint {
+  font-size: 12.5px;
+  font-style: italic;
+}
+
 .focus-outcome__study {
   color: inherit;
   font-weight: 600;
+}
+
+.focus-outcome .btn {
+  margin-top: 8px;
+}
+
+/* ——— Conjugation · needs-work study page ——— */
+
+.study-lede {
+  margin: 2px 0 14px;
+  color: var(--ink-soft);
+  font-size: 14px;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+/* How the tense is built — sits between the table head and the verb's rows. */
+.study-rule {
+  margin: 10px 0 4px;
+  padding: 9px 12px;
+  background: var(--tc-wash, var(--paper-sunken));
+  border-radius: 8px;
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.study-rule__formation {
+  margin: 0;
+}
+
+.study-rule__endings {
+  margin: 4px 0 0;
+  color: var(--ink-soft);
+}
+
+.study-rule__more {
+  display: inline-block;
+  margin-top: 4px;
+  color: var(--tc, var(--ink));
+  font-size: 12.5px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.study-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 18px 0 6px;
 }
 
 /* ——— Conjugation · tense guide ——— */

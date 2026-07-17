@@ -12,12 +12,14 @@ import { LexiconIcon } from '../components/icons';
 const vocabBlob = (mode: keyof typeof VOCAB_THEMES) =>
   `linear-gradient(135deg, ${VOCAB_THEMES[mode].blob} 0%, transparent 70%)`;
 
-/** The four practice quick-launches — each jumps straight into a drill. */
+/** The four practice quick-launches — each jumps straight into a drill (the
+    vocab ones on the learning shelf; the full mirrored set, including the
+    learnt-shelf reviews, lives in Vocabulary → Practice). */
 const QUICK_LAUNCH = [
   { to: '/conjugation/mixed', kicker: 'Verbs · mixed', name: 'Conjugation', tc: 'var(--ink)', blob: MIXED_BLOB },
-  { to: '/vocabulary/learn', kicker: 'Match · new', name: 'Word Match', tc: VOCAB_THEMES.learn.color, blob: vocabBlob('learn') },
-  { to: '/vocabulary/practice', kicker: 'Type · recall', name: 'Fill in the Blank', tc: VOCAB_THEMES.practice.color, blob: vocabBlob('practice') },
-  { to: '/vocabulary/remember', kicker: 'Match · review', name: 'Remember?', tc: VOCAB_THEMES.remember.color, blob: vocabBlob('remember') },
+  { to: '/vocabulary/match/learning', kicker: 'Match · pairs', name: 'Word Match', tc: VOCAB_THEMES.match.color, blob: vocabBlob('match') },
+  { to: '/vocabulary/blank/learning', kicker: 'Type · recall', name: 'Fill in the Blank', tc: VOCAB_THEMES.blank.color, blob: vocabBlob('blank') },
+  { to: '/vocabulary/listen/learning', kicker: 'Audio · dictation', name: 'Listen & Type', tc: VOCAB_THEMES.listen.color, blob: vocabBlob('listen') },
 ];
 
 export default function HomePage() {

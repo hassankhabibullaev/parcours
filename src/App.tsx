@@ -6,10 +6,13 @@ import ReadingPage from './pages/ReadingPage';
 import ArticlePage from './pages/ArticlePage';
 import VocabularyPage from './pages/VocabularyPage';
 import MatchSessionPage from './pages/MatchSessionPage';
-import PracticePage from './pages/PracticePage';
+import BlankSessionPage from './pages/BlankSessionPage';
+import ListenSessionPage from './pages/ListenSessionPage';
+import ChooseSessionPage from './pages/ChooseSessionPage';
 import ConjugationPage from './pages/ConjugationPage';
 import TenseGuidePage from './pages/TenseGuidePage';
 import VerbPage from './pages/VerbPage';
+import StudyPage from './pages/StudyPage';
 import ConjugationDrillPage from './pages/ConjugationDrillPage';
 import ProfilePage from './pages/ProfilePage';
 
@@ -25,12 +28,20 @@ export default function App() {
         <Route path="reading" element={<ReadingPage />} />
         <Route path="reading/:id" element={<ArticlePage />} />
         <Route path="vocabulary" element={<VocabularyPage />} />
-        <Route path="vocabulary/learn" element={<MatchSessionPage kind="learn" />} />
-        <Route path="vocabulary/practice" element={<PracticePage />} />
-        <Route path="vocabulary/remember" element={<MatchSessionPage kind="remember" />} />
+        {/* The four vocab modes, each mirrored on both shelves (:shelf is
+            'learning' | 'learned'). */}
+        <Route path="vocabulary/match/:shelf" element={<MatchSessionPage />} />
+        <Route path="vocabulary/blank/:shelf" element={<BlankSessionPage />} />
+        <Route path="vocabulary/listen/:shelf" element={<ListenSessionPage />} />
+        <Route path="vocabulary/choose/:shelf" element={<ChooseSessionPage />} />
+        {/* Legacy pre-mirror drill routes. */}
+        <Route path="vocabulary/learn" element={<Navigate to="/vocabulary/match/learning" replace />} />
+        <Route path="vocabulary/practice" element={<Navigate to="/vocabulary/blank/learning" replace />} />
+        <Route path="vocabulary/remember" element={<Navigate to="/vocabulary/match/learned" replace />} />
         <Route path="conjugation" element={<ConjugationPage />} />
         <Route path="conjugation/guide/:tense" element={<TenseGuidePage />} />
         <Route path="conjugation/verb/:infinitive" element={<VerbPage />} />
+        <Route path="conjugation/study/:infinitive" element={<StudyPage />} />
         <Route path="conjugation/focus/:infinitive" element={<ConjugationDrillPage />} />
         <Route path="conjugation/:tense" element={<ConjugationDrillPage />} />
         <Route path="profile" element={<ProfilePage />} />

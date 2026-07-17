@@ -114,7 +114,7 @@ src/
 | Save a word to the lexicon (single write path) | `vocab.ts` |
 | Practice drawing, grading, session sizing, streak/shelf progression | `practice.ts` |
 | Conjugation session generator + pronoun display | `conjugation.ts` |
-| Conjugation needs-work list (verb×tense mistakes → focused drill / dismiss) | `conjStruggles.ts` |
+| Conjugation needs-work list (learner-kept verb×tense pairs → study page / focused drill) | `conjStruggles.ts` |
 | Per-tense / per-mode color identities | `tenseThemes.ts` · `vocabThemes.ts` |
 | Sound effects · confetti · French speech (TTS) | `sound.ts` · `confetti.ts` · `speech.ts` |
 
@@ -134,16 +134,18 @@ displays (the tabs and filter chips themselves carry no counts).
 |---|---|
 | `/` | HomePage (read-next suggestion + vocab shortcut + practice quick-launch) |
 | `/reading` · `/reading/:id` | article library (Not read/Read tabs + level filter) · article view |
-| `/vocabulary` | Learn (word lookup + lexicon w/ Learning·Learned pills) / Practice (3 drills) tabs |
-| `/vocabulary/learn` · `/vocabulary/practice` · `/vocabulary/remember` | the three vocab drills |
-| `/conjugation` | Learn (tense rules + verb reference) / Practice (tense picker) tabs |
+| `/vocabulary` | Learn (word lookup + lexicon w/ Learning·Learned pills) / Practice (4 modes × 2 shelves) tabs |
+| `/vocabulary/:mode/:shelf` | one vocab drill — `:mode` ∈ match·blank·listen·choose, `:shelf` ∈ learning·learned |
+| `/conjugation` | Learn (needs-work list + tense rules + verb reference) / Practice (tense picker) tabs |
 | `/conjugation/guide/:tense` | one tense's rules, endings, examples, live tables |
 | `/conjugation/verb/:infinitive` | one verb's full conjugation across all 9 tenses |
-| `/conjugation/focus/:infinitive` | focused needs-work drill (one verb, flagged tenses drilled hardest) |
+| `/conjugation/study/:infinitive` | needs-work study page (flagged tenses' rules + tables, drill + mark-learned) |
+| `/conjugation/focus/:infinitive` | short focused drill (one verb, its flagged tenses only) |
 | `/conjugation/:tense` | conjugation typing drill (`:tense` is a `TenseKey` or `mixed`) |
 | `/profile` | Profile (email, stats, log out) / Settings (level + audio toggles + kudos) tabs |
 | `/signin` | unified email + one-time-code sign-in |
 | `/practice` · `/settings` | legacy redirects → `/conjugation?tab=practice` · `/profile` |
+| `/vocabulary/learn` · `/vocabulary/practice` · `/vocabulary/remember` | legacy redirects into `/vocabulary/:mode/:shelf` |
 
 ## Storage (`src/lib/db.ts`)
 
@@ -153,7 +155,7 @@ booleans).
 
 | Table | Holds |
 |---|---|
-| `savedWords` | the lexicon; keyed by `lemma`; per-exercise streaks drive learnt/learning |
+| `savedWords` | the lexicon; keyed by `lemma`; per-mode streaks drive learnt/learning |
 | `articleProgress` | per-article read flag + scroll position |
 | `practiceResults` | one row per finished drill round |
 | `kv` | small key/value store (sync code, last-sync time, `userLevel`, `conjStruggles`, migration flags) |
@@ -209,27 +211,40 @@ translations and splitting the legacy single `streak` into the per-exercise coun
   add action) and the lexicon (Learning/Learned pill filters — no "All" shelf; tapping a
   word opens the same modal fed from its stored content, no add action; the first-line
   translation is inline-editable). A one-line lede above the pills explains the dot
-  tracker. A learning word's row carries five progress dots — one per required
-  correct day: 3 green (Word Match) + 2 blue (Fill in the Blank), lit from the per-exercise
-  streaks (which count distinct days, capped at one advance per calendar day). **Practice**: the three drills. Translations follow **one template per
-  part of speech** (`normalizeGloss` in `dictionary.ts`: verbs always "to …", qualifiers
-  stripped, first sense only), applied at fetch time and to stored words by migration.
-- **Practice rules** (`practice.ts`) — every drill needs **5 words** in its pool.
-  Word Match & Remember?: 5 words/session, `sessions = min(6, floor(pool/5))`.
-  Fill in the Blank: 1 word/session, `sessions = clamp(pool, 5, 10)`; a wrong answer allows
-  retrying without showing the solution (separate « Reveal answer » button; the English
-  hint button reads « Show hint in English »). A fully-correct session **auto-advances**
-  after a short pause with every control frozen. A word graduates only once **both** exercises
-  are cleared — **3 correct *days* in Word Match AND 2 in Fill in the Blank** (5 checks in all;
-  `hasGraduated`), never on one drill alone. A streak advances **at most once per calendar day**
-  (`matchStreakDay` / `blankStreakDay` gate it), so it counts distinct days the word was answered
-  right, not repeat answers within a single day; one miss is forgiven, **two consecutive misses**
-  reset that exercise's streak (clearing its day) and demote the word (it now fails the
-  both-exercises test). Manual mark-learnt/unlearnt aligns both counters. Draws are
-  struggle-weighted (`struggle.ts`): each answer updates a `drillStats` row (EWMA error
-  rate + last-seen), and the draw favours high-error, not-recently-seen items — the **vocabulary**
-  draw multiplies that by `progressBoost` so words with the fewest progress dots (furthest from
-  graduating) come up more often than ones about to be learnt.
+  tracker. A learning word's row carries **eight progress dots — two per practice mode**
+  (green Word Match · blue Fill in the Blank · violet Listen & Type · gold Listen &
+  Choose), one per required correct day, lit from the per-mode streaks. **Practice**:
+  the **four modes, mirrored across two sections — Still learning and Learned** — so every
+  drill runs on either shelf (`/vocabulary/:mode/:shelf`). Word Match is the fast
+  recognition game (it can spoil answers through elimination — accepted trade-off);
+  the two **audio modes never show the French word**, so nothing is given away:
+  Listen & Type is dictation (hear it, spell it), Listen & Choose is listening
+  comprehension (hear it, pick the meaning among 4 — distractors are other saved words'
+  translations, never their French forms). Both auto-speak each word through the TTS
+  pipeline (speech.ts) with a big replay button, NOT gated by the sfx pill (the audio is
+  the exercise; degraded no-speech environments show the word as text). Translations
+  follow **one template per part of speech** (`normalizeGloss` in `dictionary.ts`:
+  verbs always "to …", qualifiers stripped, first sense only), applied at fetch time and
+  to stored words by migration.
+- **Practice rules** (`practice.ts`) — every drill needs **5 words** in its shelf's pool.
+  Word Match: 5 words/session, `sessions = min(6, floor(pool/5))`. Fill in the Blank,
+  Listen & Type, Listen & Choose: 1 word/session, `sessions = clamp(pool, 5, 10)`; a wrong
+  typed answer allows retrying without showing the solution (separate « Reveal answer »
+  button); a wrong picked meaning is struck out and the learner keeps picking. Only the
+  **first attempt** counts. A fully-correct session **auto-advances** after a short pause
+  with every control frozen. A word graduates only once **every mode** is cleared —
+  **at least `PASSES_PER_MODE` (2) correct *days* in each of the four** (8 checks in all;
+  `hasGraduated`), never on some alone. A streak advances **at most once per calendar day**
+  (the `*StreakDay` fields gate it), so it counts distinct days the word was answered
+  right, not repeat answers within a single day; one miss is forgiven, **two consecutive
+  misses** reset that mode's streak (clearing its day) and demote the word (it now fails
+  the every-mode test) — learnt-shelf reviews use the same rules, so a learned word that
+  slips twice returns to Still learning. Manual mark-learnt/unlearnt aligns all four
+  counters. Draws are struggle-weighted (`struggle.ts`): each answer updates a
+  `drillStats` row (EWMA error rate + last-seen), and the draw favours high-error,
+  not-recently-seen items — the **vocabulary** draw multiplies that by `progressBoost` so
+  words with the fewest progress dots (furthest from graduating) come up more often than
+  ones about to be learnt.
 - **Conjugation** — two tabs. **Learn**: a **needs-work list** (see below), then nine tense
   guides (`/conjugation/guide/:tense`) and a searchable list of all 100 drilled verbs, each
   opening its complete conjugation (`/conjugation/verb/:infinitive`). **Practice**: the tense
@@ -238,21 +253,25 @@ translations and splitting the legacy single `streak` into the per-exercise coun
   blurred** and only un-blurs on tap (`conj-field__tag--blur` → « Reveal »), so the learner
   gets a beat to recall it from memory rather than being handed the answer; an accent slip
   (graded correct) still shows its corrected form outright in green.
-- **Needs-work list** (`lib/conjStruggles.ts`) — every verb×tense pair missed in the typing
-  drill, shown at the top of Conjugation → Learn with a tense badge. Regular practice only
-  ever **adds** to the list (a miss flags the pair or bumps its miss count; correct answers
-  change nothing) — an entry is fixed in exactly **two ways**: the row's ✕ dismisses it (an
-  accidental slip), or the learner passes the row's **focused drill**
-  (`/conjugation/focus/:infinitive`, tapping the row): 3 exercises × 3 prompts all on that
-  one verb, its flagged tenses filling most slots (`buildFocusSession` — each up to once per
-  exercise so a tense is retried across different pronouns, other tenses drawn for spread).
-  The round's first-attempt results are folded per tense at the end
-  (`resolveFocusResults`): a flagged tense clean across the **whole round** clears; a miss
-  keeps it (misses+1); a slip on an unflagged tense flags it. The results card reports what
-  cleared and what stayed (with a study link to the verb's conjugation). Accent slips count
-  as correct throughout, matching the drill's score. Stored as one JSON blob in the
-  **synced `kv`** store (key `conjStruggles`) so it rides the existing last-write-wins kv
-  sync; old blobs' retired `streak` field parses harmlessly.
+- **Needs-work list** (`lib/conjStruggles.ts`) — **entirely learner-curated**: nothing is
+  flagged automatically. A regular round's results screen lists each missed verb×tense
+  once with a **« Keep » button** (`addStruggle`; already-kept pairs show « ✓ Kept ») —
+  keeping is the only way onto the list. The list sits at the top of Conjugation → Learn,
+  **one row per verb** wearing a badge per flagged tense; tapping it opens the verb's
+  **study page** (`/conjugation/study/:infinitive`): one tense-colored card per flagged
+  tense — the tense guide's formation + endings with a link to the full guide, then the
+  verb's own forms in that tense — followed by three actions: the **short focused drill**
+  (`/conjugation/focus/:infinitive` — 2 exercises × 3 prompts, every slot dealt
+  round-robin from the flagged tenses only, `buildFocusSession`; a tense may repeat within
+  an exercise, on different pronouns), **« Mark as learned »** (`clearVerb` — removes the
+  whole verb from the list), and the full 9-tense reference. The focused drill's results
+  report which flagged tenses were clean across the whole round and which still wobbled,
+  and offer « Mark as learned » — but the drill **never edits the list itself**; a pair
+  leaves the list only by hand (the row's ✕ drops the verb, `removeStruggle` drops one
+  tense, mark-learned clears the verb). Accent slips count as correct throughout, matching
+  the drill's score. Stored as one JSON blob in the **synced `kv`** store (key
+  `conjStruggles`) so it rides the existing last-write-wins kv sync; old blobs' retired
+  `streak` field parses harmlessly.
 - **Profile** — two tabs. **Profile**: email, progress stats, Log Out (guests get a
   sign-in card). **Settings** (`lib/settings.ts`): the **current level** (empty by default;
   when set it drives Home's read-next suggestion and Reading's default filter — exact-level
@@ -314,8 +333,9 @@ translations and splitting the legacy single `streak` into the per-exercise coun
 2. No topic filters/tags — out of scope. Corpus is A1–B2 only (no C1/C2).
 3. The dictionary (word lookups) is online; the lemmatizer fetches its lexicon once, then
    works offline from Cache Storage.
-4. Vocabulary is exactly three drills (under Vocabulary → Practice); the lexicon is
-   displayed by lemma; the only manual-add path is the word lookup on the Learn tab.
+4. Vocabulary is exactly four practice modes (match · blank · listen · choose), each
+   mirrored on both shelves under Vocabulary → Practice; the lexicon is displayed by
+   lemma; the only manual-add path is the word lookup on the Learn tab.
 5. Conjugation practice is typing only. Reading is one tap, no drag selection — but a tap
    inside a recognised fixed expression (data/expressions.ts) looks up the whole phrase.
 6. Practice draws are struggle-weighted (words and verbs), one shared algorithm; `drillStats`
