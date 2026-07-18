@@ -85,7 +85,7 @@ export default function ListenSessionPage() {
       requireTranslation: true,
     });
     const sessions = blankSessionCount(pool.length);
-    const drawn = sessions > 0 ? await drawFromPool(pool, sessions) : [];
+    const drawn = sessions > 0 ? await drawFromPool(pool, sessions, 'listen') : [];
     return { pool: pool.length, drawn };
   }
 

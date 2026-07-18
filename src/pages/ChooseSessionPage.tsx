@@ -98,7 +98,7 @@ export default function ChooseSessionPage() {
       requireTranslation: true,
     });
     const sessions = blankSessionCount(full.length);
-    const drawn = sessions > 0 ? await drawFromPool(full, sessions) : [];
+    const drawn = sessions > 0 ? await drawFromPool(full, sessions, 'choose') : [];
     return { pool: full, drawn };
   }
 

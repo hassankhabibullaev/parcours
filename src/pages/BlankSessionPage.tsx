@@ -130,7 +130,7 @@ export default function BlankSessionPage() {
       requireTranslation: true,
     });
     const sessions = blankSessionCount(pool.length);
-    const drawn = sessions > 0 ? await drawFromPool(pool, sessions) : [];
+    const drawn = sessions > 0 ? await drawFromPool(pool, sessions, 'blank') : [];
     return { pool: pool.length, drawn };
   }
 

@@ -76,7 +76,7 @@ export default function MatchSessionPage() {
     });
     const sessions = matchSessionCount(pool.length);
     const drawn =
-      sessions > 0 ? await drawFromPool(pool, sessions * MATCH_WORDS_PER_SESSION) : [];
+      sessions > 0 ? await drawFromPool(pool, sessions * MATCH_WORDS_PER_SESSION, 'match') : [];
     return { pool: pool.length, drawn };
   }
 

@@ -1,5 +1,5 @@
 import { db, type SavedWord } from './db';
-import { drawWeighted, recordDrillResult } from './struggle';
+import { loadStats, recordDrillResult, struggleWeight, weightedSample } from './struggle';
 
 export function shuffle<T>(items: T[]): T[] {
   const arr = [...items];
@@ -31,15 +31,44 @@ export async function loadPracticePool({
 }
 
 /**
- * Draw `limit` words from a pool, struggle-weighted (the words missed most
- * often and seen least recently come up first) — the same algorithm the
- * conjugation drill uses to pick verbs (see lib/struggle.ts) — and additionally
- * biased toward words far from graduating (progressBoost), so practice
- * concentrates on the ones with the fewest progress dots rather than the ones
- * about to be learnt.
+ * Draw `limit` words for ONE practice mode. Each mode tracks its own progress
+ * (streak + daily dot), so the pool is split into tiers by what this mode can
+ * still earn today, and higher tiers fill the session first:
+ *   0 — mode not yet cleared, no dot earned today (today's dot is up for grabs)
+ *   1 — mode not yet cleared, but today's dot already earned
+ *   2 — mode already cleared (both dots lit), not practised today
+ *   3 — mode already cleared and already practised today
+ * Lower tiers only pad the session out when the tiers above run short. Within
+ * a tier the draw stays struggle-weighted (the words missed most often and
+ * seen least recently come up first — see lib/struggle.ts) and biased toward
+ * words far from graduating (progressBoost).
  */
-export function drawFromPool(pool: SavedWord[], limit: number): Promise<SavedWord[]> {
-  return drawWeighted('word', pool, (w) => w.id, limit, progressBoost);
+export async function drawFromPool(
+  pool: SavedWord[],
+  limit: number,
+  kind: DrillKind,
+): Promise<SavedWord[]> {
+  const today = dayStamp();
+  const tiers: SavedWord[][] = [[], [], [], []];
+  for (const w of pool) {
+    const cleared = streakOf(w, kind) >= LEARNT_STREAKS[kind];
+    const dotted = w[dayKey(kind)] === today;
+    tiers[(cleared ? 2 : 0) + (dotted ? 1 : 0)].push(w);
+  }
+  const stats = await loadStats('word');
+  const now = Date.now();
+  const out: SavedWord[] = [];
+  for (const tier of tiers) {
+    if (out.length >= limit) break;
+    out.push(
+      ...weightedSample(
+        tier,
+        (w) => struggleWeight(stats.get(w.id), now) * progressBoost(w),
+        limit - out.length,
+      ),
+    );
+  }
+  return out;
 }
 
 /** Case-normalize but keep accents (exact match check). */
