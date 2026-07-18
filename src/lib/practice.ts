@@ -1,5 +1,5 @@
 import { db, type SavedWord } from './db';
-import { loadStats, recordDrillResult, struggleWeight, weightedSample } from './struggle';
+import { recordDrillResult } from './struggle';
 
 export function shuffle<T>(items: T[]): T[] {
   const arr = [...items];
@@ -30,45 +30,28 @@ export async function loadPracticePool({
   return pool;
 }
 
+/** Share of a session reserved for words still missing today's dot in the mode. */
+export const FRESH_DRAW_SHARE = 0.8;
+
 /**
- * Draw `limit` words for ONE practice mode. Each mode tracks its own progress
- * (streak + daily dot), so the pool is split into tiers by what this mode can
- * still earn today, and higher tiers fill the session first:
- *   0 — mode not yet cleared, no dot earned today (today's dot is up for grabs)
- *   1 — mode not yet cleared, but today's dot already earned
- *   2 — mode already cleared (both dots lit), not practised today
- *   3 — mode already cleared and already practised today
- * Lower tiers only pad the session out when the tiers above run short. Within
- * a tier the draw stays struggle-weighted (the words missed most often and
- * seen least recently come up first — see lib/struggle.ts) and biased toward
- * words far from graduating (progressBoost).
+ * Draw `limit` words for ONE practice mode. 80% of the session comes from
+ * words that haven't earned today's dot in this mode — never practised today,
+ * or practised but the dot was knocked off by a mistake (both can still earn
+ * it back today). The remaining 20% is drawn from the whole pool regardless
+ * of today's history, so already-done words keep resurfacing occasionally.
+ * Both picks are uniform random; when the fresh bucket runs short the rest of
+ * the pool fills the gap, and the final order is shuffled.
  */
-export async function drawFromPool(
-  pool: SavedWord[],
-  limit: number,
-  kind: DrillKind,
-): Promise<SavedWord[]> {
+export function drawFromPool(pool: SavedWord[], limit: number, kind: DrillKind): SavedWord[] {
+  const dKey = dayKey(kind);
   const today = dayStamp();
-  const tiers: SavedWord[][] = [[], [], [], []];
-  for (const w of pool) {
-    const cleared = streakOf(w, kind) >= LEARNT_STREAKS[kind];
-    const dotted = w[dayKey(kind)] === today;
-    tiers[(cleared ? 2 : 0) + (dotted ? 1 : 0)].push(w);
-  }
-  const stats = await loadStats('word');
-  const now = Date.now();
-  const out: SavedWord[] = [];
-  for (const tier of tiers) {
-    if (out.length >= limit) break;
-    out.push(
-      ...weightedSample(
-        tier,
-        (w) => struggleWeight(stats.get(w.id), now) * progressBoost(w),
-        limit - out.length,
-      ),
-    );
-  }
-  return out;
+  const fresh = shuffle(pool.filter((w) => w[dKey] !== today));
+  const target = Math.min(Math.round(limit * FRESH_DRAW_SHARE), fresh.length);
+  const out = fresh.slice(0, target);
+  const taken = new Set(out.map((w) => w.id));
+  const rest = shuffle(pool.filter((w) => !taken.has(w.id)));
+  out.push(...rest.slice(0, limit - out.length));
+  return shuffle(out);
 }
 
 /** Case-normalize but keep accents (exact match check). */
@@ -150,23 +133,20 @@ export function roundMode(kind: DrillKind, shelf: VocabShelf): string {
   return shelf === 'learned' ? `${kind}-learned` : kind;
 }
 
-/** Correct *days* that clear each mode. A word must clear EVERY mode — pass
- *  it at least twice in each of the four — to graduate to the learnt shelf. */
-export const PASSES_PER_MODE = 2;
+/** Correct *days* (dots) that clear each mode: 3 for Word Match, 2 for the
+ *  rest. A word must clear EVERY mode to graduate to the learnt shelf — and
+ *  since a mode earns at most one dot per day, that's at least 3 days. */
 export const LEARNT_STREAKS: Record<DrillKind, number> = {
-  match: PASSES_PER_MODE,
-  blank: PASSES_PER_MODE,
-  listen: PASSES_PER_MODE,
-  choose: PASSES_PER_MODE,
+  match: 3,
+  blank: 2,
+  listen: 2,
+  choose: 2,
 };
-/** Total progress dots a word shows (all modes), used for draw biasing. */
+/** Total progress dots a word shows (all modes), shown in the lexicon lede. */
 export const TOTAL_DOTS = DRILL_KINDS.reduce((n, k) => n + LEARNT_STREAKS[k], 0);
-/** A streak survives one miss; it resets after this many consecutive misses. */
-export const MISS_RUN_RESET = 2;
 
 /** The SavedWord field names backing one mode's counters. */
 export const streakKey = (k: DrillKind) => `${k}Streak` as const;
-export const missKey = (k: DrillKind) => `${k}MissRun` as const;
 const dayKey = (k: DrillKind) => `${k}StreakDay` as const;
 
 /** One mode's correct-day streak (match falls back to the legacy counter). */
@@ -176,29 +156,12 @@ export function streakOf(w: SavedWord, kind: DrillKind): number {
 }
 
 /**
- * A word is learnt only once EVERY mode is cleared — at least two correct
- * days in each of Word Match, Fill in the Blank, Listen & Type and
+ * A word is learnt only once EVERY mode is cleared — three correct days in
+ * Word Match and two in each of Fill in the Blank, Listen & Type and
  * Listen & Choose. Clearing some modes but not others is not enough.
  */
 export function hasGraduated(streaks: Record<DrillKind, number>): boolean {
   return DRILL_KINDS.every((k) => streaks[k] >= LEARNT_STREAKS[k]);
-}
-
-/** How strongly the draw favours words with fewer progress dots (0 = off). */
-export const PROGRESS_BIAS = 2;
-
-/**
- * Draw-weight multiplier that concentrates practice on words far from
- * graduating: a word with no lit dots is favoured most (1 + PROGRESS_BIAS×), one
- * about to be learnt least (≈1×). It multiplies the struggle weight — struggle
- * and spacing still apply on top.
- */
-export function progressBoost(w: SavedWord): number {
-  const lit = DRILL_KINDS.reduce(
-    (n, k) => n + Math.min(streakOf(w, k), LEARNT_STREAKS[k]),
-    0,
-  );
-  return 1 + PROGRESS_BIAS * ((TOTAL_DOTS - lit) / TOTAL_DOTS);
 }
 
 /**
@@ -217,15 +180,16 @@ export function dayStamp(ts: number = Date.now()): string {
 /**
  * Update a word's learning progress after one practice answer.
  *
- * Every mode keeps an independent streak that counts distinct *days* the word
- * was answered right, not answers within a day: a correct answer advances a
- * streak only the first time that mode is cleared on a given calendar day;
- * further correct answers the same day hold it steady. A word graduates to
- * the learnt shelf only once EVERY mode is cleared — at least two correct
- * days in each (see hasGraduated). One wrong answer is forgiven — the streak
- * holds; two consecutive wrong answers reset that mode's streak (clearing its
- * day so the same day can start fresh) and, since a learnt word now fails the
- * every-mode test, send it back to the learning shelf.
+ * Every mode keeps its own dots, one per correct *day*: a correct answer
+ * earns today's dot for that mode unless it's already been earned — NEVER
+ * more than one dot per mode per day, so a word can't race to learnt in one
+ * sitting (Word Match alone takes three separate days). A mistake knocks one
+ * dot off that mode and frees today's dot to be earned back by a later
+ * correct answer the same day — every extra earn first requires a loss, so
+ * the net gain per day still can't exceed one dot. A word is learnt only
+ * while EVERY mode holds its full dot count (see hasGraduated); a mistake
+ * that drops a mode below that sends a learnt word back to the learning
+ * shelf (it can graduate again the same day by winning the dot back).
  */
 export async function recordWordResult(
   word: SavedWord,
@@ -233,9 +197,7 @@ export async function recordWordResult(
   kind: DrillKind,
 ): Promise<void> {
   const sKey = streakKey(kind);
-  const mKey = missKey(kind);
   const dKey = dayKey(kind);
-  const missRun = word[mKey] ?? 0;
   const today = dayStamp();
 
   // Resulting per-mode streaks after this answer (start from current).
@@ -245,9 +207,8 @@ export async function recordWordResult(
 
   const patch: Partial<SavedWord> = { updatedAt: Date.now() };
   if (correct) {
-    patch[mKey] = 0;
-    // At most one advance per calendar day: only count this correct answer if
-    // the streak hasn't already ticked up today.
+    // At most one dot per calendar day: only count this correct answer if
+    // today's dot for this mode isn't already earned.
     if (word[dKey] !== today) {
       streaks[kind] += 1;
       patch[sKey] = streaks[kind];
@@ -256,17 +217,18 @@ export async function recordWordResult(
       if (hasGraduated(streaks)) patch.learned = 1;
     }
   } else {
-    const run = missRun + 1;
-    patch[mKey] = run;
-    if (run >= MISS_RUN_RESET) {
-      patch[sKey] = 0;
-      patch[mKey] = 0; // the reset consumed the run
-      patch[dKey] = ''; // clear the day so a later correct today restarts at 1
-      patch.learned = 0; // dropping any mode below threshold un-learns it
+    // A mistake removes one dot from this mode…
+    if (streaks[kind] > 0) {
+      streaks[kind] -= 1;
+      patch[sKey] = streaks[kind];
     }
+    // …and clears the day gate, so the lost dot stays earnable today.
+    patch[dKey] = '';
+    // Dropping any mode below its threshold un-learns the word.
+    if (!hasGraduated(streaks)) patch.learned = 0;
   }
   await db.savedWords.update(word.id, patch);
-  // Feed the struggle-weighted draw so missed words resurface sooner.
+  // Keep per-word attempt stats up to date (error rate + last seen).
   await recordDrillResult('word', word.id, correct);
 }
 

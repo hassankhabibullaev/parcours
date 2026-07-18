@@ -27,14 +27,14 @@ export interface SavedWord {
   /**
    * Per-mode progression, driving the automatic move to the learnt shelf:
    * each practice mode (Word Match / Fill in the Blank / Listen & Type /
-   * Listen & Choose) keeps an independent counter of correct *days*, and a
-   * word graduates only once EVERY mode reaches its threshold (see
-   * LEARNT_STREAKS / hasGraduated in lib/practice.ts). A streak advances at
-   * most once per calendar day, so it counts distinct days the word was
-   * answered right, not repeat answers within one day (the *StreakDay fields
-   * hold the last day each counter advanced, a local YYYY-MM-DD). A single
-   * miss is forgiven; a streak only resets (and a learnt word only demotes)
-   * after two consecutive misses, tracked by the *MissRun counters.
+   * Listen & Choose) keeps an independent dot counter of correct *days*, and
+   * a word graduates only once EVERY mode reaches its threshold (3 match /
+   * 2 others — see LEARNT_STREAKS / hasGraduated in lib/practice.ts). A mode
+   * earns at most one dot per calendar day (the *StreakDay fields hold the
+   * day the dot was earned, a local YYYY-MM-DD); a mistake removes one dot
+   * and clears the day so the dot can be won back the same day. The *MissRun
+   * counters belonged to the retired two-misses-reset rule; no longer
+   * written, kept so old synced records still parse.
    * None are indexed; absent on old records (read as 0 / no day yet).
    */
   matchStreak?: number;

@@ -211,9 +211,9 @@ translations and splitting the legacy single `streak` into the per-exercise coun
   add action) and the lexicon (Learning/Learned pill filters — no "All" shelf; tapping a
   word opens the same modal fed from its stored content, no add action; the first-line
   translation is inline-editable). A one-line lede above the pills explains the dot
-  tracker. A learning word's row carries **eight progress dots — two per practice mode**
-  (green Word Match · blue Fill in the Blank · violet Listen & Type · gold Listen &
-  Choose), one per required correct day, lit from the per-mode streaks. **Practice**:
+  tracker. A learning word's row carries **nine progress dots — three for Word Match,
+  two per other mode** (green Word Match · blue Fill in the Blank · violet Listen & Type ·
+  gold Listen & Choose), one per required correct day, lit from the per-mode streaks. **Practice**:
   the **four modes, mirrored across two sections — Still learning and Learned** — so every
   drill runs on either shelf (`/vocabulary/:mode/:shelf`). Word Match is the fast
   recognition game (it can spoil answers through elimination — accepted trade-off);
@@ -233,18 +233,20 @@ translations and splitting the legacy single `streak` into the per-exercise coun
   button); a wrong picked meaning is struck out and the learner keeps picking. Only the
   **first attempt** counts. A fully-correct session **auto-advances** after a short pause
   with every control frozen. A word graduates only once **every mode** is cleared —
-  **at least `PASSES_PER_MODE` (2) correct *days* in each of the four** (8 checks in all;
-  `hasGraduated`), never on some alone. A streak advances **at most once per calendar day**
-  (the `*StreakDay` fields gate it), so it counts distinct days the word was answered
-  right, not repeat answers within a single day; one miss is forgiven, **two consecutive
-  misses** reset that mode's streak (clearing its day) and demote the word (it now fails
-  the every-mode test) — learnt-shelf reviews use the same rules, so a learned word that
-  slips twice returns to Still learning. Manual mark-learnt/unlearnt aligns all four
-  counters. Draws are struggle-weighted (`struggle.ts`): each answer updates a
-  `drillStats` row (EWMA error rate + last-seen), and the draw favours high-error,
-  not-recently-seen items — the **vocabulary** draw multiplies that by `progressBoost` so
-  words with the fewest progress dots (furthest from graduating) come up more often than
-  ones about to be learnt.
+  **3 correct *days* in Word Match, 2 in each other mode** (`LEARNT_STREAKS`, 9 dots in
+  all; `hasGraduated`), never on some alone, so a word stays in learning at least 3 days.
+  A mode earns **at most one dot per calendar day** (the `*StreakDay` fields gate it) —
+  distinct days the word was answered right, not repeat answers within one day. **A
+  mistake removes one dot** from that mode and clears its day gate, so the dot can be
+  **won back the same day** (each extra earn first requires a loss, so the net gain per
+  day never exceeds one) — learnt-shelf reviews use the same rules, so a learned word
+  that slips drops to Still learning until it wins the dot back. Manual
+  mark-learnt/unlearnt aligns all four counters. **Session draws are per-mode and
+  dot-aware** (`drawFromPool`): 80% of a session comes from words that haven't earned
+  today's dot in that mode (never practised today, or practised but the dot was knocked
+  off), 20% at random from the whole pool so done words keep resurfacing; both picks are
+  uniform random. (Conjugation still draws struggle-weighted via `struggle.ts`;
+  vocabulary answers still record `drillStats`.)
 - **Conjugation** — two tabs. **Learn**: a **needs-work list** (see below), then nine tense
   guides (`/conjugation/guide/:tense`) and a searchable list of all 100 drilled verbs, each
   opening its complete conjugation (`/conjugation/verb/:infinitive`). **Practice**: the tense

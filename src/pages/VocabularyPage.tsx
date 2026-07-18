@@ -9,9 +9,7 @@ import { canSpeak, speakFrench } from '../lib/speech';
 import {
   DRILL_KINDS,
   LEARNT_STREAKS,
-  PASSES_PER_MODE,
   TOTAL_DOTS,
-  missKey,
   streakKey,
   streakOf,
   type DrillKind,
@@ -143,7 +141,6 @@ function LearnTab() {
     };
     for (const k of DRILL_KINDS) {
       patch[streakKey(k)] = w.learned ? 0 : LEARNT_STREAKS[k];
-      patch[missKey(k)] = 0;
     }
     db.savedWords.update(w.id, patch);
   }
@@ -178,8 +175,9 @@ function LearnTab() {
 
   function wordRow(w: SavedWord) {
     const editing = editingId === w.id;
-    // One dot per required correct day, grouped by mode (two per mode), each
-    // group in its mode's identity color (VOCAB_THEMES / .word-dot--*).
+    // One dot per required correct day, grouped by mode (3 for Word Match,
+    // 2 per other mode), each group in its mode's identity color
+    // (VOCAB_THEMES / .word-dot--*).
     const litOf = (k: DrillKind) => Math.min(streakOf(w, k), LEARNT_STREAKS[k]);
     return (
       <div key={w.id} className={`word-row${w.learned ? ' word-row--learned' : ''}`}>
@@ -362,8 +360,9 @@ function LearnTab() {
       ) : (
         <>
           <p className="shelf-lede">
-            Each word carries {TOTAL_DOTS} dots — {PASSES_PER_MODE} per practice mode, one per
-            day you get it right: <span className="shelf-lede__match">Word Match</span>,{' '}
+            Each word carries {TOTAL_DOTS} dots, one per day you get it right —{' '}
+            {LEARNT_STREAKS.match} for <span className="shelf-lede__match">Word Match</span>,{' '}
+            {LEARNT_STREAKS.blank} each for{' '}
             <span className="shelf-lede__blank">Fill in the Blank</span>,{' '}
             <span className="shelf-lede__listen">Listen &amp; Type</span> and{' '}
             <span className="shelf-lede__choose">Listen &amp; Choose</span>. Fill them all and
@@ -388,7 +387,7 @@ function LearnTab() {
           ) : (
             <p className="lex-group__empty">
               {shelf === 'learned'
-                ? `Words land here once you clear every practice mode on ${PASSES_PER_MODE} separate days each — or mark one learnt yourself.`
+                ? 'Words land here once you fill every mode’s dots, one correct day at a time — or mark one learnt yourself.'
                 : 'Nothing in rotation — save words while you read.'}
             </p>
           )}

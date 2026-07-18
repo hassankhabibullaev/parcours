@@ -1,9 +1,10 @@
 /**
- * Struggle-weighted item selection — the ONE algorithm shared by both the
- * vocabulary and conjugation drills (a task requirement: the two must behave the
- * same). Instead of drawing items uniformly at random, it favours the items the
- * learner gets wrong more often and hasn't seen in a while, so practice
- * concentrates on the material that needs it.
+ * Struggle-weighted item selection. Instead of drawing items uniformly at
+ * random, it favours the items the learner gets wrong more often and hasn't
+ * seen in a while, so practice concentrates on the material that needs it.
+ * The conjugation drill picks its verbs with it; the vocabulary draw is now
+ * the dot-based 80/20 rule in lib/practice.ts (drawFromPool), but vocabulary
+ * answers still feed the per-word stats through recordDrillResult.
  *
  * Each drilled item (a saved word, or a verb infinitive) keeps a small
  * `drillStats` row: an exponentially-weighted recent error rate and the time it
@@ -87,8 +88,7 @@ export async function recordDrillResult(
 
 /**
  * Draw `count` items (of one kind) from `items`, struggle-weighted. An optional
- * `boostOf` multiplies each item's struggle weight — the vocabulary draw uses it
- * to favour words far from graduating; conjugation passes none (unchanged).
+ * `boostOf` multiplies each item's struggle weight.
  */
 export async function drawWeighted<T>(
   kind: StatKind,

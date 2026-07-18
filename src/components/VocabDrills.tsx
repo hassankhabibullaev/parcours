@@ -4,8 +4,8 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../lib/db';
 import {
   DRILL_KINDS,
+  LEARNT_STREAKS,
   MIN_PRACTICE_WORDS,
-  PASSES_PER_MODE,
   type VocabShelf,
 } from '../lib/practice';
 import { VOCAB_MODE_NAMES, VOCAB_THEMES, type VocabMode } from '../lib/vocabThemes';
@@ -121,10 +121,11 @@ export default function VocabDrills() {
         );
       })}
       <p className="drill-note">
-        A word graduates once you get it right on {PASSES_PER_MODE} separate days in{' '}
-        <em>each</em> of the four modes — every day counts once, one slip is forgiven, two in a
-        row reset that mode's run. Learned words play by the same rules: two slips in a row
-        send one back to Still learning.
+        A word graduates once you get it right on {LEARNT_STREAKS.match} separate days in Word
+        Match and {LEARNT_STREAKS.blank} in <em>each</em> other mode — at most one dot per mode
+        per day, and a slip knocks a dot off (you can win it back the same day). Learned words
+        play by the same rules: a slip sends one back to Still learning until the dot is won
+        back.
       </p>
     </>
   );
