@@ -138,11 +138,26 @@ async function playThroughWebAudio(text: string, ctx: AudioContext): Promise<voi
       // 404s/errors and we fall back to the device voice below.
       const res = await fetch(`/api/tts?tl=fr-FR&q=${encodeURIComponent(text)}`);
       if (!res.ok) throw new Error(`tts ${res.status}`);
-      buffer = await ctx.decodeAudioData(await res.arrayBuffer());
+      const data = await res.arrayBuffer();
+      // Re-grab the context: sound.ts may have swapped in a fresh one while
+      // the clip downloaded (audio-session recovery after an interruption).
+      buffer = await (getAudioContext() ?? ctx).decodeAudioData(data);
+      // AudioBuffers are plain PCM, safe to reuse across rebuilt contexts.
       clipCache.set(text, buffer);
     }
-    // iOS parks the context « interrupted » on background; make sure it's live.
-    if (ctx.state !== 'running') await ctx.resume();
+    // Play through the CURRENT context, not the one captured before the async
+    // work — after an interruption the old reference renders only silence.
+    const live = getAudioContext() ?? ctx;
+    if (live.state !== 'running') {
+      // iOS parks the context « interrupted » on background; make sure it's
+      // live. On a dead session resume() can hang forever, so don't wait on
+      // it — if the context still isn't running, throw to the device voice
+      // rather than queueing a start() nobody will hear.
+      await Promise.race([live.resume(), new Promise((r) => setTimeout(r, 700))]);
+      // Re-read (widened): resume() mutates state behind TS's narrowing.
+      if ((live.state as AudioContextState) !== 'running')
+        throw new Error('audio session unavailable');
+    }
     // Cut off any clip still playing (rapid re-taps). Guarded: stopping an
     // already-finished source must not fall through to the synthesis fallback.
     try {
@@ -150,16 +165,16 @@ async function playThroughWebAudio(text: string, ctx: AudioContext): Promise<voi
     } catch {
       /* already stopped */
     }
-    const src = ctx.createBufferSource();
+    const src = live.createBufferSource();
     src.buffer = buffer;
-    src.connect(ctx.destination);
+    src.connect(live.destination);
     src.onended = () => {
       if (current === src) current = null;
     };
     current = src;
     src.start();
   } catch {
-    // Proxy unreachable / decode failed — fall back to the device voice.
+    // Proxy unreachable / decode failed / dead session — device voice instead.
     speakWithSynthesis(text);
   }
 }

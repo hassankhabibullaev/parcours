@@ -4,46 +4,19 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { getArticle } from '../data/content';
 import { db } from '../lib/db';
 import { upsertArticleProgress } from '../lib/articleProgress';
-import {
-  buildParagraphs,
-  lemmatizeTokens,
-  isLexiconReady,
-  onLexiconReady,
-  type Token,
-} from '../lib/lemmatize';
-import { findExpressions } from '../lib/expressions';
+import { buildParagraphs } from '../lib/lemmatize';
 import { keyClick, confirmTock } from '../lib/sound';
 import { useAutoSpeak } from '../lib/useAutoSpeak';
 import { titleSpeechEnabled } from '../lib/settings';
 import { useAuth } from '../components/AuthProvider';
 import { useAuthGate } from '../components/AuthGate';
+import ReaderBody from '../components/ReaderBody';
 import WordModal, { type LookupRequest } from '../components/WordModal';
 
 function currentScrollPosition(): number {
   const el = document.documentElement;
   const max = el.scrollHeight - el.clientHeight;
   return max > 0 ? Math.min(1, Math.max(0, el.scrollTop / max)) : 0;
-}
-
-/**
- * Word buttons are atomic inline boxes, so the browser happily wraps a line
- * between a word and its punctuation (« lui | . ») or inside an elided pair
- * (« l' | étoile »). Glue every run of tokens with no space between them into
- * one group; the group renders inside a `white-space: nowrap` span.
- */
-function groupTokens(tokens: Token[]): Token[][] {
-  const parts: Token[] = [];
-  for (const t of tokens) {
-    if (t.word) parts.push(t);
-    else for (const text of t.text.split(/(\s+)/)) if (text) parts.push({ text, word: null });
-  }
-  const groups: Token[][] = [];
-  for (const t of parts) {
-    const prev = groups[groups.length - 1];
-    if (prev && !/\s/.test(prev[prev.length - 1].text) && !/\s/.test(t.text)) prev.push(t);
-    else groups.push([t]);
-  }
-  return groups;
 }
 
 export default function ArticlePage() {
@@ -58,22 +31,12 @@ export default function ArticlePage() {
     [article],
   );
 
-  const savedLemmas = useLiveQuery(
-    async () => new Set((await db.savedWords.toArray()).map((w) => w.lemma)),
-    [],
-  );
-
   const progress = useLiveQuery(
     () => (article ? db.articleProgress.get(article.id) : undefined),
     [article?.id],
   );
 
   const [lookup, setLookup] = useState<LookupRequest | null>(null);
-
-  // Re-render once the full lexicon loads so highlighting and tap-lemmas pick
-  // up its better base forms (tokens themselves don't change).
-  const [, setLexReady] = useState(isLexiconReady());
-  useEffect(() => onLexiconReady(() => setLexReady(true)), []);
 
   // Typewriter reveal of the headline — the conjugation drill's verb animation,
   // key clicks included. A hidden ghost of the full title reserves the final
@@ -195,78 +158,12 @@ export default function ArticlePage() {
         {isRead && <span className="read-stamp"> · Read ✓</span>}
       </p>
 
-      <div className="article-body">
-        {paragraphs.map((sentences, pi) => (
-          <p key={pi}>
-            {sentences.map((sentence, si) => {
-              // Context-aware lemmas for this sentence: a determiner before a
-              // verb/noun homograph reads it as a noun (« le livre » → livre).
-              const lemmas = lemmatizeTokens(sentence.tokens);
-              // Fixed expressions (« grâce à », « se trouve ») — tapping any
-              // word inside one looks up the whole phrase in context.
-              const expressions = findExpressions(sentence.tokens, lemmas);
-              return (
-              <span key={si}>
-                {groupTokens(sentence.tokens).map((group, gi) => (
-                  <span key={gi} className={group.length > 1 ? 'nobreak' : undefined}>
-                    {group.map((token, ti) => {
-                      if (!token.word) return <span key={ti}>{token.text}</span>;
-                      const lemma = lemmas.get(token) ?? token.word;
-                      const expr = expressions.get(token);
-                      const savedClass = savedLemmas?.has(expr ? expr.term : lemma)
-                        ? ' w--saved'
-                        : '';
-                      const openLookup = () =>
-                        setLookup(
-                          expr
-                            ? {
-                                display: expr.text,
-                                term: expr.term,
-                                gloss: expr.gloss || undefined,
-                                sentence: sentence.text,
-                                articleId: article.id,
-                              }
-                            : {
-                                display: token.word!,
-                                term: lemma,
-                                sentence: sentence.text,
-                                articleId: article.id,
-                              },
-                        );
-                      if (pi === 0 && si === 0 && gi === 0 && ti === 0) {
-                        // Newspaper drop cap on the article's opening letter; an
-                        // elision opener (« L'or ») keeps its apostrophe in the cap.
-                        const cap = /['’]/.test(token.text[1] ?? '')
-                          ? token.text.slice(0, 2)
-                          : token.text.slice(0, 1);
-                        const rest = token.text.slice(cap.length);
-                        return (
-                          <span key={ti}>
-                            <button className="w dropcap" onClick={openLookup}>
-                              {cap}
-                            </button>
-                            {rest && (
-                              <button className={`w${savedClass}`} onClick={openLookup}>
-                                {rest}
-                              </button>
-                            )}
-                          </span>
-                        );
-                      }
-                      return (
-                        <button key={ti} className={`w${savedClass}`} onClick={openLookup}>
-                          {token.text}
-                        </button>
-                      );
-                    })}
-                  </span>
-                ))}{' '}
-              </span>
-              );
-            })}
-          </p>
-        ))}
-      </div>
+      <ReaderBody
+        paragraphs={paragraphs}
+        articleId={article.id}
+        onLookup={setLookup}
+        dropCap
+      />
 
       <div className="article-end">
         <button

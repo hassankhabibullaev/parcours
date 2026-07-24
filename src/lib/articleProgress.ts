@@ -1,11 +1,12 @@
 import { db } from './db';
 
 /**
- * Single write path for article progress, shared by the article view and the
- * library's inline read toggle. Any touch counts as "opened" for recency.
+ * Single write path for article progress, shared by the article view, the
+ * library's inline read toggle and the book chapter view (book chapters use
+ * string keys — see lib/books.ts). Any touch counts as "opened" for recency.
  */
 export async function upsertArticleProgress(
-  articleId: number,
+  articleId: number | string,
   patch: Partial<{ read: 0 | 1; position: number }>,
 ): Promise<void> {
   const now = Date.now();
@@ -20,6 +21,6 @@ export async function upsertArticleProgress(
 }
 
 /** Toggle helper for the library cards (matches the article view's action). */
-export async function setArticleRead(articleId: number, read: boolean): Promise<void> {
+export async function setArticleRead(articleId: number | string, read: boolean): Promise<void> {
   await upsertArticleProgress(articleId, { read: read ? 1 : 0 });
 }

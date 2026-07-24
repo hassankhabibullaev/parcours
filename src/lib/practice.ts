@@ -183,13 +183,15 @@ export function dayStamp(ts: number = Date.now()): string {
  * Every mode keeps its own dots, one per correct *day*: a correct answer
  * earns today's dot for that mode unless it's already been earned — NEVER
  * more than one dot per mode per day, so a word can't race to learnt in one
- * sitting (Word Match alone takes three separate days). A mistake knocks one
- * dot off that mode and frees today's dot to be earned back by a later
- * correct answer the same day — every extra earn first requires a loss, so
- * the net gain per day still can't exceed one dot. A word is learnt only
- * while EVERY mode holds its full dot count (see hasGraduated); a mistake
- * that drops a mode below that sends a learnt word back to the learning
- * shelf (it can graduate again the same day by winning the dot back).
+ * sitting (Word Match alone takes three separate days). A mistake can only
+ * cost TODAY's dot: if this mode earned one today it is knocked off and can
+ * be earned back by a later correct answer the same day — every extra earn
+ * first requires a loss, so the net gain per day still can't exceed one dot.
+ * Dots banked on previous days are never lost. A word is learnt only while
+ * EVERY mode holds its full dot count (see hasGraduated); a mistake that
+ * takes back a mode's just-earned graduating dot sends a learnt word back to
+ * the learning shelf (it can graduate again the same day by winning the dot
+ * back).
  */
 export async function recordWordResult(
   word: SavedWord,
@@ -216,13 +218,16 @@ export async function recordWordResult(
       // Graduate only when EVERY mode is cleared, never on some alone.
       if (hasGraduated(streaks)) patch.learned = 1;
     }
-  } else {
-    // A mistake removes one dot from this mode…
+  } else if (word[dKey] === today) {
+    // A mistake can only ever cost TODAY's dot. If this mode earned one
+    // today, knock it off and clear the day gate so it can be won back by a
+    // later correct answer the same day. Dots banked on previous days are
+    // never touched — with today's dot unearned there is nothing to lose,
+    // and the day gate is already open for a later correct answer.
     if (streaks[kind] > 0) {
       streaks[kind] -= 1;
       patch[sKey] = streaks[kind];
     }
-    // …and clears the day gate, so the lost dot stays earnable today.
     patch[dKey] = '';
     // Dropping any mode below its threshold un-learns the word.
     if (!hasGraduated(streaks)) patch.learned = 0;

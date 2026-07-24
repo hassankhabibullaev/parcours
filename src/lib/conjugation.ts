@@ -2,7 +2,7 @@ import { TENSES, verbList, verbMeanings, verbs, type TenseKey } from '../data/co
 import { shuffle } from './practice';
 import { drawWeighted } from './struggle';
 
-export const SESSION_SIZE = 10;
+export const SESSION_SIZE = 5;
 export const PROMPTS_PER_EXERCISE = 3;
 
 type Person = 1 | 2 | 3;
@@ -93,8 +93,8 @@ function pickPronouns(usage: Map<string, number>): PronounDef[] {
 /**
  * Deal three distinct tenses from a running deck. The deck is a shuffled
  * permutation of all nine tenses, refilled when it runs out, so tenses spread
- * as evenly as the arithmetic allows across a session (30 slots / 9 tenses ≈
- * every tense 3–4 times) and never repeat within an exercise.
+ * as evenly as the arithmetic allows across a session (15 slots / 9 tenses ≈
+ * every tense 1–2 times) and never repeat within an exercise.
  */
 function drawTenses(deck: TenseKey[], count: number): { picked: TenseKey[]; deck: TenseKey[] } {
   const rest = [...deck];

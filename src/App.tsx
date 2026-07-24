@@ -4,6 +4,8 @@ import SignInPage from './pages/SignInPage';
 import HomePage from './pages/HomePage';
 import ReadingPage from './pages/ReadingPage';
 import ArticlePage from './pages/ArticlePage';
+import BookPage from './pages/BookPage';
+import BookChapterPage from './pages/BookChapterPage';
 import VocabularyPage from './pages/VocabularyPage';
 import MatchSessionPage from './pages/MatchSessionPage';
 import BlankSessionPage from './pages/BlankSessionPage';
@@ -26,6 +28,10 @@ export default function App() {
       <Route element={<Layout />}>
         <Route index element={<HomePage />} />
         <Route path="reading" element={<ReadingPage />} />
+        {/* Books before the article catch-all: /reading/book/… is a book's
+            contents page or one chapter (1-based), /reading/:id an article. */}
+        <Route path="reading/book/:bookId" element={<BookPage />} />
+        <Route path="reading/book/:bookId/:chapter" element={<BookChapterPage />} />
         <Route path="reading/:id" element={<ArticlePage />} />
         <Route path="vocabulary" element={<VocabularyPage />} />
         {/* The four vocab modes, each mirrored on both shelves (:shelf is

@@ -31,8 +31,10 @@ export interface SavedWord {
    * a word graduates only once EVERY mode reaches its threshold (3 match /
    * 2 others — see LEARNT_STREAKS / hasGraduated in lib/practice.ts). A mode
    * earns at most one dot per calendar day (the *StreakDay fields hold the
-   * day the dot was earned, a local YYYY-MM-DD); a mistake removes one dot
-   * and clears the day so the dot can be won back the same day. The *MissRun
+   * day the dot was earned, a local YYYY-MM-DD); a mistake removes TODAY's
+   * dot only — if it wasn't earned yet nothing is lost, dots from previous
+   * days are never taken back — and clears the day so the dot can be won
+   * back the same day. The *MissRun
    * counters belonged to the retired two-misses-reset rule; no longer
    * written, kept so old synced records still parse.
    * None are indexed; absent on old records (read as 0 / no day yet).
@@ -54,9 +56,15 @@ export interface SavedWord {
 }
 
 export interface ArticleProgress {
-  articleId: number;
+  /**
+   * A corpus article id (number), or a book-chapter key
+   * (`book:<bookId>:<chapterIndex>` — see lib/books.ts chapterKey). Book
+   * chapters reuse this table so their read flags and positions ride the
+   * existing sync unchanged (the server merges by stringified key).
+   */
+  articleId: number | string;
   read: 0 | 1;
-  /** Scroll position within the article, 0..1. */
+  /** Scroll position within the article/chapter, 0..1. */
   position: number;
   lastOpenedAt: number;
   updatedAt: number;

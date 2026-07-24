@@ -714,6 +714,81 @@ a {
   width: 100%;
 }
 
+/* Chapter view: « Next chapter » above « Mark as unread ». */
+.article-end .btn + .btn {
+  margin-top: 8px;
+}
+
+/* ——— Books (Reading → Books) ——— */
+
+/* The Not read / Read chip row sits right above the level chips. */
+.level-counts--reads {
+  margin-bottom: 8px;
+}
+
+.book-continue {
+  display: block;
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+/* Contents page: one hairline-separated row per chapter. */
+.chapter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 2px;
+  border-bottom: 1px solid var(--rule);
+  text-decoration: none;
+  color: inherit;
+}
+
+.chapter-row__main {
+  min-width: 0;
+}
+
+.chapter-row__label {
+  display: block;
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.chapter-row__title {
+  margin-top: 1px;
+  color: var(--ink-soft);
+  font-size: 13px;
+  font-style: italic;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.chapter-row__side {
+  flex: 0 0 auto;
+  color: var(--ink-soft);
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.chapter-row__side svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+  color: var(--level-a1);
+}
+
+.chapter-row--read .chapter-row__label {
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
 /* ——— Word details modal ——— */
 
 .modal-backdrop {

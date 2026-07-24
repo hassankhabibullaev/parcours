@@ -83,7 +83,10 @@ let unlockBufferPlayed = false;
 function unlock(): void {
   // Unconditional (not gated by `enabled`): pronunciation plays through this
   // same context even when sound effects are muted, so the gesture must open
-  // the audio session either way.
+  // the audio session either way. The tap is also a revival opportunity: if
+  // the context is a post-interruption zombie, schedule the health check that
+  // rebuilds it (resume alone can't — see reviveAudioContext).
+  reviveAudioContext();
   const c = getAudioContext();
   if (!c || unlockBufferPlayed) return;
   try {
@@ -101,19 +104,57 @@ for (const type of ['pointerdown', 'touchend', 'click'] as const) {
   window.addEventListener(type, unlock, { capture: true, passive: true });
 }
 
-// Reactivate the session whenever the app comes back to the foreground. iOS
-// leaves the context « interrupted » after a background/lock and (unlike SFX,
-// which resume on the next tap) an auto-played pronunciation has no gesture to
-// ride, so a full app restart used to be the only recovery. visibilitychange
-// covers backgrounding; focus/pageshow cover tab switches and bfcache restores.
-function resumeContext(): void {
-  if (ctx && ctx.state !== 'running') void ctx.resume();
+/*
+ * Reactivate the session whenever the app comes back to the foreground. iOS
+ * leaves the context « interrupted » after a background/lock; a plain resume()
+ * recovers that case. But when ANOTHER app takes the audio session (music, a
+ * video, a call), WebKit often leaves the context beyond resuscitation:
+ * resume() resolves (or never settles) while the state stays « interrupted » —
+ * or the state reports « running » with a frozen clock and renders silence.
+ * The only way out of that zombie state is to close the context and build a
+ * fresh one, which re-acquires the OS audio session; before this, the only
+ * recovery was force-quitting the app. So: try resume(), then shortly after
+ * check the context is genuinely alive (running AND its clock advancing), and
+ * rebuild it if not. visibilitychange covers backgrounding; focus/pageshow
+ * cover tab switches and bfcache restores; taps re-check via unlock().
+ */
+let reviveTimer: number | null = null;
+
+function reviveAudioContext(): void {
+  const c = ctx;
+  if (!c || c.state === 'closed') return; // getAudioContext() rebuilds lazily
+  if (c.state !== 'running') c.resume().catch(() => {});
+  if (reviveTimer !== null) return; // one pending health check at a time
+  const t0 = c.currentTime;
+  reviveTimer = window.setTimeout(() => {
+    reviveTimer = null;
+    if (ctx !== c || document.hidden) return;
+    // Healthy = running with an advancing clock. A context that has run
+    // before (clock > 0) but can't get back there is the zombie. A context
+    // that never ran (clock still 0) is just awaiting its first gesture
+    // unlock — leave it to the tap listeners.
+    const stuck = c.state !== 'running' || c.currentTime === t0;
+    if (stuck && t0 > 0) {
+      try {
+        void c.close();
+      } catch {
+        /* already closing */
+      }
+      ctx = null;
+      out = null;
+      unlockBufferPlayed = false;
+      // Recreate right away so queued pronunciations attach to the live
+      // context; the persistent gesture listeners (re)unlock it as needed.
+      getAudioContext();
+    }
+  }, 700);
 }
+
 document.addEventListener('visibilitychange', () => {
-  if (!document.hidden) resumeContext();
+  if (!document.hidden) reviveAudioContext();
 });
-window.addEventListener('focus', resumeContext);
-window.addEventListener('pageshow', resumeContext);
+window.addEventListener('focus', reviveAudioContext);
+window.addEventListener('pageshow', reviveAudioContext);
 
 const midi = (n: number): number => 440 * 2 ** ((n - 69) / 12);
 

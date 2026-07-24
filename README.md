@@ -1,10 +1,11 @@
 # Parcours
 
 **Parcours** is a French-learning PWA styled as a newspaper editor's desk. Four sections —
-**Reading**, **Vocabulary**, **Conjugation** and **Profile** — share one local-first store of
-the learner's progress (IndexedDB via Dexie). It is a single-page React app, installable to
-the home screen, and works offline (only dictionary lookups and pronunciation need the
-network).
+**Reading** (200 graded articles + a six-novel Books shelf), **Vocabulary**, **Conjugation**
+and **Profile** — share one local-first store of the learner's progress (IndexedDB via
+Dexie). It is a single-page React app, installable to the home screen, and works offline
+(dictionary lookups and pronunciation need the network; each book downloads once on first
+open, then reads offline).
 
 This README is the onboarding map for someone (or some model) picking up the code cold:
 what the app does, how it's organized, and which file to open next. Read a module's source
@@ -76,6 +77,7 @@ service worker are only emitted by `npm run build`.
 articles_corpus.json         source data: 200 articles, 50 per level A1–B2 (root, never modified)
 conjugation_verbs.json       source data: 100 verbs × 9 tenses (root, never modified)
 scripts/build-lemmas.py      regenerates the lemma tables from the Lefff lexicon
+scripts/build-books.py       regenerates the Books content from Project Gutenberg .txt sources
 index.html · vite.config.ts  meta/PWA tags · PWA manifest, dev API mirrors, port
 wrangler.toml                Cloudflare Pages config + KV binding
 functions/api/account.ts     email + OTP sign-in over KV (hashed codes, rate limits, Resend)
@@ -83,6 +85,7 @@ functions/api/kudos.ts       signed-in kudos → email relay to the developer (R
 functions/api/sync/[code].ts server-side sync merge (last-write-wins) over KV
 functions/api/tts.ts          same-origin pronunciation proxy for Google TTS
 public/icons/                app icons ("P" seal); public/lemmas-fr.txt (GENERATED, lazy-loaded)
+public/books/                GENERATED book chapter texts, one JSON per book (lazy-loaded)
 src/
   main.tsx · App.tsx         bootstrap (router, SW reg, providers, migrations) · routes
   styles/global.css          the entire design system
@@ -90,8 +93,9 @@ src/
   data/tenseGuide.ts         the Learn tab's grammar reference content (9 tense guides)
   data/expressions.ts        curated fixed expressions + glosses for phrase-aware taps
   data/lemmas.json           GENERATED bundled lemma core — do not hand-edit
+  data/bookCatalog.json      GENERATED book + chapter metadata (bundled) — do not hand-edit
   lib/                       the logic layer (see table)
-  components/                Layout, AuthProvider, AuthGate, SectionTabs, icons, modals, drill chrome
+  components/                Layout, AuthProvider, AuthGate, SectionTabs, ReaderBody, icons, modals
   pages/                     one file per route
 ```
 
@@ -104,7 +108,8 @@ src/
 | Guest gating (`requireAuth`, auth-required modal, `GuestNotice`) | `components/AuthGate.tsx` |
 | User prefs: CEFR level (synced kv) + audio toggles (localStorage) | `settings.ts` |
 | One-shot local data passes (gloss template, streak split) | `migrate.ts` |
-| Article read/position write path | `articleProgress.ts` |
+| Article/chapter read + position write path | `articleProgress.ts` |
+| Books catalog, chapter-text loading (fetch once → Cache Storage), chapter progress keys | `books.ts` |
 | Account sync client | `sync.ts` |
 | Struggle-weighted draw (words + verbs, one algorithm) | `struggle.ts` |
 | Lemma lookup, tokenizer, paragraph/sentence splitting | `lemmatize.ts` |
@@ -127,13 +132,17 @@ came from on success (and if an already-signed-in user lands there).
 
 Every section opens with its name as a page heading; the non-Home sections then follow one
 layout template: **section name header → two tabs → content** (`components/SectionTabs.tsx`).
-Reading shows a small "N articles" line for whatever the tab + level filter currently
-displays (the tabs and filter chips themselves carry no counts).
+Reading's tabs are **Articles | Books**; inside each, a **Not read / Read chip row** (the
+former tab pair, now an inner filter styled like the CEFR chips) narrows the list, and a
+small "N articles / N books" line shows the current count (chips carry no counts).
 
 | Path | Page |
 |---|---|
 | `/` | HomePage (read-next suggestion + vocab shortcut + practice quick-launch) |
-| `/reading` · `/reading/:id` | article library (Not read/Read tabs + level filter) · article view |
+| `/reading` | Articles / Books tabs (each w/ Not read/Read chips; Articles adds the level filter) |
+| `/reading/:id` | article view |
+| `/reading/book/:bookId` | book contents — chapter list, read stamps, « Continue » |
+| `/reading/book/:bookId/:chapter` | one book chapter (1-based), read like an article |
 | `/vocabulary` | Learn (word lookup + lexicon w/ Learning·Learned pills) / Practice (4 modes × 2 shelves) tabs |
 | `/vocabulary/:mode/:shelf` | one vocab drill — `:mode` ∈ match·blank·listen·choose, `:shelf` ∈ learning·learned |
 | `/conjugation` | Learn (needs-work list + tense rules + verb reference) / Practice (tense picker) tabs |
@@ -156,7 +165,7 @@ booleans).
 | Table | Holds |
 |---|---|
 | `savedWords` | the lexicon; keyed by `lemma`; per-mode streaks drive learnt/learning |
-| `articleProgress` | per-article read flag + scroll position |
+| `articleProgress` | per-article **and per-book-chapter** read flag + scroll position — chapters use string keys `book:<bookId>:<n>` (lib/books.ts `chapterKey`), so book progress rides the same sync with no schema/server change |
 | `practiceResults` | one row per finished drill round |
 | `kv` | small key/value store (sync code, last-sync time, `userLevel`, `conjStruggles`, migration flags) |
 | `lookupCache` | dictionary cache — never synced |
@@ -198,14 +207,39 @@ translations and splitting the legacy single `streak` into the per-exercise coun
   Two invariants: tombstones must round-trip with their `key` field, and `syncNow()` never
   rejects (`{ ok:false, error }`) so the UI can't stick. `Layout` auto-syncs on
   load/refocus (no-op until a first sync sets `lastSyncAt`).
-- **Reading** — `ReadingPage` (Not read/Read tabs + a per-CEFR-level filter chip row; the
-  default chip follows the Profile → Settings level) and `ArticlePage` (tappable word
-  tokens, **one tap**, no drag selection; tap → `WordModal` lookup/save; drop cap,
-  saved-lemma highlighting, scroll-progress, typewriter headline, optional read-aloud
-  headline). A tap inside a **recognised fixed expression picks up the whole phrase**
+- **Reading** — `ReadingPage` with two top-level tabs. **Articles**: the corpus library —
+  a Not read/Read chip row, then the per-CEFR-level chip row (the default level chip
+  follows Profile → Settings), then the cards. **Books**: the six-novel shelf (its own
+  Not read/Read chips; a book counts as read once EVERY chapter is) → each book opens a
+  contents page (`BookPage`: chapter rows w/ read stamps + a « Continue » button to the
+  first unread chapter) → `BookChapterPage` reads one chapter. Both readers render
+  through the shared **`components/ReaderBody.tsx`**: tappable word tokens, **one tap**,
+  no drag selection; tap → `WordModal` lookup/save; drop cap; typewriter heading;
+  **only words still in Learning are highlighted** — learned words render as plain text
+  again. A tap inside a **recognised fixed expression picks up the whole phrase**
   (« grâce à » → "thanks to", « a besoin d'eau » → avoir besoin de, « s'est passé » →
   se passer) — see the Expressions module below. Progress writes go through
-  `articleProgress.ts` and are skipped for guests.
+  `articleProgress.ts` and are skipped for guests; « Mark as read » on a chapter flows
+  straight into the next one. Profile's "Articles read" stat counts corpus articles
+  only (numeric ids), never book chapters.
+- **Books content** (`lib/books.ts` + `scripts/build-books.py`) — six public-domain
+  novels: B1 « Le Tour du monde en quatre-vingts jours » (Verne), « Arsène Lupin,
+  gentleman-cambrioleur » (Leblanc), « Colomba » (Mérimée); B2 « Le Fantôme de
+  l'Opéra » (Leroux), « Une vie » (Maupassant), « Vingt mille lieues sous les mers »
+  (Verne). One shared pipeline parses every Gutenberg .txt (cached in
+  scripts/.cache/books/): strip the boilerplate, split on the book's own heading style
+  (bare/centred roman numerals, « -- I -- », separator + caps story titles), harvest
+  mixed-case chapter titles from each book's own TOC, clean the text (unwrap hard line
+  breaks into real paragraphs, drop illustration tags / footnote markers / decorative
+  rules, « -- » dialogue dashes → em dashes), and split chapters over ~2,600 words into
+  balanced parts at paragraph boundaries (`part: [k, n]`, shown as « Chapitre X · k/n »).
+  The bundled `bookCatalog.json` (≈33 KB) renders the shelf/contents instantly; the
+  chapter TEXTS (`public/books/<id>.json`, ≈3 MB total) are deliberately NOT precached by
+  the service worker — `loadBook()` fetches a whole book on first open and keeps it in
+  Cache Storage (`parcours-books-v1`), so it reads offline afterwards. **Gotcha: bump
+  BOOKS_CACHE when regenerating the books** (same rule as LEXICON_CACHE). NOTE: the
+  launch brief listed Gutenberg id 61230 for Colomba, but that id is an unrelated English
+  text — the French Colomba is **#16239** (encoded in build-books.py).
 - **Vocabulary** — two tabs. **Learn**: the word lookup (offline lemma search; each result
   shows its short translation inline and opens the article-style `WordModal` with an
   add action) and the lexicon (Learning/Learned pill filters — no "All" shelf; tapping a
@@ -237,11 +271,13 @@ translations and splitting the legacy single `streak` into the per-exercise coun
   all; `hasGraduated`), never on some alone, so a word stays in learning at least 3 days.
   A mode earns **at most one dot per calendar day** (the `*StreakDay` fields gate it) —
   distinct days the word was answered right, not repeat answers within one day. **A
-  mistake removes one dot** from that mode and clears its day gate, so the dot can be
-  **won back the same day** (each extra earn first requires a loss, so the net gain per
-  day never exceeds one) — learnt-shelf reviews use the same rules, so a learned word
-  that slips drops to Still learning until it wins the dot back. Manual
-  mark-learnt/unlearnt aligns all four counters. **Session draws are per-mode and
+  mistake can only ever cost TODAY's dot**: if the mode earned its dot today the dot is
+  removed and the day gate cleared, so it can be **won back the same day** (each extra
+  earn first requires a loss, so the net gain per day never exceeds one); if today's dot
+  was never earned, **nothing is lost — dots banked on previous days are never taken
+  back**. Learnt-shelf reviews use the same rules, so a learned word slips back to Still
+  learning only when the mistake takes back a graduating dot it earned that same day.
+  Manual mark-learnt/unlearnt aligns all four counters. **Session draws are per-mode and
   dot-aware** (`drawFromPool`): 80% of a session comes from words that haven't earned
   today's dot in that mode (never practised today, or practised but the dot was knocked
   off), 20% at random from the whole pool so done words keep resurfacing; both picks are
@@ -250,8 +286,8 @@ translations and splitting the legacy single `streak` into the per-exercise coun
 - **Conjugation** — two tabs. **Learn**: a **needs-work list** (see below), then nine tense
   guides (`/conjugation/guide/:tense`) and a searchable list of all 100 drilled verbs, each
   opening its complete conjugation (`/conjugation/verb/:infinitive`). **Practice**: the tense
-  picker → typing drill (10 exercises × 3 prompts, struggle-weighted verb draw,
-  accent-tolerant grading, auto-advance on all-correct). A **wrong answer's correction is
+  picker → typing drill (5 exercises × 3 prompts — `SESSION_SIZE` in lib/conjugation.ts —
+  struggle-weighted verb draw, accent-tolerant grading, auto-advance on all-correct). A **wrong answer's correction is
   blurred** and only un-blurs on tap (`conj-field__tag--blur` → « Reveal »), so the learner
   gets a beat to recall it from memory rather than being handed the answer; an accent slip
   (graded correct) still shows its corrected form outright in green.
@@ -327,14 +363,23 @@ translations and splitting the legacy single `streak` into the per-exercise coun
 - **Pronunciation** (`speech.ts` + `functions/api/tts.ts`) — plays Google Translate's French
   voice through our own same-origin proxy, decoded and played via the shared Web Audio
   `AudioContext` (**not** an `<audio>` element — avoids the iOS Now-Playing/Dynamic-Island
-  hijack and survives backgrounding). Offline/dev falls back to `speechSynthesis`.
+  hijack and survives backgrounding). **Audio-session recovery** (sound.ts
+  `reviveAudioContext`): when another app takes the audio session, WebKit can leave the
+  context in a zombie state — `resume()` resolves (or hangs) while it stays
+  « interrupted », or it claims « running » with a frozen clock and renders silence.
+  On every foreground event and tap the context is health-checked (running AND clock
+  advancing, ~700 ms after a resume attempt) and **closed + rebuilt** when stuck, which
+  re-acquires the OS session — no more restart-to-fix. speech.ts re-grabs the live
+  context after its async fetch/decode gaps and races `resume()` against a timeout,
+  falling back to `speechSynthesis` instead of playing into a dead session. Offline/dev falls back to `speechSynthesis`.
 
 ## Conventions (don't re-litigate silently)
 
 1. Root JSON data files are the user's originals — never modify them.
 2. No topic filters/tags — out of scope. Corpus is A1–B2 only (no C1/C2).
 3. The dictionary (word lookups) is online; the lemmatizer fetches its lexicon once, then
-   works offline from Cache Storage.
+   works offline from Cache Storage — book texts follow the same fetch-once model
+   (per book, on first open; bump `BOOKS_CACHE` when regenerating them).
 4. Vocabulary is exactly four practice modes (match · blank · listen · choose), each
    mirrored on both shelves under Vocabulary → Practice; the lexicon is displayed by
    lemma; the only manual-add path is the word lookup on the Learn tab.

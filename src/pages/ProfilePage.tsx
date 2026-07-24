@@ -55,7 +55,9 @@ function ProfileTab() {
 
   const [loggingOut, setLoggingOut] = useState(false);
 
-  const read = progress.filter((p) => p.read === 1).length;
+  // Numeric ids are corpus articles; string ids are book chapters
+  // (`book:…` — see lib/books.ts) and stay out of the articles stat.
+  const read = progress.filter((p) => p.read === 1 && typeof p.articleId === 'number').length;
   const learnt = words.filter((w) => w.learned === 1).length;
 
   const stats: { label: string; value: string | number }[] = [

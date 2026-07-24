@@ -40,7 +40,7 @@ export default function ConjugationPicker() {
         <span className="tense-card__kicker">Start here · the real test</span>
         <span className="tense-card__name">Mixed drill</span>
         <span className="tense-card__hint">
-          10 verbs · all nine tenses shuffled through one session
+          5 verbs · all nine tenses shuffled through one session
         </span>
       </Link>
 

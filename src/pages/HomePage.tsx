@@ -29,6 +29,7 @@ export default function HomePage() {
   const level = useUserLevel();
 
   const learnt = words.filter((w) => w.learned === 1).length;
+  const learning = words.length - learnt;
   const readIds = new Set(progress.filter((p) => p.read === 1).map((p) => p.articleId));
 
   // The suggestion draws from the learner's level when one is set (exact-level
@@ -83,10 +84,10 @@ export default function HomePage() {
         <LexiconIcon className="home-vocab__icon" />
         <span className="home-vocab__text">
           <span className="home-vocab__count">
-            {words.length} {words.length === 1 ? 'word' : 'words'} saved
+            {learning} {learning === 1 ? 'word' : 'words'} learning
           </span>
           <span className="home-vocab__sub">
-            {learnt} learnt · tap to review your collection
+            {learnt} learned · tap to review your collection
           </span>
         </span>
         <span className="home-vocab__chev" aria-hidden>
